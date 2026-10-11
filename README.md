@@ -12,7 +12,6 @@ La chambre de culture vise à agir sur plusieurs paramètres importants pour le 
 - **La chaleur** : prévoir une source de chaleur si nécessaire, pilotée en fonction des conditions mesurées.
 - **L’humidité** : surveiller l’humidité de l’air et, selon la conception retenue, contribuer à la maintenir dans une plage appropriée.
 
-Ces paramètres sont liés : par exemple, l’éclairage et le chauffage peuvent modifier la température, tandis que l’arrosage et l’humidité influencent l’environnement immédiat des semis. Le projet a donc vocation à les considérer ensemble plutôt que comme des réglages isolés.
 
 ## Licence
 
