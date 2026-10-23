@@ -28,31 +28,48 @@ Le client MQTT est `esp-mqtt`, fourni avec le framework arduino-esp32 (testé av
 #include <Arduino.h>
 #include <ESPConnect.h>
 
-const char PAGE_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html><html><body>
-<p id="log"></p>
+// Page de démonstration servie sur /semis : échange de messages via le WebSocket /ws.
+const char SEMIS_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>SemiX</title></head><body>
+<h1>SemiX</h1><p id="state">Connexion…</p>
+<button onclick="ws.send('ping')">Envoyer ping</button><pre id="log"></pre>
 <script>
 const ws = new WebSocket('ws://' + location.host + '/ws');
-ws.onmessage = e => document.getElementById('log').textContent = e.data;
+ws.onopen = () => document.getElementById('state').textContent = 'Connecté';
+ws.onclose = () => document.getElementById('state').textContent = 'Déconnecté';
+ws.onmessage = e => document.getElementById('log').textContent += e.data + '\n';
 </script></body></html>)rawliteral";
 
 void setup() {
   Serial.begin(115200);
 
-  espConnect.addRoute("/page", HTTP_GET, PAGE_HTML);
-  espConnect.onWsMessage([](uint32_t client, const String &msg) {
-    espConnect.wsSend(client, "reçu : " + msg);
-  });
-  espConnect.onMqttMessage([](const String &topic, const String &payload) {
-    Serial.printf("%s -> %s\n", topic.c_str(), payload.c_str());
-  });
-  espConnect.subscribe("maison/+/cmd");
+  espConnect.addRoute("/semis", HTTP_GET, SEMIS_HTML);
 
-  espConnect.begin("semix", "SemiX-Setup");  // nom d'appareil, nom du point d'accès
+  espConnect.onWsMessage([](uint32_t clientId, const String &message) {
+    if (message == "ping") espConnect.wsSend(clientId, "pong");
+  });
+
+  espConnect.onMqttMessage([](const String &topic, const String &payload) {
+    Serial.printf("Message MQTT %s : %s\n", topic.c_str(), payload.c_str());
+  });
+  espConnect.subscribe("semix/cmd/#");
+
+  // Enable OTA updates with the password "gregory"
+  espConnect.enableOTA("gregory");
+
+  espConnect.begin("semix", "SemiX-Setup");
 }
 
 void loop() {
-  espConnect.loop();  // obligatoire, à chaque passage
+  espConnect.loop();
+
+  static uint32_t last = 0;
+  if (millis() - last >= 30000) {
+    last = millis();
+    espConnect.wsSend("uptime " + String(millis() / 1000) + " s");
+  }
 }
+
 ```
 
 ## Fonctionnement
