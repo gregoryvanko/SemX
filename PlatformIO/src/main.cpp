@@ -1,44 +1,36 @@
 #include <Arduino.h>
 #include <ESPConnect.h>
+#include "config.h"
 
-// Page de démonstration servie sur /semis : échange de messages via le WebSocket /ws.
-const char SEMIS_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>SemiX</title></head><body>
-<h1>SemiX</h1><p id="state">Connexion…</p>
-<button onclick="ws.send('ping')">Envoyer ping</button><pre id="log"></pre>
-<script>
-const ws = new WebSocket('ws://' + location.host + '/ws');
-ws.onopen = () => document.getElementById('state').textContent = 'Connecté';
-ws.onclose = () => document.getElementById('state').textContent = 'Déconnecté';
-ws.onmessage = e => document.getElementById('log').textContent += e.data + '\n';
-</script></body></html>)rawliteral";
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(CONFIG_BAUDRATE);
 
-  espConnect.addRoute("/semis", HTTP_GET, SEMIS_HTML);
-
+  // Setup onReceive callback for WebSocket messages
   espConnect.onWsMessage([](uint32_t clientId, const String &message) {
     if (message == "ping") espConnect.wsSend(clientId, "pong");
   });
 
+  // Setup onMqttMessage callback for MQTT messages
   espConnect.onMqttMessage([](const String &topic, const String &payload) {
     Serial.printf("Message MQTT %s : %s\n", topic.c_str(), payload.c_str());
   });
-  espConnect.subscribe("semix/cmd/#");
+
+  // Subscribe to MQTT topic "semix/cmd/#" to receive commands
+  espConnect.subscribe(String(CONFIG_DEVICE_NAME) + "/cmd/#");
 
   // Enable OTA updates with the password "gregory"
   espConnect.enableOTA("gregory");
 
-  espConnect.begin("semix", "SemiX-Setup");
+  // Start ESPConnect with device name "semix" and AP name "SemiX-Setup"
+  espConnect.begin(CONFIG_DEVICE_NAME, "SemiX-Setup");
 }
 
 void loop() {
   espConnect.loop();
 
   static uint32_t last = 0;
-  if (millis() - last >= 30000) {
+  if (millis() - last >= CONFIG_MESURE_INTERVAL) {
     last = millis();
-    espConnect.wsSend("uptime " + String(millis() / 1000) + " s");
   }
 }
