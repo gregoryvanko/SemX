@@ -75,6 +75,12 @@ const char *mqttStateName(ESPConnect::MqttState s) {
 
 String shorten(const String &s, size_t max = 80) { return s.length() <= max ? s : s.substring(0, max) + "…"; }
 
+// Preferences::getString() journalise une erreur quand la clé n'existe pas encore :
+// on vérifie sa présence avant de la lire.
+String readString(Preferences &p, const char *key, const String &fallback = String()) {
+  return p.isKey(key) ? p.getString(key, fallback) : fallback;
+}
+
 void eraseNamespace(const char *ns) {
   Preferences p;
   p.begin(ns, false);
@@ -223,7 +229,7 @@ void ESPConnect::begin(const char *deviceName, const char *apName) {
 
   Preferences p;
   p.begin(NVS_DEVICE, false);
-  String name = p.getString("name", _defaultName);
+  String name = readString(p, "name", _defaultName);
   p.end();
   if (!isValidName(name)) name = "ESPConnect";
   {
@@ -326,8 +332,8 @@ String ESPConnect::statusTopic() const { return deviceName() + "/status"; }
 void ESPConnect::loadWifiCredentials() {
   Preferences p;
   p.begin(NVS_WIFI, false);
-  _ssid = p.getString("ssid", "");
-  _pass = p.getString("pass", "");
+  _ssid = readString(p, "ssid");
+  _pass = readString(p, "pass");
   _credsValid = p.getBool("valid", false);
   p.end();
   if (_ssid.isEmpty()) {
@@ -740,12 +746,12 @@ void ESPConnect::loadMqttSettings() {
   Preferences p;
   p.begin(NVS_MQTT, false);
   s.enabled = p.getBool("en", false);
-  s.scheme = p.getString("scheme", s.scheme);
-  s.host = p.getString("host", "");
+  s.scheme = readString(p, "scheme", s.scheme);
+  s.host = readString(p, "host");
   s.port = p.getUShort("port", s.port);
-  s.path = p.getString("path", s.path);
-  s.user = p.getString("user", "");
-  s.pass = p.getString("pass", "");
+  s.path = readString(p, "path", s.path);
+  s.user = readString(p, "user");
+  s.pass = readString(p, "pass");
   p.end();
   {
     Guard g(_lock);
