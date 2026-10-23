@@ -34,9 +34,8 @@ void loop() {
   espConnect.loop();
 
   static uint32_t last = 0;
-  if (espConnect.isMqttConnected() && millis() - last >= 30000) {
+  if (millis() - last >= 30000) {
     last = millis();
-    espConnect.publish("semix/uptime", millis() / 1000);
     espConnect.wsSend("uptime " + String(millis() / 1000) + " s");
   }
 }
