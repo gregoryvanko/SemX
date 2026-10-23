@@ -27,6 +27,9 @@ void setup() {
   });
   espConnect.subscribe("semix/cmd/#");
 
+  // Enable OTA updates with the password "gregory"
+  espConnect.enableOTA("gregory");
+
   espConnect.begin("semix", "SemiX-Setup");
 }
 

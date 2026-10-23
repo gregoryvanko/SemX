@@ -7,7 +7,8 @@ Librairie ESP32 (framework Arduino, PlatformIO) qui prend en charge la connexion
 - bouton de réinitialisation du WiFi ;
 - page de statut `/status` avec configuration MQTT à chaud ;
 - client MQTT (TCP, TLS, WebSocket, WebSocket sécurisé) avec statut `online`/`offline` et testament (LWT) ;
-- routes web personnalisées et échanges WebSocket avec les pages.
+- routes web personnalisées et échanges WebSocket avec les pages ;
+- mise à jour du firmware par le réseau (OTA), protégée par mot de passe.
 
 ## Dépendances
 
@@ -82,11 +83,40 @@ espConnect.setResetButton(-1);        // désactive le bouton
 
 Le bouton est câblé entre la broche et GND (résistance de tirage interne activée).
 
+### Mise à jour par le réseau (OTA)
+
+```cpp
+espConnect.enableOTA("mon-mot-de-passe");        // port 3232 par défaut
+espConnect.enableOTA("mon-mot-de-passe", 8266);  // autre port
+```
+
+À appeler avant `begin()`. Le service OTA (ArduinoOTA, protocole `espota` de PlatformIO) démarre dès la première connexion WiFi ; il n'est pas disponible sur le portail de configuration. Un mot de passe vide ou `nullptr` désactive l'authentification (déconseillé).
+
+Côté PlatformIO, un environnement dédié dans `platformio.ini` :
+
+```ini
+[env:az-delivery-devkit-v4_ota]
+extends = env:az-delivery-devkit-v4
+upload_protocol = espota
+upload_port = 192.168.10.52       ; adresse IP de l'ESP32, ou son nom DNS sur le réseau local
+upload_flags =
+	--auth=mon-mot-de-passe        ; le même que dans enableOTA()
+	--port=3232
+```
+
+puis `pio run -e az-delivery-devkit-v4_ota -t upload`.
+
+- Le mDNS n'est pas activé : `upload_port` doit être l'adresse IP de l'ESP32 (visible sur `/status`) ou le nom que lui donne le DNS de votre routeur, construit à partir du nom d'appareil.
+- Au début du téléversement, l'ESP32 publie `offline`, ferme la connexion MQTT et les WebSockets, puis redémarre sur le nouveau firmware. En cas d'échec, la connexion MQTT est relancée.
+- La progression (par paliers de 10 %) et les erreurs (mot de passe refusé, espace insuffisant…) apparaissent dans le journal série.
+- La page `/status` indique si l'OTA est actif, son port et la présence d'un mot de passe.
+- La table de partitions doit comporter deux emplacements d'application (cas de la table par défaut de l'ESP32).
+
 ### Page de statut
 
 Une fois connecté, l'ESP32 sert **http://&lt;ip-esp32&gt;/status** (la racine `/` y redirige, sauf si une route `/` est déclarée). La page se rafraîchit toutes les 3 s et affiche :
 
-- WiFi : réseau, IP, signal, passerelle, masque, DNS, canal, MAC, temps de fonctionnement, mémoire libre ;
+- WiFi : réseau, IP, signal, passerelle, masque, DNS, canal, MAC, temps de fonctionnement, mémoire libre, état de l'OTA ;
 - MQTT : état (désactivé, connexion…, connecté, erreur), serveur, identifiant client, topic de statut et dernière erreur.
 
 Le formulaire permet de modifier :
@@ -131,12 +161,13 @@ L'identifiant client MQTT est `<nom d'appareil>-<3 derniers octets de la MAC>`, 
 | `setStatusInterval(ms = 60000)` | Période de publication de `online` (`0` : seulement à la connexion). |
 | `setMaxConnectAttempts(n = 5, timeoutMs = 15000)` | Tentatives pour des identifiants jamais validés. |
 | `setReconnectInterval(ms = 10000)` | Délai entre deux tentatives après une perte du WiFi. |
+| `enableOTA(password, port = 3232)` | Active la mise à jour par le réseau. |
 | `resetWifi()` | Efface les identifiants WiFi et redémarre sur le portail. |
 | `clearMqtt()` | Ferme la connexion MQTT et efface sa configuration. |
 
 ### État
 
-`isWifiConnected()`, `isMqttConnected()`, `isPortalActive()`, `wifiState()`, `mqttState()`, `deviceName()`, `statusTopic()`.
+`isWifiConnected()`, `isMqttConnected()`, `isPortalActive()`, `isOTAEnabled()`, `wifiState()`, `mqttState()`, `deviceName()`, `statusTopic()`.
 
 ### MQTT
 

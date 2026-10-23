@@ -45,6 +45,9 @@ public:
   void setStatusInterval(uint32_t ms = 60000);                  // période de "online"
   void setMaxConnectAttempts(uint8_t attempts = 5, uint32_t attemptTimeoutMs = 15000);
   void setReconnectInterval(uint32_t ms = 10000);               // retente du WiFi perdu
+  // Mise à jour du firmware par le réseau (ArduinoOTA / espota), active dès que le WiFi est connecté.
+  // password vide ou nullptr : aucune authentification (déconseillé).
+  void enableOTA(const char *password, uint16_t port = 3232);
 
   // --- État -----------------------------------------------------------------
   WifiState wifiState() const { return _wifiState; }
@@ -52,6 +55,7 @@ public:
   bool isWifiConnected() const { return _wifiState == WifiState::Connected; }
   bool isMqttConnected() const { return _mqttState == MqttState::Connected; }
   bool isPortalActive() const { return _wifiState == WifiState::Portal; }
+  bool isOTAEnabled() const { return _otaEnabled; }
   String deviceName() const;
   String statusTopic() const;
 
@@ -126,6 +130,7 @@ private:
   void setupPortalRoutes();
   void setupStationRoutes();
   void registerRoute(const Route &route);
+  void startOTA();
 
   // MQTT
   void loadMqttSettings();
@@ -180,6 +185,13 @@ private:
   bool _btnPressed = false;
   bool _btnFired = false;
   uint32_t _btnStart = 0;
+
+  // OTA
+  bool _otaEnabled = false;
+  bool _otaStarted = false;
+  String _otaPassword;
+  uint16_t _otaPort = 3232;
+  int8_t _otaProgress = -1;
 
   // MQTT
   esp_mqtt_client_handle_t _mqtt = nullptr;

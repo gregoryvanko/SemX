@@ -1,5 +1,6 @@
 #include "ESPConnect.h"
 
+#include <ArduinoOTA.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <esp_system.h>
@@ -252,7 +253,7 @@ async function refresh(){try{const s=await(await fetch('/api/status')).json();
 $('name').textContent=s.name;
 rows('wifi',[['Réseau',s.wifi.ssid],['Adresse IP',s.wifi.ip],['Signal',s.wifi.rssi+' dBm'],['Passerelle',s.wifi.gw],
 ['Masque',s.wifi.mask],['DNS',s.wifi.dns],['Canal',s.wifi.ch],['Adresse MAC',s.wifi.mac],
-['Fonctionnement',dur(s.uptime)],['Mémoire libre',s.heap+' octets']]);
+['Fonctionnement',dur(s.uptime)],['Mémoire libre',s.heap+' octets'],['OTA',s.ota]]);
 const m=ST[s.mqtt.state]||[s.mqtt.state,''];$('mq-state').textContent=m[0];$('mq-dot').className='dot '+m[1];
 const r=[];if(s.mqtt.uri)r.push(['Serveur',s.mqtt.uri]);
 r.push(['Identifiant client',s.mqtt.clientId],['Topic de statut',s.mqtt.topic]);
@@ -334,6 +335,7 @@ void ESPConnect::loop() {
   if (!_inbound) return;  // begin() pas encore appelé
   handleResetButton();
   handleWifi();
+  if (_otaStarted) ArduinoOTA.handle();
 
   if (_mqttApplyPending) applyPendingMqtt();
   if (_mqttClearPending) {
@@ -384,6 +386,12 @@ void ESPConnect::setMaxConnectAttempts(uint8_t attempts, uint32_t attemptTimeout
 }
 
 void ESPConnect::setReconnectInterval(uint32_t ms) { _reconnectInterval = ms; }
+
+void ESPConnect::enableOTA(const char *password, uint16_t port) {
+  _otaEnabled = true;
+  _otaPassword = password ? password : "";
+  _otaPort = port;
+}
 
 String ESPConnect::deviceName() const {
   Guard g(_lock);
@@ -518,6 +526,8 @@ void ESPConnect::onWifiConnected() {
     ESPC_LOG("Web : serveur démarré, statut sur http://%s/status", WiFi.localIP().toString().c_str());
   }
 
+  if (_otaEnabled && !_otaStarted) startOTA();
+
   // Après une coupure WiFi, le client esp-mqtt existant se reconnecte de lui-même.
   bool mqttEnabled;
   {
@@ -525,6 +535,54 @@ void ESPConnect::onWifiConnected() {
     mqttEnabled = _mqttCfg.enabled;
   }
   if (mqttEnabled && !_mqtt) startMqtt();
+}
+
+void ESPConnect::startOTA() {
+  const String host = deviceName();
+  ArduinoOTA.setHostname(host.c_str());
+  ArduinoOTA.setPort(_otaPort);
+  ArduinoOTA.setMdnsEnabled(false);  // téléversement par adresse IP ou nom DNS du routeur
+  if (!_otaPassword.isEmpty()) ArduinoOTA.setPassword(_otaPassword.c_str());
+
+  ArduinoOTA.onStart([this]() {
+    _otaProgress = -1;
+    ESPC_LOG("OTA : début de la mise à jour (%s)", ArduinoOTA.getCommand() == U_FLASH ? "firmware" : "système de fichiers");
+    // Le téléversement bloque loop() : on ferme proprement MQTT et les WebSockets.
+    stopMqtt(true);
+    _ws.closeAll();
+  });
+  ArduinoOTA.onProgress([this](unsigned int done, unsigned int total) {
+    int8_t step = total ? static_cast<int8_t>(done * 10ULL / total) : 0;
+    if (step != _otaProgress) {
+      _otaProgress = step;
+      ESPC_LOG("OTA : %d %%", step * 10);
+    }
+  });
+  ArduinoOTA.onEnd([]() { ESPC_LOG("OTA : mise à jour terminée, redémarrage"); });
+  ArduinoOTA.onError([this](ota_error_t error) {
+    const char *reason;
+    switch (error) {
+      case OTA_AUTH_ERROR: reason = "authentification refusée (mot de passe incorrect)"; break;
+      case OTA_BEGIN_ERROR: reason = "démarrage impossible (espace insuffisant ?)"; break;
+      case OTA_CONNECT_ERROR: reason = "connexion à l'ordinateur impossible"; break;
+      case OTA_RECEIVE_ERROR: reason = "erreur de réception"; break;
+      case OTA_END_ERROR: reason = "erreur de finalisation"; break;
+      default: reason = "erreur inconnue"; break;
+    }
+    ESPC_LOG("OTA : échec — %s", reason);
+    // La mise à jour a échoué sans redémarrage : on relance MQTT s'il avait été arrêté.
+    bool mqttEnabled;
+    {
+      Guard g(_lock);
+      mqttEnabled = _mqttCfg.enabled;
+    }
+    if (mqttEnabled && !_mqtt && isWifiConnected()) startMqtt();
+  });
+
+  ArduinoOTA.begin();
+  _otaStarted = true;
+  ESPC_LOG("OTA : prêt sur %s:%u (%s)", WiFi.localIP().toString().c_str(), _otaPort,
+           _otaPassword.isEmpty() ? "SANS mot de passe" : "protégé par mot de passe");
 }
 
 void ESPConnect::handleResetButton() {
@@ -669,6 +727,9 @@ void ESPConnect::handleStatusJson(AsyncWebServerRequest *request) {
   j += "{\"name\":\"" + jsonEscape(name) + "\"";
   j += ",\"uptime\":" + String(millis() / 1000);
   j += ",\"heap\":" + String(ESP.getFreeHeap());
+  String ota = "désactivé";
+  if (_otaStarted) ota = "port " + String(_otaPort) + (_otaPassword.isEmpty() ? ", sans mot de passe" : ", avec mot de passe");
+  j += ",\"ota\":\"" + ota + "\"";
   j += ",\"wifi\":{\"ssid\":\"" + jsonEscape(WiFi.SSID()) + "\"";
   j += ",\"ip\":\"" + WiFi.localIP().toString() + "\"";
   j += ",\"gw\":\"" + WiFi.gatewayIP().toString() + "\"";
