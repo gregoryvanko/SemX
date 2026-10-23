@@ -186,6 +186,8 @@ Les callbacks MQTT et WebSocket sont appelés depuis `espConnect.loop()`, dans l
 
 Chaque étape est écrite sur le port série, préfixée par `[ESPConnect]` : tentatives et échecs de connexion WiFi, déconnexions avec leur motif, adresse IP obtenue, ouverture du portail, enregistrement ou effacement de la configuration, connexions et erreurs MQTT (avec la cause : DNS, TLS, identifiants refusés…), publications, souscriptions, messages reçus, clients WebSocket.
 
+Le journal est écrit en ASCII pur (accents retirés, `« »` remplacés par `"`) afin de s'afficher correctement dans tous les moniteurs série.
+
 Pour désactiver le journal : `build_flags = -DESPCONNECT_NO_LOG`.
 
 ## Mémoire NVS

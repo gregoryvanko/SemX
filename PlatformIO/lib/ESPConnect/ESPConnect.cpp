@@ -11,12 +11,79 @@
   do {                \
   } while (0)
 #else
-#define ESPC_LOG(fmt, ...) Serial.printf("[ESPConnect] " fmt "\n", ##__VA_ARGS__)
+#define ESPC_LOG(fmt, ...) espcLog("[ESPConnect] " fmt, ##__VA_ARGS__)
 #endif
 
 ESPConnect espConnect;
 
 namespace {
+
+#ifndef ESPCONNECT_NO_LOG
+// Lettre latine accentuée (second octet d'une séquence UTF-8 0xC3 xx) vers sa lettre de base.
+char unaccent(uint8_t b) {
+  uint8_t cp = b + 0x40;  // point de code Latin-1
+  if (cp >= 0xC0 && cp <= 0xC5) return 'A';
+  if (cp == 0xC7) return 'C';
+  if (cp >= 0xC8 && cp <= 0xCB) return 'E';
+  if (cp >= 0xCC && cp <= 0xCF) return 'I';
+  if (cp == 0xD1) return 'N';
+  if (cp >= 0xD2 && cp <= 0xD6) return 'O';
+  if (cp >= 0xD9 && cp <= 0xDC) return 'U';
+  if (cp >= 0xE0 && cp <= 0xE5) return 'a';
+  if (cp == 0xE7) return 'c';
+  if (cp >= 0xE8 && cp <= 0xEB) return 'e';
+  if (cp >= 0xEC && cp <= 0xEF) return 'i';
+  if (cp == 0xF1) return 'n';
+  if (cp >= 0xF2 && cp <= 0xF6) return 'o';
+  if (cp >= 0xF9 && cp <= 0xFC) return 'u';
+  if (cp == 0xFD || cp == 0xFF) return 'y';
+  return '?';
+}
+
+// Le journal est écrit en ASCII pur : les caractères UTF-8 sur plusieurs octets
+// (accents, « », —, …) s'affichent en "?" dans certains moniteurs série.
+void espcLog(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+void espcLog(const char *fmt, ...) {
+  char buf[256];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, args);
+  va_end(args);
+
+  String out;
+  out.reserve(strlen(buf) + 8);
+  const uint8_t *p = reinterpret_cast<const uint8_t *>(buf);
+  while (*p) {
+    if (*p < 0x80) {
+      out += static_cast<char>(*p++);
+    } else if (p[0] == 0xC3 && p[1]) {
+      out += unaccent(p[1]);
+      p += 2;
+    } else if (p[0] == 0xC2 && p[1] == 0xAB) {  // « suivi d'une espace
+      out += '"';
+      p += 2;
+      if (*p == ' ') p++;
+    } else if (p[0] == 0xC2 && p[1] == 0xBB) {  // espace suivie de »
+      if (out.length() && out[out.length() - 1] == ' ') out.remove(out.length() - 1);
+      out += '"';
+      p += 2;
+    } else if (p[0] == 0xE2 && p[1] == 0x80 && (p[2] == 0x93 || p[2] == 0x94)) {
+      out += '-';
+      p += 3;
+    } else if (p[0] == 0xE2 && p[1] == 0x80 && p[2] == 0xA6) {
+      out += "...";
+      p += 3;
+    } else {
+      // Autre caractère : remplacé par '?' en sautant toute sa séquence.
+      size_t n = *p >= 0xF0 ? 4 : *p >= 0xE0 ? 3 : *p >= 0xC0 ? 2 : 1;
+      out += '?';
+      while (n-- && *p) p++;
+    }
+  }
+  out += '\n';
+  Serial.print(out);
+}
+#endif
 
 const char *NVS_WIFI = "espc_wifi";
 const char *NVS_MQTT = "espc_mqtt";
