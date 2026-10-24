@@ -62,11 +62,6 @@ void loop() {
 }
 ```
 
-Le fichier `src/main.cpp` du projet publie en plus les mesures en MQTT avec la librairie ESPConnect :
-
-- `<appareil>/temperature/<id>` : température de chaque sonde (ex. `21.50`) ;
-- `<appareil>/temperature` : toutes les sondes au format JSON.
-
 ## API
 
 ### Cycle de vie
