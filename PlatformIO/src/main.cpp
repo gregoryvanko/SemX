@@ -1,10 +1,14 @@
 #include <Arduino.h>
 #include <ESPConnect.h>
 #include <SensorDS18B20.h>
+#include <SensorMoisture.h>
 #include "config.h"
 
 // Sondes DS18B20 sur le bus 1-Wire (résistance de tirage 4,7 kΩ vers 3,3 V)
 SensorDS18B20 sondes(CONFIG_DS18B20_PIN);
+
+// Sonde d'humidité du sol capacitive V1.2 (AOUT sur une broche de l'ADC1, alimentation 3,3 V)
+SensorMoisture sol(CONFIG_MOISTURE_PIN);
 
 
 void setup() {
@@ -42,6 +46,18 @@ void setup() {
     espConnect.publish(base, s.toJson());
   });
   sondes.begin(CONFIG_DS18B20_RESOLUTION);
+
+  // Start soil moisture sensor: percentage on "<device>/moisture/percent"
+  // and full measurement as JSON on "<device>/moisture"
+  sol.onMeasure([](const SensorMoisture &s) {
+    String base = String(CONFIG_DEVICE_NAME) + "/moisture";
+    if (s.valid()) {
+      Serial.printf("Humidité du sol : %.1f %% (brut %u, %u mV)\n", s.percent(), s.raw(), s.millivolts());
+      if (espConnect.isMqttConnected()) espConnect.publish(base + "/percent", s.percent(), false, 0, 1);
+    }
+  });
+  sol.begin(CONFIG_MOISTURE_SAMPLES);
+  sol.setCalibration(CONFIG_MOISTURE_DRY, CONFIG_MOISTURE_WET);
 }
 
 void loop() {
@@ -53,5 +69,7 @@ void loop() {
     last = millis();
     // Request a new measurement from the DS18B20 sensors
     sondes.requestMeasure();
+    // Read the soil moisture sensor (synchronous, ≈ 1 ms)
+    sol.measure();
   }
 }
