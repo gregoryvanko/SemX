@@ -36,7 +36,7 @@ void setup() {
     for (const SensorDS18B20::Sensor &sonde : s.sensors()) {
       if (sonde.valid) {
         Serial.printf("%s : %.2f °C\n", sonde.name.c_str(), sonde.temperature);
-        espConnect.publish(base + "/" + sonde.id, sonde.temperature);
+        if (espConnect.isMqttConnected()) espConnect.publish(base + "/" + sonde.id, sonde.temperature);
       }
     }
     espConnect.publish(base, s.toJson());
@@ -51,6 +51,7 @@ void loop() {
   static uint32_t last = 0;
   if (millis() - last >= CONFIG_MESURE_INTERVAL) {
     last = millis();
-    if (espConnect.isMqttConnected()) sondes.requestMeasure();
+    // Request a new measurement from the DS18B20 sensors
+    sondes.requestMeasure();
   }
 }
