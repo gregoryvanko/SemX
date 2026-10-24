@@ -23,7 +23,6 @@ La chambre de culture vise à agir sur plusieurs paramètres importants pour le 
 - **Sonde de température DS18B20 (réservoir)** : mesure la température de l’eau du réservoir.
 - **Sonde de température DS18B20 (semis)** : mesure la température au niveau du semis.
 - **Capteur d’humidité du sol (moisture sensor)** : mesure l’humidité du substrat des semis.
-- **Sonde TDS** : mesure la quantité de solides dissous dans l’eau du réservoir.
 
 ### Actionneurs
 
@@ -37,10 +36,9 @@ La chambre de culture vise à agir sur plusieurs paramètres importants pour le 
 | DS18B20 réservoir | GPIO4 | 3V3 / GND | Bus 1-Wire partagé |
 | DS18B20 semis | GPIO4 | 3V3 / GND | Une seule résistance de 4,7 kΩ entre DATA et 3V3 pour tout le bus |
 | Capteur d’humidité du sol | GPIO34 | 3V3 / GND | Modèle capacitif recommandé |
-| Sonde TDS | GPIO35 | 3V3 / GND | Compensation via la température du réservoir |
 | Relais pompe | GPIO26 (IN) | 5V / GND | Pompe branchée sur COM/NO, avec sa propre alimentation |
 | Relais éclairage | GPIO27 (IN) | 5V / GND | Lumières branchées sur COM/NO |
-| Alimentation 5 V | VIN / 5V de l’ESP32 | — | Toutes les masses (GND) reliées entre elles |
+| Alimentation 5 V | VIN / 5V de l’ESP32 | 220v | Toutes les masses (GND) reliées entre elles |
 
 Remarques :
 
