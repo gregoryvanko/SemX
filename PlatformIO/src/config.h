@@ -1,8 +1,8 @@
 #pragma once
 // ── Setup ──────────────────────────────────────────────────────────────────────
 constexpr int32_t CONFIG_BAUDRATE = 115200;
-constexpr int32_t CONFIG_MESURE_INTERVAL = 10000;
-constexpr const char* CONFIG_DEVICE_NAME = "semix";
+constexpr int32_t CONFIG_MESURE_INTERVAL = 10000;   // intervalle de mesure par défaut (ms), 2 s à 1 h
+constexpr const char* CONFIG_DEVICE_NAME = "semix";  // nom d'appareil par défaut (modifiable sur /status), préfixe des topics MQTT
 constexpr uint8_t CONFIG_DS18B20_PIN = 4;         // GPIO du bus 1-Wire des sondes DS18B20
 constexpr uint8_t CONFIG_DS18B20_RESOLUTION = 12; // 9 à 12 bits
 constexpr uint8_t CONFIG_MOISTURE_PIN = 34;       // GPIO de l'ADC1 (32 à 39) relié à AOUT de la sonde
@@ -12,6 +12,9 @@ constexpr uint16_t CONFIG_MOISTURE_WET = 1200;    // valeur brute sonde dans l'e
 constexpr uint8_t CONFIG_RELAY_Pump_PIN = 26;      // GPIO du relais de la pompe
 constexpr uint32_t CONFIG_PUMP_ON_DURATION = 10000;   // durée de marche de la pompe (ms)
 constexpr uint32_t CONFIG_PUMP_OFF_DURATION = 60000;  // durée d'arrêt de la pompe (ms)
+constexpr bool CONFIG_PUMP_MOISTURE_ENABLED = false;  // mode par défaut : arrosage selon l'humidité (sinon cycle)
+constexpr uint8_t CONFIG_PUMP_MOISTURE_LOW = 40;      // seuil de démarrage de l'arrosage (%)
+constexpr uint8_t CONFIG_PUMP_MOISTURE_HIGH = 80;     // seuil d'arrêt de l'arrosage (%)
 
 constexpr uint8_t CONFIG_RELAY_Light_PIN = 27;         // GPIO du relais d'éclairage
 constexpr uint8_t CONFIG_LIGHT_START_HOUR = 6;         // heure d'allumage de l'éclairage (heure locale)
