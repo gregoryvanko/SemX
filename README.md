@@ -57,13 +57,13 @@ Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par
 |---|---|---|---|
 | `support_led_pied.stl` | 2 | 72 g | Telle quelle, avec bordure (brim) |
 | `support_led_colonne.stl` | 4 | 29 g | Telle quelle, en diagonale du plateau, remplissage 10 % |
-| `support_led_traverse.stl` | 2 | 47 g | Telle quelle, en diagonale du plateau, plages de collage sur le plateau |
+| `support_led_traverse.stl` | 2 | 51 g | Telle quelle, en diagonale du plateau, bande de collage sur le plateau |
 | `support_led_entretoise.stl` | 2 | 15 g | Telle quelle, corps sur le plateau, pattes vers le haut |
 | `support_led_goupille.stl` | 4 + rechange | 0,8 g | À plat |
 
 ![Les pièces à imprimer, à des échelles différentes](CAD/images/support_led_pieces.png)
 
-Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser l'arrangement automatique pour la colonne et la traverse. Toutes les pièces s'impriment sans support. La bordure ne concerne que le pied, haut et étroit : la colonne et la traverse laissent trop peu de marge sur le plateau pour en recevoir une. Le tranchage dans Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couche 0,20 mm, 3 parois, remplissage 20 %, 10 % pour les colonnes) donne environ 390 g de filament et 10 h 10 d'impression. Le PETG est préférable au PLA pour sa tenue à l'humidité et à la chaleur des panneaux.
+Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser l'arrangement automatique pour la colonne et la traverse. Toutes les pièces s'impriment sans support. La bordure ne concerne que le pied, haut et étroit : la colonne et la traverse laissent trop peu de marge sur le plateau pour en recevoir une. Le tranchage dans Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couche 0,20 mm, 3 parois, remplissage 20 %, 10 % pour les colonnes) donne environ 395 g de filament et 10 h 20 d'impression. Le PETG est préférable au PLA pour sa tenue à l'humidité et à la chaleur des panneaux.
 
 ### Montage
 
@@ -73,8 +73,8 @@ Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser
 2. Coller un pied sur chaque face gauche et droite à la colle époxy bicomposant : pied posé sur la table et centré sur la face, avec le même retrait de 0,3 mm à chaque coin : le pied est un peu moins large que le réservoir. Respecter le temps de durcissement complet. Le bac reste amovible : le dos du pied s'arrête sous le joint avec le réservoir, et les fûts passent à 0,4 mm de sa paroi.
 3. Enfoncer les colonnes dans les fûts, la longue partie sans trous vers le bas et la face sans nervure tournée au choix. Leurs nervures d'écrasement suppriment le jeu : elles tiennent en force, sans goupille.
 4. Enfiler une traverse sur les deux colonnes de chaque face, la paroi vers l'extérieur, au même cran des deux côtés. Glisser une entretoise entre les coulisseaux en vis-à-vis, à l'avant et à l'arrière, puis bloquer chaque coulisseau avec une goupille, insérée côté bac à travers la patte de l'entretoise.
-5. Dégraisser les plages de collage et l'arrière des panneaux à l'alcool isopropylique, puis poser un adhésif sur chaque plage, le long de la paroi.
-6. Présenter chaque panneau sous les traverses, LED vers le bas, le bout à 1 mm du bord extérieur de la plage : deux entre les colonnes et un de chaque côté. Presser fermement chaque collage. Le côté de 50 mm de l'adhésif suit la largeur du panneau.
+5. Dégraisser la bande de collage et l'arrière des panneaux à l'alcool isopropylique, puis poser les adhésifs sous la bande, le long de la paroi, chacun dans l'axe d'une nervure.
+6. Présenter chaque panneau sous les traverses, LED vers le bas, le bout à 1 mm du bord extérieur de la bande : deux entre les colonnes et un de chaque côté. Presser fermement chaque collage. Le côté de 50 mm de l'adhésif suit la largeur du panneau.
 7. Brancher les fiches USB-C sous les panneaux : rien ne les gêne, la traverse restant au-dessus.
 
 Pour déplacer le réservoir, sortir les colonnes en tirant fermement vers le haut. Les pieds restent collés.
@@ -83,7 +83,7 @@ Pour déplacer le réservoir, sortir les colonnes en tirant fermement vers le ha
 |---|---|
 | ![Pied collé sur la face du réservoir](CAD/images/support_led_detail_pied.png) | ![Traverse, coulisseau et goupille](CAD/images/support_led_detail_traverse.png) |
 
-![Adhésifs sur les plages de collage, vus de dessous](CAD/images/support_led_detail_collage.png)
+![Adhésifs sous la bande de collage, vus de dessous](CAD/images/support_led_detail_collage.png)
 
 ### Réglage de la hauteur
 

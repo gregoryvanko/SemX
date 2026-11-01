@@ -59,13 +59,14 @@ PIN_L = SLEEVE_OUT - 0.5 + STRUT_TAB
 SLEEVE_HOLES = (6.0, 21.0)
 RACK_HOLES = np.arange(149.0, 300.0, HOLE_PITCH)  # depuis le bas de la colonne
 
-# Traverse : les panneaux, LED vers le bas, sont collés sous ses plages planes.
+# Traverse : les panneaux, LED vers le bas, sont collés sous sa bande continue,
+# qui forme une cornière avec la paroi.
 # Les colonnes passent entre les panneaux, le coulisseau reste au-dessus d'eux.
 PAD_T = 2.4
-PAD_MARGIN = 1.0          # débord de la plage autour de l'adhésif
+PAD_MARGIN = 1.0          # débord de la bande de chaque côté de l'adhésif
 WALL_H = 10.0
 WALL_T = 3.0
-RIB_T = 2.4               # nervure sous chaque plage, pour qu'elle ne fléchisse pas
+RIB_T = 2.4               # nervure à chaque adhésif, pour que la bande ne fléchisse pas
 RIB_H = 6.0
 TRAVERSE_HALF = 158.0     # limité par la diagonale du plateau
 CENTER_GAP = 2.0          # écart entre les deux panneaux centraux
@@ -203,16 +204,14 @@ def make_traverse():
     half = SLEEVE_OUT / 2
     pad_x0 = TAPE_X - TAPE_L / 2 - PAD_MARGIN
     pad_x1 = TAPE_X + TAPE_L / 2 + PAD_MARGIN
-    pad_half = TAPE_W / 2 + PAD_MARGIN
     wall0 = pad_x1 - WALL_T
 
-    parts = [box(wall0, pad_x1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, WALL_H)]
+    parts = [box(wall0, pad_x1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, WALL_H),
+             box(pad_x0, pad_x1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, PAD_T)]
     tools = []
     for s in (-1, 1):
         for y in TAPE_Y:
-            yc = s * y
-            parts += [box(pad_x0, pad_x1, yc - pad_half, yc + pad_half, 0, PAD_T),
-                      box(pad_x0, wall0, yc - RIB_T / 2, yc + RIB_T / 2, 0, RIB_H)]
+            parts.append(box(pad_x0, wall0, s * y - RIB_T / 2, s * y + RIB_T / 2, 0, RIB_H))
         y = s * COL_Y
         parts += [box(COL_X - half, COL_X + half, y - half, y + half, 0, SLEEVE_H),
                   box(COL_X, wall0, y - half, y + half, 0, PAD_T),

@@ -173,7 +173,7 @@ def render_slider(parts, base):
 
 
 def render_tape(parts, base):
-    """Vue de dessous : plages de collage et adhésifs, panneaux avant retirés."""
+    """Vue de dessous : bande de collage et adhésifs, panneaux avant retirés."""
     p = new_plotter((1800, 1100))
     add_ground(p, z=-400)
     z = 303
