@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Support de panneaux LED à hauteur réglable pour SemiX, version deux colonnes.
+"""Support de panneaux LED à hauteur réglable pour SemiX, version quatre colonnes.
 
 Génère les pièces imprimables dans STL/ et une vue d'assemblage.
-Dépendances : pip install numpy trimesh manifold3d shapely mapbox_earcut
+Dépendances : pip install numpy scipy trimesh manifold3d shapely mapbox_earcut
 Usage : python CAD/support_led.py [hauteur_sous_traverse_mm]
-La hauteur de la vue doit être un cran : 195, 210, 225... jusqu'à 345.
+La hauteur de la vue doit être un cran : 195, 210, 225... jusqu'à 360.
 
 Repère d'assemblage : z vers le haut, axe des panneaux selon x, colonnes
-centrées sur les faces x du réservoir, faces y libres. Unités : mm.
+sur les faces x du réservoir, faces y libres. Unités : mm.
 """
 import sys
 from pathlib import Path
@@ -28,11 +28,11 @@ PANEL_T_VIEW = 4.0        # épaisseur pour la vue uniquement, la traverse est o
 RESERVOIR_HALF = 100.6
 
 # Colonne et coulisseaux
-COL = 22.0
-COL_CHAMFER = 1.0
+COL = 14.0
+COL_CHAMFER = 0.8
 FIT = 0.25                # jeu par côté colonne / coulisseau
-SLEEVE_WALL = 3.5
-SLEEVE_H = 45.0
+SLEEVE_WALL = 3.0
+SLEEVE_H = 32.0
 BORE = COL + 2 * FIT
 SLEEVE_OUT = BORE + 2 * SLEEVE_WALL
 BAR_L = 320.0             # imprimée en diagonale sur le plateau du X1 Carbon
@@ -40,43 +40,40 @@ BAR_L = 320.0             # imprimée en diagonale sur le plateau du X1 Carbon
 # Crémaillère : deux trous de coulisseau décalés de 15 mm sur un pas de 30 mm
 # donnent un réglage tous les 15 mm.
 HOLE_PITCH = 30.0
-HOLE_D = 5.4
-PIN_D = 5.0
+HOLE_D = 4.4
+PIN_D = 4.0
 PIN_FLAT = 0.4            # méplat de la goupille, posé sur le plateau
-PIN_L = 29.0
-SLEEVE_HOLES = (15.0, 30.0)
-RACK_HOLES = np.arange(155.0, 306.0, HOLE_PITCH)  # depuis le bas de la colonne
+PIN_L = SLEEVE_OUT - 0.5
+SLEEVE_HOLES = (9.0, 24.0)
+RACK_HOLES = np.arange(149.0, 300.0, HOLE_PITCH)  # depuis le bas de la colonne
 
-# Traverse : les panneaux y entrent par le bout et s'écartent de part et d'autre
-# du coulisseau.
+# Traverse : les deux panneaux centraux passent entre les colonnes, les deux
+# autres à l'extérieur.
 SEAT = 15.0               # longueur de panneau engagée dans la traverse
 FLOOR = 3.0
 LIP = 3.0                 # appui sous les grands côtés du panneau
 LIP_END = 4.0             # appui sous le petit côté du panneau
-WALL_H = 16.0             # plus bas, les bras en porte-à-faux deviennent trop souples
-RIB_H = 8.0               # les nervures ne font que guider les panneaux
+WALL_H = 10.0
+RIB_H = 8.0               # la nervure centrale ne fait que guider les panneaux
 END_GAP = 0.5             # jeu en bout de panneau
 END_WALL = 3.0
-RIB = 4.0
+CENTER_RIB = 3.0
 POCKET_W = 80.8
-INNER_RIB = 2.0           # paroi entre le coulisseau et la première poche
 TRAVERSE_HALF = 158.0     # limité par la diagonale du plateau
 
-# Pied collé sur le réservoir par son dos, posé sur la table
+# Pied d'une seule pièce par face : ses deux douilles garantissent l'écartement
+# des colonnes, que deux pièces collées séparément ne tiendraient pas.
 GLUE_T = 2.4
-GLUE_W = 100.0
 GLUE_H = 86.0             # s'arrête sous le joint réservoir / bac
+ARCH = 78.0               # demi-largeur de l'évidement à 45°, imprimable sans support
 POST_GAP = 0.4            # le fût ne touche pas le bac, qui reste amovible
-FOOT_H = 120.0
-FIN_T = 2.4
-FIN_Y = 40.0
-FIN_Z = 100.0
+FOOT_H = 110.0
 COL_BOTTOM = 70.0
 
 # Positions d'assemblage
-COL_X = RESERVOIR_HALF + POST_GAP + SLEEVE_WALL + FIT + COL / 2
-Y0 = SLEEVE_OUT / 2 + INNER_RIB   # bord intérieur de la première poche
-PANEL_Y = (Y0 + POCKET_W / 2, Y0 + POCKET_W + RIB + POCKET_W / 2)
+COL_X = RESERVOIR_HALF + POST_GAP + SLEEVE_OUT / 2
+COL_Y = CENTER_RIB / 2 + POCKET_W + SLEEVE_OUT / 2
+PANEL_Y = (CENTER_RIB / 2 + POCKET_W / 2, COL_Y + SLEEVE_OUT / 2 + POCKET_W / 2)
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -109,12 +106,12 @@ def cyl_z(x, y, d, z0, z1):
     return m
 
 
-def teardrop_x(z, d, x0, x1):
-    """Trou horizontal centré sur y=0, imprimable sans support."""
+def teardrop_x(y, z, d, x0, x1):
+    """Trou horizontal imprimable sans support : pointe à 45° vers le haut."""
     r = d / 2
     a = np.radians(np.arange(-225, 46, 7.5))
-    pts = [(r * np.cos(t), z + r * np.sin(t)) for t in a]
-    pts.append((0, z + r * np.sqrt(2)))
+    pts = [(y + r * np.cos(t), z + r * np.sin(t)) for t in a]
+    pts.append((y, z + r * np.sqrt(2)))
     return prism_x(pts, x0, x1)
 
 
@@ -149,9 +146,9 @@ def make_pin():
     pts = [(r * np.cos(t), max(r * np.sin(t), PIN_FLAT - r) + r - PIN_FLAT) for t in a]
     pts = [p for i, p in enumerate(pts) if p != pts[i - 1]]
     shaft = prism_x(pts, 0, PIN_L)
-    head = box(-10, 0, -9, 9, 0, PIN_D - PIN_FLAT)
-    taper = [prism_z([(PIN_L - 3, s * 3), (PIN_L + 1, s * 3), (PIN_L + 1, s * 1.2), (PIN_L - 3, s * 2.5)][::s], -1, 6)
-             for s in (-1, 1)]
+    head = box(-8, 0, -7, 7, 0, PIN_D - PIN_FLAT)
+    taper = [prism_z([(PIN_L - 3, s * (r + 0.5)), (PIN_L + 1, s * (r + 0.5)), (PIN_L + 1, s * (r - 1.0)),
+                      (PIN_L - 3, s * r)][::s], -1, 6) for s in (-1, 1)]
     return union(cut(shaft, *taper), head)
 
 
@@ -161,25 +158,23 @@ def make_traverse():
     end1 = end0 + END_WALL
     seat0 = PANEL_L / 2 - SEAT
     half = SLEEVE_OUT / 2
-    y_rib = Y0 + POCKET_W
 
-    parts = [box(COL_X - half, COL_X + half, -half, half, 0, SLEEVE_H),
-             box(COL_X, end0, -half, half, 0, WALL_H),
-             box(seat0, end0, -Y0, Y0, 0, RIB_H),
-             box(end0, end1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, WALL_H),
+    parts = [box(end0, end1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, WALL_H),
              box(PANEL_L / 2 - LIP_END, end0, -TRAVERSE_HALF, TRAVERSE_HALF, 0, FLOOR),
-             prism_y([(COL_X + half - 1, WALL_H), (COL_X + half - 1, SLEEVE_H), (end0, WALL_H)], -2.4, 2.4)]
+             box(seat0, end0, -CENTER_RIB / 2, CENTER_RIB / 2, 0, RIB_H),
+             box(seat0, end0, -CENTER_RIB / 2 - LIP, CENTER_RIB / 2 + LIP, 0, FLOOR)]
+    tools = []
     for s in (-1, 1):
-        lo, hi = sorted((s * y_rib, s * (y_rib + RIB)))
-        parts.append(box(seat0, end0, lo, hi, 0, RIB_H))
-        parts.append(box(seat0, end0, lo - LIP, hi + LIP, 0, FLOOR))
-        lo, hi = sorted((s * Y0, s * (Y0 + LIP)))
-        parts.append(box(seat0, end0, lo, hi, 0, FLOOR))
-
-    tools = [box(COL_X - BORE / 2, COL_X + BORE / 2, -BORE / 2, BORE / 2, -1, SLEEVE_H + 1),
-             frustum(COL_X, 0, BORE / 2 + 1.0, BORE / 2, -0.2, 1.0)]
-    # Trous borgnes : la goupille entre côté bac et s'arrête contre le renfort
-    tools += [teardrop_x(z, HOLE_D, COL_X - half - 1, COL_X + half) for z in SLEEVE_HOLES]
+        y = s * COL_Y
+        parts += [box(COL_X - half, COL_X + half, y - half, y + half, 0, SLEEVE_H),
+                  box(COL_X, end0, y - half, y + half, 0, WALL_H),
+                  box(seat0, end0, y - half - LIP, y + half + LIP, 0, FLOOR),
+                  prism_y([(COL_X + half - 1, WALL_H), (COL_X + half - 1, SLEEVE_H), (end0, WALL_H)],
+                          y - 2.4, y + 2.4)]
+        tools += [box(COL_X - BORE / 2, COL_X + BORE / 2, y - BORE / 2, y + BORE / 2, -1, SLEEVE_H + 1),
+                  frustum(COL_X, y, BORE / 2 + 0.8, BORE / 2, -0.2, 0.8)]
+        # Trous borgnes : la goupille entre côté bac et s'arrête contre le renfort
+        tools += [teardrop_x(y, z, HOLE_D, COL_X - half - 1, COL_X + half) for z in SLEEVE_HOLES]
     return cut(union(*parts), *tools)
 
 
@@ -187,14 +182,15 @@ def make_foot():
     """Pied côté x>0, en coordonnées d'assemblage. Le dos en x0 se colle au réservoir."""
     half = SLEEVE_OUT / 2
     x0 = RESERVOIR_HALF
-    x1 = x0 + GLUE_T
-    outer = COL_X + half
-    parts = [box(x0, x1, -GLUE_W / 2, GLUE_W / 2, 0, GLUE_H),
-             box(COL_X - half, outer, -half, half, 0, FOOT_H)]
+    w = COL_Y + half
+    plate = prism_x([(-w, 0), (w, 0), (w, GLUE_H), (-w, GLUE_H)], x0, x0 + GLUE_T)
+    parts = [cut(plate, prism_x([(-ARCH - 1, -1), (ARCH + 1, -1), (0, ARCH)], x0 - 1, x0 + GLUE_T + 1))]
+    tools = []
     for s in (-1, 1):
-        parts.append(prism_x([(s * (half - 1), 0), (s * (half - 1), FIN_Z),
-                              (s * FIN_Y, 0)][::s], x1 - 0.5, x1 + FIN_T))
-    return cut(union(*parts), box(COL_X - BORE / 2, COL_X + BORE / 2, -BORE / 2, BORE / 2, COL_BOTTOM, FOOT_H + 1))
+        y = s * COL_Y
+        parts.append(box(COL_X - half, COL_X + half, y - half, y + half, 0, FOOT_H))
+        tools.append(box(COL_X - BORE / 2, COL_X + BORE / 2, y - BORE / 2, y + BORE / 2, COL_BOTTOM, FOOT_H + 1))
+    return cut(union(*parts), *tools)
 
 
 # Colonne : longueur -> z, trous -> x
@@ -225,13 +221,15 @@ def assembly(parts, z_traverse):
     groups = {"foot": [], "bar": [], "traverse": [], "panel": [], "pin": []}
     half = SLEEVE_OUT / 2
     lift = tr(0, 0, -PIN_D / 2 + PIN_FLAT)
+    hole = sleeve_hole_for(z_traverse)
     for side in (np.eye(4), ROT_180):
         groups["foot"].append(placed(parts["foot"], side))
-        groups["bar"].append(placed(parts["bar"], tr(0, -COL / 2, -COL / 2), BAR_TO_WORLD,
-                                    tr(COL_X, 0, COL_BOTTOM), side))
         groups["traverse"].append(placed(parts["traverse"], tr(0, 0, z_traverse), side))
-        hole = sleeve_hole_for(z_traverse)
-        groups["pin"].append(placed(parts["pin"], lift, tr(COL_X - half - 0.2, 0, z_traverse + hole), side))
+        for sy in (-1, 1):
+            y = sy * COL_Y
+            groups["bar"].append(placed(parts["bar"], tr(0, -COL / 2, -COL / 2), BAR_TO_WORLD,
+                                        tr(COL_X, y, COL_BOTTOM), side))
+            groups["pin"].append(placed(parts["pin"], lift, tr(COL_X - half - 0.2, y, z_traverse + hole), side))
     for y in (-PANEL_Y[1], -PANEL_Y[0], PANEL_Y[0], PANEL_Y[1]):
         groups["panel"].append(box(-PANEL_L / 2, PANEL_L / 2, y - PANEL_W / 2, y + PANEL_W / 2,
                                    z_traverse + FLOOR, z_traverse + FLOOR + PANEL_T_VIEW))
