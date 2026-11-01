@@ -55,7 +55,7 @@ Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par
 
 | Pièce (`STL/`) | Quantité | Masse unitaire | Impression |
 |---|---|---|---|
-| `support_led_pied.stl` | 2 | 73 g | Telle quelle, avec bordure (brim) |
+| `support_led_pied.stl` | 2 | 72 g | Telle quelle, avec bordure (brim) |
 | `support_led_colonne.stl` | 4 | 29 g | Telle quelle, en diagonale du plateau, remplissage 10 % |
 | `support_led_traverse.stl` | 2 | 47 g | Telle quelle, en diagonale du plateau, plages de collage sur le plateau |
 | `support_led_entretoise.stl` | 2 | 15 g | Telle quelle, corps sur le plateau, pattes vers le haut |
@@ -70,7 +70,7 @@ Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser
 ![Vue éclatée du support](CAD/images/support_led_eclate.png)
 
 1. Vider et sécher le réservoir, puis poncer légèrement et dégraisser la paroi et le dos des pieds.
-2. Coller un pied sur chaque face gauche et droite à la colle époxy bicomposant : pied posé sur la table et centré sur la face, avec le même débord de 2 mm à chaque coin. Respecter le temps de durcissement complet. Le bac reste amovible : le dos du pied s'arrête sous le joint avec le réservoir, et les fûts passent à 0,4 mm de sa paroi.
+2. Coller un pied sur chaque face gauche et droite à la colle époxy bicomposant : pied posé sur la table et centré sur la face, avec le même retrait de 0,3 mm à chaque coin : le pied est un peu moins large que le réservoir. Respecter le temps de durcissement complet. Le bac reste amovible : le dos du pied s'arrête sous le joint avec le réservoir, et les fûts passent à 0,4 mm de sa paroi.
 3. Enfoncer les colonnes dans les fûts, la longue partie sans trous vers le bas et la face sans nervure tournée au choix. Leurs nervures d'écrasement suppriment le jeu : elles tiennent en force, sans goupille.
 4. Enfiler une traverse sur les deux colonnes de chaque face, la paroi vers l'extérieur, au même cran des deux côtés. Glisser une entretoise entre les coulisseaux en vis-à-vis, à l'avant et à l'arrière, puis bloquer chaque coulisseau avec une goupille, insérée côté bac à travers la patte de l'entretoise.
 5. Dégraisser les plages de collage et l'arrière des panneaux à l'alcool isopropylique, puis poser un adhésif sur chaque plage, le long de la paroi.
@@ -96,12 +96,12 @@ Chaque colonne a 6 trous espacés de 30 mm et chaque coulisseau en a deux, déca
 
 ### Limites
 
-- Les deux panneaux centraux se touchent presque et couvrent le bac jusqu'à 18 mm de ses bords avant et arrière. Les deux panneaux extérieurs sont entièrement en dehors de l'emprise du bac et n'éclairent les semis qu'en biais.
-- Sur les panneaux extérieurs, l'adhésif est décalé de 11 mm vers l'intérieur, car la traverse s'arrête à 316 mm pour tenir sur le plateau.
+- Les deux panneaux centraux se touchent presque et couvrent le bac jusqu'à 20 mm de ses bords avant et arrière. Les deux panneaux extérieurs sont presque entièrement en dehors de l'emprise du bac et n'éclairent les semis qu'en biais.
+- Sur les panneaux extérieurs, l'adhésif est décalé de 7 mm vers l'intérieur, car la traverse s'arrête à 316 mm pour tenir sur le plateau.
 - Les panneaux ne sont tenus qu'à leurs deux bouts, sur 240 mm de portée libre. Selon leur matière, ils peuvent fléchir de quelques millimètres en leur milieu.
 - La tenue de l'adhésif dépend de la chaleur des panneaux et de la surface imprimée, et reste à vérifier.
 
-Encombrement : 302 × 367 × 397 mm. Le script paramétrique [`CAD/support_led.py`](CAD/support_led.py) permet d'ajuster les dimensions : `TAPE_L` et `TAPE_W` pour l'adhésif, `COL` pour la section des colonnes, `FIT` pour le jeu des coulisseaux, `CRUSH` pour le serrage des nervures, `BAR_L` pour la longueur des colonnes. Le script [`CAD/rendu_support_led.py`](CAD/rendu_support_led.py) régénère les images de cette section.
+Encombrement : 302 × 357 × 397 mm, et le pied ne dépasse pas la largeur du réservoir. Le script paramétrique [`CAD/support_led.py`](CAD/support_led.py) permet d'ajuster les dimensions : `TAPE_L` et `TAPE_W` pour l'adhésif, `COL` pour la section des colonnes, `FIT` pour le jeu des coulisseaux, `CRUSH` pour le serrage des nervures, `BAR_L` pour la longueur des colonnes. Le script [`CAD/rendu_support_led.py`](CAD/rendu_support_led.py) régénère les images de cette section.
 
 ## Licence
 

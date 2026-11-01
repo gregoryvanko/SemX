@@ -68,8 +68,8 @@ WALL_T = 3.0
 RIB_T = 2.4               # nervure sous chaque plage, pour qu'elle ne fléchisse pas
 RIB_H = 6.0
 TRAVERSE_HALF = 158.0     # limité par la diagonale du plateau
-CENTER_GAP = 3.0          # écart entre les deux panneaux centraux
-LANE_W = 80.8             # largeur laissée à chaque panneau
+CENTER_GAP = 2.0          # écart entre les deux panneaux centraux
+PANEL_CLEAR = 1.5         # écart entre une colonne et le panneau extérieur
 
 # Entretoise : relie deux coulisseaux face à face, au-dessus des panneaux. Son corps
 # passe au-dessus des trous pour laisser la tête de goupille accessible.
@@ -82,15 +82,16 @@ STRUT_W = 8.0
 # des colonnes, que deux pièces collées séparément ne tiendraient pas.
 GLUE_T = 2.4
 GLUE_H = 86.0             # s'arrête sous le joint réservoir / bac
-ARCH = 78.0               # demi-largeur de l'évidement à 45°, imprimable sans support
+ARCH = 76.0               # demi-largeur de l'évidement à 45°, imprimable sans support
 POST_GAP = 0.4            # le fût ne touche pas le bac, qui reste amovible
+FOOT_INSET = 0.3          # retrait de chaque bout du pied, pour rester dans la largeur du réservoir
 FOOT_H = 110.0
 COL_BOTTOM = 70.0
 
 # Positions d'assemblage
 COL_X = RESERVOIR_HALF + POST_GAP + SLEEVE_OUT / 2
-COL_Y = CENTER_GAP / 2 + LANE_W + SLEEVE_OUT / 2
-PANEL_Y = (CENTER_GAP / 2 + LANE_W / 2, COL_Y + SLEEVE_OUT / 2 + LANE_W / 2)
+COL_Y = RESERVOIR_HALF - FOOT_INSET - SLEEVE_OUT / 2
+PANEL_Y = (CENTER_GAP / 2 + PANEL_W / 2, COL_Y + COL / 2 + PANEL_CLEAR + PANEL_W / 2)
 # Sur les panneaux extérieurs, l'adhésif est décalé vers l'intérieur : la traverse
 # s'arrête avant le bord du panneau.
 TAPE_Y = (PANEL_Y[0], TRAVERSE_HALF - PAD_MARGIN - TAPE_W / 2)
