@@ -4,7 +4,7 @@
 Génère les pièces imprimables dans STL/ et une vue d'assemblage.
 Dépendances : pip install numpy scipy trimesh manifold3d shapely mapbox_earcut
 Usage : python CAD/support_led.py [hauteur_sous_traverse_mm]
-La hauteur de la vue doit être un cran : 195, 210, 225... jusqu'à 360.
+La hauteur de la vue doit être un cran : 198, 213, 228... jusqu'à 363.
 
 Repère d'assemblage : z vers le haut, axe des panneaux selon x, colonnes
 sur les faces x du réservoir, faces y libres. Unités : mm.
@@ -22,7 +22,10 @@ STL_DIR = ROOT / "STL"
 # Panneaux LED
 PANEL_L = 300.0
 PANEL_W = 80.0
-PANEL_T_VIEW = 4.0        # épaisseur pour la vue uniquement, la traverse est ouverte
+PANEL_T = 1.0
+TAPE_L = 30.0             # adhésif double face 3M, selon la longueur du panneau
+TAPE_W = 50.0
+TAPE_T = 1.0              # épaisseur supposée, pour la vue et le calcul des hauteurs
 
 # Réservoir
 RESERVOIR_HALF = 100.6
@@ -32,10 +35,19 @@ COL = 14.0
 COL_CHAMFER = 0.8
 FIT = 0.25                # jeu par côté colonne / coulisseau
 SLEEVE_WALL = 3.0
-SLEEVE_H = 32.0
+SLEEVE_H = 30.0
 BORE = COL + 2 * FIT
 SLEEVE_OUT = BORE + 2 * SLEEVE_WALL
 BAR_L = 320.0             # imprimée en diagonale sur le plateau du X1 Carbon
+
+# Nervures d'écrasement en bas de colonne, pour supprimer le jeu dans le fût du pied.
+# Deux zones, aux extrémités de l'emboîtement, sur trois faces : la quatrième est
+# posée sur le plateau et reste plaquée contre le fût.
+CRUSH = 0.1               # serrage voulu ; à ajuster avec la pièce de test
+CRUSH_ZONES = ((3.0, 11.0), (29.0, 37.0))  # depuis le bas de la colonne
+CRUSH_W = 3.0
+CRUSH_RAMP = 1.5
+CRUSH_TEST_L = 60.0
 
 # Crémaillère : deux trous de coulisseau décalés de 15 mm sur un pas de 30 mm
 # donnent un réglage tous les 15 mm.
@@ -43,23 +55,29 @@ HOLE_PITCH = 30.0
 HOLE_D = 4.4
 PIN_D = 4.0
 PIN_FLAT = 0.4            # méplat de la goupille, posé sur le plateau
-PIN_L = SLEEVE_OUT - 0.5
-SLEEVE_HOLES = (9.0, 24.0)
+STRUT_TAB = 3.0           # patte d'entretoise, traversée par la goupille
+PIN_L = SLEEVE_OUT - 0.5 + STRUT_TAB
+SLEEVE_HOLES = (6.0, 21.0)
 RACK_HOLES = np.arange(149.0, 300.0, HOLE_PITCH)  # depuis le bas de la colonne
 
-# Traverse : les deux panneaux centraux passent entre les colonnes, les deux
-# autres à l'extérieur.
-SEAT = 15.0               # longueur de panneau engagée dans la traverse
-FLOOR = 3.0
-LIP = 3.0                 # appui sous les grands côtés du panneau
-LIP_END = 4.0             # appui sous le petit côté du panneau
+# Traverse : les panneaux, LED vers le bas, sont collés sous ses plages planes.
+# Les colonnes passent entre les panneaux, le coulisseau reste au-dessus d'eux.
+PAD_T = 2.4
+PAD_MARGIN = 1.0          # débord de la plage autour de l'adhésif
 WALL_H = 10.0
-RIB_H = 8.0               # la nervure centrale ne fait que guider les panneaux
-END_GAP = 0.5             # jeu en bout de panneau
-END_WALL = 3.0
-CENTER_RIB = 3.0
-POCKET_W = 80.8
+WALL_T = 3.0
+RIB_T = 2.4               # nervure sous chaque plage, pour qu'elle ne fléchisse pas
+RIB_H = 6.0
 TRAVERSE_HALF = 158.0     # limité par la diagonale du plateau
+CENTER_GAP = 3.0          # écart entre les deux panneaux centraux
+LANE_W = 80.8             # largeur laissée à chaque panneau
+
+# Entretoise : relie deux coulisseaux face à face, au-dessus des panneaux. Son corps
+# passe au-dessus des trous pour laisser la tête de goupille accessible.
+STRUT_CLEAR = 0.3         # jeu par côté contre les coulisseaux
+STRUT_Z0 = 24.0
+STRUT_Z1 = 34.0
+STRUT_W = 8.0
 
 # Pied d'une seule pièce par face : ses deux douilles garantissent l'écartement
 # des colonnes, que deux pièces collées séparément ne tiendraient pas.
@@ -72,8 +90,12 @@ COL_BOTTOM = 70.0
 
 # Positions d'assemblage
 COL_X = RESERVOIR_HALF + POST_GAP + SLEEVE_OUT / 2
-COL_Y = CENTER_RIB / 2 + POCKET_W + SLEEVE_OUT / 2
-PANEL_Y = (CENTER_RIB / 2 + POCKET_W / 2, COL_Y + SLEEVE_OUT / 2 + POCKET_W / 2)
+COL_Y = CENTER_GAP / 2 + LANE_W + SLEEVE_OUT / 2
+PANEL_Y = (CENTER_GAP / 2 + LANE_W / 2, COL_Y + SLEEVE_OUT / 2 + LANE_W / 2)
+# Sur les panneaux extérieurs, l'adhésif est décalé vers l'intérieur : la traverse
+# s'arrête avant le bord du panneau.
+TAPE_Y = (PANEL_Y[0], TRAVERSE_HALF - PAD_MARGIN - TAPE_W / 2)
+TAPE_X = PANEL_L / 2 - TAPE_L / 2
 
 
 def box(x0, x1, y0, y1, z0, z1):
@@ -130,13 +152,36 @@ def frustum(x, y, half_big, half_small, z_big, z_small):
     return trimesh.convex.convex_hull(np.array(pts))
 
 
-def make_bar():
+def crush_rib(x0, x1, height, normal):
+    """Nervure en pente aux deux bouts, sur une face de la colonne, centrée sur la face."""
+    a = COL
+    w = CRUSH_W / 2
+    r = CRUSH_RAMP
+    top = 0.5                 # demi-largeur du sommet, qui s'écrase
+    if normal == "z":
+        pts = [(x, y, z) for x, z, half in ((x0, a - 0.3, w), (x1, a - 0.3, w), (x0 + r, a + height, top),
+                                            (x1 - r, a + height, top))
+               for y in (a / 2 - half, a / 2 + half)]
+    else:
+        side = a + height if normal > 0 else -height
+        base = a - 0.3 if normal > 0 else 0.3
+        pts = [(x, y, z) for x, y, half in ((x0, base, w), (x1, base, w), (x0 + r, side, top), (x1 - r, side, top))
+               for z in (a / 2 - half, a / 2 + half)]
+    return trimesh.convex.convex_hull(np.array(pts))
+
+
+def make_bar(length=BAR_L):
     """Colonne d'un seul tenant : longueur selon x, trous verticaux."""
     c = COL_CHAMFER
     a = COL
     section = [(c, 0), (a - c, 0), (a, c), (a, a - c), (a - c, a), (c, a), (0, a - c), (0, c)]
-    bar = prism_x(section, 0, BAR_L)
-    return cut(bar, *[cyl_z(x, a / 2, HOLE_D, -1, a + 1) for x in RACK_HOLES])
+    parts = [prism_x(section, 0, length)]
+    for x0, x1 in CRUSH_ZONES:
+        parts += [crush_rib(x0, x1, 2 * FIT + CRUSH, "z"), crush_rib(x0, x1, FIT + CRUSH, 1),
+                  crush_rib(x0, x1, FIT + CRUSH, -1)]
+    body = union(*parts)
+    holes = [cyl_z(x, a / 2, HOLE_D, -1, a + 2) for x in RACK_HOLES if x < length]
+    return cut(body, *holes) if holes else body
 
 
 def make_pin():
@@ -153,28 +198,47 @@ def make_pin():
 
 
 def make_traverse():
-    """Traverse côté x>0, en coordonnées d'assemblage, z=0 sur le plateau."""
-    end0 = PANEL_L / 2 + END_GAP
-    end1 = end0 + END_WALL
-    seat0 = PANEL_L / 2 - SEAT
-    half = SLEEVE_OUT / 2
+    """Traverse côté x>0, en coordonnées d'assemblage.
 
-    parts = [box(end0, end1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, WALL_H),
-             box(PANEL_L / 2 - LIP_END, end0, -TRAVERSE_HALF, TRAVERSE_HALF, 0, FLOOR),
-             box(seat0, end0, -CENTER_RIB / 2, CENTER_RIB / 2, 0, RIB_H),
-             box(seat0, end0, -CENTER_RIB / 2 - LIP, CENTER_RIB / 2 + LIP, 0, FLOOR)]
+    La face z=0 reçoit l'adhésif et repose sur le plateau à l'impression.
+    """
+    half = SLEEVE_OUT / 2
+    pad_x0 = TAPE_X - TAPE_L / 2 - PAD_MARGIN
+    pad_x1 = TAPE_X + TAPE_L / 2 + PAD_MARGIN
+    pad_half = TAPE_W / 2 + PAD_MARGIN
+    wall0 = pad_x1 - WALL_T
+
+    parts = [box(wall0, pad_x1, -TRAVERSE_HALF, TRAVERSE_HALF, 0, WALL_H)]
     tools = []
     for s in (-1, 1):
+        for y in TAPE_Y:
+            yc = s * y
+            parts += [box(pad_x0, pad_x1, yc - pad_half, yc + pad_half, 0, PAD_T),
+                      box(pad_x0, wall0, yc - RIB_T / 2, yc + RIB_T / 2, 0, RIB_H)]
         y = s * COL_Y
         parts += [box(COL_X - half, COL_X + half, y - half, y + half, 0, SLEEVE_H),
-                  box(COL_X, end0, y - half, y + half, 0, WALL_H),
-                  box(seat0, end0, y - half - LIP, y + half + LIP, 0, FLOOR),
-                  prism_y([(COL_X + half - 1, WALL_H), (COL_X + half - 1, SLEEVE_H), (end0, WALL_H)],
-                          y - 2.4, y + 2.4)]
+                  box(COL_X, wall0, y - half, y + half, 0, PAD_T),
+                  prism_y([(COL_X + half - 1, PAD_T), (COL_X + half - 1, SLEEVE_H), (wall0 + 1, WALL_H),
+                           (wall0 + 1, PAD_T)], y - 2.4, y + 2.4)]
         tools += [box(COL_X - BORE / 2, COL_X + BORE / 2, y - BORE / 2, y + BORE / 2, -1, SLEEVE_H + 1),
                   frustum(COL_X, y, BORE / 2 + 0.8, BORE / 2, -0.2, 0.8)]
         # Trous borgnes : la goupille entre côté bac et s'arrête contre le renfort
         tools += [teardrop_x(y, z, HOLE_D, COL_X - half - 1, COL_X + half) for z in SLEEVE_HOLES]
+    return cut(union(*parts), *tools)
+
+
+def make_strut():
+    """Entretoise retournée pour l'impression : corps sur le plateau, pattes vers le haut."""
+    half = SLEEVE_OUT / 2
+    outer = COL_X - half - STRUT_CLEAR
+    inner = outer - STRUT_TAB
+    h = STRUT_Z1 - STRUT_Z0
+    parts = [box(-outer, outer, -STRUT_W / 2, STRUT_W / 2, 0, h)]
+    tools = []
+    for s in (-1, 1):
+        lo, hi = sorted((s * inner, s * outer))
+        parts.append(box(lo, hi, -half, half, 0, STRUT_Z1))
+        tools += [teardrop_x(0, STRUT_Z1 - z, HOLE_D, lo - 1, hi + 1) for z in SLEEVE_HOLES]
     return cut(union(*parts), *tools)
 
 
@@ -218,9 +282,11 @@ def sleeve_hole_for(z_traverse):
 
 def assembly(parts, z_traverse):
     """Retourne les pièces positionnées, côté droit puis côté gauche."""
-    groups = {"foot": [], "bar": [], "traverse": [], "panel": [], "pin": []}
+    groups = {"foot": [], "bar": [], "traverse": [], "strut": [], "tape": [], "panel": [], "pin": []}
     half = SLEEVE_OUT / 2
     lift = tr(0, 0, -PIN_D / 2 + PIN_FLAT)
+    flip = trimesh.transformations.rotation_matrix(np.pi, (1, 0, 0))
+    pin_x = COL_X - half - STRUT_CLEAR - STRUT_TAB - 0.2
     hole = sleeve_hole_for(z_traverse)
     for side in (np.eye(4), ROT_180):
         groups["foot"].append(placed(parts["foot"], side))
@@ -229,10 +295,20 @@ def assembly(parts, z_traverse):
             y = sy * COL_Y
             groups["bar"].append(placed(parts["bar"], tr(0, -COL / 2, -COL / 2), BAR_TO_WORLD,
                                         tr(COL_X, y, COL_BOTTOM), side))
-            groups["pin"].append(placed(parts["pin"], lift, tr(COL_X - half - 0.2, y, z_traverse + hole), side))
-    for y in (-PANEL_Y[1], -PANEL_Y[0], PANEL_Y[0], PANEL_Y[1]):
-        groups["panel"].append(box(-PANEL_L / 2, PANEL_L / 2, y - PANEL_W / 2, y + PANEL_W / 2,
-                                   z_traverse + FLOOR, z_traverse + FLOOR + PANEL_T_VIEW))
+            groups["pin"].append(placed(parts["pin"], lift, tr(pin_x, y, z_traverse + hole), side))
+    for sy in (-1, 1):
+        groups["strut"].append(placed(parts["strut"], flip, tr(0, sy * COL_Y, z_traverse + STRUT_Z1)))
+    panel_top = z_traverse - TAPE_T
+    for sy in (-1, 1):
+        for panel_y, tape_y in zip(PANEL_Y, TAPE_Y):
+            y = sy * panel_y
+            groups["panel"].append(box(-PANEL_L / 2, PANEL_L / 2, y - PANEL_W / 2, y + PANEL_W / 2,
+                                       panel_top - PANEL_T, panel_top))
+            for sx in (-1, 1):
+                x = sx * TAPE_X
+                yt = sy * tape_y
+                groups["tape"].append(box(x - TAPE_L / 2, x + TAPE_L / 2, yt - TAPE_W / 2, yt + TAPE_W / 2,
+                                          panel_top, z_traverse))
     return groups
 
 
@@ -251,17 +327,20 @@ def build_parts():
         "foot": make_foot(),
         "bar": make_bar(),
         "traverse": make_traverse(),
+        "strut": make_strut(),
         "pin": make_pin(),
     }
 
 
 def main():
-    z_traverse = float(sys.argv[1]) if len(sys.argv) > 1 else 270.0
+    z_traverse = float(sys.argv[1]) if len(sys.argv) > 1 else 273.0
     parts = build_parts()
     on_bed(parts["foot"]).export(STL_DIR / "support_led_pied.stl")
     # Diagonale opposée à la zone exclue de l'avant gauche du plateau
     on_bed(parts["bar"], -45).export(STL_DIR / "support_led_colonne.stl")
     on_bed(parts["traverse"], 45).export(STL_DIR / "support_led_traverse.stl")
+    on_bed(parts["strut"]).export(STL_DIR / "support_led_entretoise.stl")
+    on_bed(make_bar(CRUSH_TEST_L)).export(STL_DIR / "support_led_test_nervures.stl")
     on_bed(parts["pin"]).export(STL_DIR / "support_led_goupille.stl")
     groups = assembly(parts, z_traverse)
     base = trimesh.load(STL_DIR / "assemblage_v12_vue.stl", force="mesh")

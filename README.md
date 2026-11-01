@@ -49,7 +49,7 @@ Remarques :
 
 ## Support des panneaux LED
 
-Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par crans de 15 mm. Deux pieds sont collés sur les faces gauche et droite du réservoir et portent chacun deux colonnes, espacées de la largeur de deux panneaux. Une traverse relie les deux colonnes de chaque face, ce qui empêche le support de se tordre. Les panneaux, orientés selon l'axe gauche-droite, passent à deux entre les colonnes et un de chaque côté, et les faces avant et arrière restent libres pour accéder aux semis ou sortir le bac.
+Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par crans de 15 mm. Deux pieds sont collés sur les faces gauche et droite du réservoir et portent chacun deux colonnes, espacées de la largeur de deux panneaux. Une traverse relie les deux colonnes de chaque face, ce qui empêche le support de se tordre. Les panneaux, épais de 1 mm, sont collés sous les traverses par leur face arrière, avec huit morceaux d'adhésif double face 3M de 30 × 50 mm. Deux entretoises relient les traverses par-dessus les panneaux. Les panneaux, orientés selon l'axe gauche-droite, passent à deux entre les colonnes et un de chaque côté, et les faces avant et arrière restent libres pour accéder aux semis ou sortir le bac.
 
 ![Support LED monté sur le réservoir et le bac de semis](CAD/images/support_led_vue.png)
 
@@ -57,12 +57,15 @@ Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par
 |---|---|---|---|
 | `support_led_pied.stl` | 2 | 73 g | Telle quelle, avec bordure (brim) |
 | `support_led_colonne.stl` | 4 | 29 g | Telle quelle, en diagonale du plateau, remplissage 10 % |
-| `support_led_traverse.stl` | 2 | 39 g | Telle quelle, en diagonale du plateau |
-| `support_led_goupille.stl` | 4 + rechange | 0,7 g | À plat |
+| `support_led_traverse.stl` | 2 | 47 g | Telle quelle, en diagonale du plateau, plages de collage sur le plateau |
+| `support_led_entretoise.stl` | 2 | 15 g | Telle quelle, corps sur le plateau, pattes vers le haut |
+| `support_led_goupille.stl` | 4 + rechange | 0,8 g | À plat |
 
-![Les quatre pièces à imprimer, à des échelles différentes](CAD/images/support_led_pieces.png)
+![Les pièces à imprimer, à des échelles différentes](CAD/images/support_led_pieces.png)
 
-Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser l'arrangement automatique pour la colonne et la traverse. Toutes les pièces s'impriment sans support. La bordure ne concerne que le pied, haut et étroit : la colonne et la traverse laissent trop peu de marge sur le plateau pour en recevoir une. Le tranchage dans Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couche 0,20 mm, 3 parois, remplissage 20 %, 10 % pour les colonnes) donne environ 345 g de filament et 8 h 40 d'impression. Le PETG est préférable au PLA pour sa tenue à l'humidité et à la chaleur des panneaux.
+Avant d'imprimer les quatre colonnes, imprimer `support_led_test_nervures.stl`, un tronçon de 60 mm : il doit entrer en force à la main dans le fût. Trop lâche ou impossible à enfoncer, ajuster `CRUSH` dans le script.
+
+Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser l'arrangement automatique pour la colonne et la traverse. Toutes les pièces s'impriment sans support. La bordure ne concerne que le pied, haut et étroit : la colonne et la traverse laissent trop peu de marge sur le plateau pour en recevoir une. Le tranchage dans Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couche 0,20 mm, 3 parois, remplissage 20 %, 10 % pour les colonnes) donne environ 390 g de filament et 10 h 10 d'impression. Le PETG est préférable au PLA pour sa tenue à l'humidité et à la chaleur des panneaux.
 
 ### Montage
 
@@ -70,32 +73,37 @@ Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser
 
 1. Vider et sécher le réservoir, puis poncer légèrement et dégraisser la paroi et le dos des pieds.
 2. Coller un pied sur chaque face gauche et droite à la colle époxy bicomposant : pied posé sur la table et centré sur la face, avec le même débord de 2 mm à chaque coin. Respecter le temps de durcissement complet. Le bac reste amovible : le dos du pied s'arrête sous le joint avec le réservoir, et les fûts passent à 0,4 mm de sa paroi.
-3. Insérer les colonnes dans les fûts, la longue partie sans trous vers le bas. Elles tiennent par emboîtement, sans goupille.
-4. Enfiler une traverse sur les deux colonnes de chaque face, la paroi continue vers l'extérieur, et la bloquer avec une goupille par colonne, insérée côté bac.
-5. Poser les panneaux dans les poches, LED vers le bas : deux entre les colonnes et un de chaque côté. Les câbles passent au-dessus de la paroi de 10 mm des traverses.
+3. Enfoncer les colonnes dans les fûts, la longue partie sans trous vers le bas et la face sans nervure tournée au choix. Leurs nervures d'écrasement suppriment le jeu : elles tiennent en force, sans goupille.
+4. Enfiler une traverse sur les deux colonnes de chaque face, la paroi vers l'extérieur, au même cran des deux côtés. Glisser une entretoise entre les coulisseaux en vis-à-vis, à l'avant et à l'arrière, puis bloquer chaque coulisseau avec une goupille, insérée côté bac à travers la patte de l'entretoise.
+5. Dégraisser les plages de collage et l'arrière des panneaux à l'alcool isopropylique, puis poser un adhésif sur chaque plage, le long de la paroi.
+6. Présenter chaque panneau sous les traverses, LED vers le bas, le bout à 1 mm du bord extérieur de la plage : deux entre les colonnes et un de chaque côté. Presser fermement chaque collage. Le côté de 50 mm de l'adhésif suit la largeur du panneau.
+7. Brancher les fiches USB-C sous les panneaux : rien ne les gêne, la traverse restant au-dessus.
 
-Pour déplacer le réservoir, sortir les colonnes en les soulevant. Les pieds restent collés.
+Pour déplacer le réservoir, sortir les colonnes en tirant fermement vers le haut. Les pieds restent collés.
 
 | Pied collé sur le réservoir | Coulisseau et goupille, panneaux avant retirés |
 |---|---|
 | ![Pied collé sur la face du réservoir](CAD/images/support_led_detail_pied.png) | ![Traverse, coulisseau et goupille](CAD/images/support_led_detail_traverse.png) |
 
+![Adhésifs sur les plages de collage, vus de dessous](CAD/images/support_led_detail_collage.png)
+
 ### Réglage de la hauteur
 
 ![Support aux hauteurs minimale et maximale](CAD/images/support_led_hauteurs.png)
 
-Chaque colonne a 6 trous espacés de 30 mm et chaque coulisseau en a deux, décalés de 15 mm : selon le trou utilisé, la traverse se déplace par crans de 15 mm. Monter un côté puis l'autre, un cran à la fois, en maintenant les colonnes pour qu'elles ne remontent pas avec la traverse.
+Chaque colonne a 6 trous espacés de 30 mm et chaque coulisseau en a deux, décalés de 15 mm : selon le trou utilisé, le cadre se déplace par crans de 15 mm. Une fois collés, les panneaux et les traverses forment un seul cadre : retirer les quatre goupilles, soulever le cadre d'un bloc par ses entretoises en le gardant horizontal, puis remettre les goupilles. Ne pas monter un côté avant l'autre, ce qui tordrait les panneaux et décollerait les adhésifs.
 
-- La face LED se règle sur 12 positions, de 198 à 363 mm au-dessus de la table, soit de **68 à 233 mm au-dessus du haut des godets**.
-- Le cran le plus bas passe 6 mm au-dessus du capteur d'humidité, qui reste le point le plus haut du bac.
+- La face LED se règle sur 12 positions, de 196 à 361 mm au-dessus de la table, soit de **66 à 231 mm au-dessus du haut des godets**, pour un adhésif de 1 mm.
+- Le cran le plus bas passe 4 mm au-dessus du capteur d'humidité, qui reste le point le plus haut du bac.
 
 ### Limites
 
 - Les deux panneaux centraux se touchent presque et couvrent le bac jusqu'à 18 mm de ses bords avant et arrière. Les deux panneaux extérieurs sont entièrement en dehors de l'emprise du bac et n'éclairent les semis qu'en biais.
-- La paroi des traverses dépasse de 7 mm au-dessus de l'appui des panneaux : un câble qui sort du petit côté d'un panneau mince doit remonter pour la franchir.
-- La traverse tient en un seul morceau sur le plateau, au prix d'une longueur de 316 mm : elle porte les panneaux extérieurs sur 55 des 80 mm de leur largeur, et les retient uniquement côté intérieur.
+- Sur les panneaux extérieurs, l'adhésif est décalé de 11 mm vers l'intérieur, car la traverse s'arrête à 316 mm pour tenir sur le plateau.
+- Les panneaux ne sont tenus qu'à leurs deux bouts, sur 240 mm de portée libre. Selon leur matière, ils peuvent fléchir de quelques millimètres en leur milieu.
+- La tenue de l'adhésif dépend de la chaleur des panneaux et de la surface imprimée, et reste à vérifier.
 
-Encombrement : 307 × 367 × 392 mm. Les poches sont ouvertes par le haut et fonctionnent quelle que soit l'épaisseur des panneaux. Le script paramétrique [`CAD/support_led.py`](CAD/support_led.py) permet d'ajuster les dimensions : `POCKET_W` pour la largeur des poches, `COL` pour la section des colonnes, `FIT` pour le jeu des coulisseaux, `BAR_L` pour la longueur des colonnes. Le script [`CAD/rendu_support_led.py`](CAD/rendu_support_led.py) régénère les images de cette section.
+Encombrement : 302 × 367 × 397 mm. Le script paramétrique [`CAD/support_led.py`](CAD/support_led.py) permet d'ajuster les dimensions : `TAPE_L` et `TAPE_W` pour l'adhésif, `COL` pour la section des colonnes, `FIT` pour le jeu des coulisseaux, `CRUSH` pour le serrage des nervures, `BAR_L` pour la longueur des colonnes. Le script [`CAD/rendu_support_led.py`](CAD/rendu_support_led.py) régénère les images de cette section.
 
 ## Licence
 
