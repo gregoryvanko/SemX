@@ -43,11 +43,10 @@ BAR_L = 320.0             # imprimée en diagonale sur le plateau du X1 Carbon
 # Nervures d'écrasement en bas de colonne, pour supprimer le jeu dans le fût du pied.
 # Deux zones, aux extrémités de l'emboîtement, sur trois faces : la quatrième est
 # posée sur le plateau et reste plaquée contre le fût.
-CRUSH = 0.1               # serrage voulu ; à ajuster avec la pièce de test
+CRUSH = 0.1               # serrage validé sur une pièce imprimée
 CRUSH_ZONES = ((3.0, 11.0), (29.0, 37.0))  # depuis le bas de la colonne
 CRUSH_W = 3.0
 CRUSH_RAMP = 1.5
-CRUSH_TEST_L = 60.0
 
 # Crémaillère : deux trous de coulisseau décalés de 15 mm sur un pas de 30 mm
 # donnent un réglage tous les 15 mm.
@@ -170,18 +169,16 @@ def crush_rib(x0, x1, height, normal):
     return trimesh.convex.convex_hull(np.array(pts))
 
 
-def make_bar(length=BAR_L):
+def make_bar():
     """Colonne d'un seul tenant : longueur selon x, trous verticaux."""
     c = COL_CHAMFER
     a = COL
     section = [(c, 0), (a - c, 0), (a, c), (a, a - c), (a - c, a), (c, a), (0, a - c), (0, c)]
-    parts = [prism_x(section, 0, length)]
+    parts = [prism_x(section, 0, BAR_L)]
     for x0, x1 in CRUSH_ZONES:
         parts += [crush_rib(x0, x1, 2 * FIT + CRUSH, "z"), crush_rib(x0, x1, FIT + CRUSH, 1),
                   crush_rib(x0, x1, FIT + CRUSH, -1)]
-    body = union(*parts)
-    holes = [cyl_z(x, a / 2, HOLE_D, -1, a + 2) for x in RACK_HOLES if x < length]
-    return cut(body, *holes) if holes else body
+    return cut(union(*parts), *[cyl_z(x, a / 2, HOLE_D, -1, a + 2) for x in RACK_HOLES])
 
 
 def make_pin():
@@ -340,7 +337,6 @@ def main():
     on_bed(parts["bar"], -45).export(STL_DIR / "support_led_colonne.stl")
     on_bed(parts["traverse"], 45).export(STL_DIR / "support_led_traverse.stl")
     on_bed(parts["strut"]).export(STL_DIR / "support_led_entretoise.stl")
-    on_bed(make_bar(CRUSH_TEST_L)).export(STL_DIR / "support_led_test_nervures.stl")
     on_bed(parts["pin"]).export(STL_DIR / "support_led_goupille.stl")
     groups = assembly(parts, z_traverse)
     base = trimesh.load(STL_DIR / "assemblage_v12_vue.stl", force="mesh")

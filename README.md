@@ -63,8 +63,6 @@ Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par
 
 ![Les pièces à imprimer, à des échelles différentes](CAD/images/support_led_pieces.png)
 
-Avant d'imprimer les quatre colonnes, imprimer `support_led_test_nervures.stl`, un tronçon de 60 mm : il doit entrer en force à la main dans le fût. Trop lâche ou impossible à enfoncer, ajuster `CRUSH` dans le script.
-
 Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser l'arrangement automatique pour la colonne et la traverse. Toutes les pièces s'impriment sans support. La bordure ne concerne que le pied, haut et étroit : la colonne et la traverse laissent trop peu de marge sur le plateau pour en recevoir une. Le tranchage dans Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couche 0,20 mm, 3 parois, remplissage 20 %, 10 % pour les colonnes) donne environ 390 g de filament et 10 h 10 d'impression. Le PETG est préférable au PLA pour sa tenue à l'humidité et à la chaleur des panneaux.
 
 ### Montage
