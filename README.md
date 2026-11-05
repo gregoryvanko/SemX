@@ -49,7 +49,7 @@ Remarques :
 
 ## Support des panneaux LED
 
-Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par crans de 15 mm. Deux pieds sont collés sur les faces gauche et droite du réservoir et portent chacun deux colonnes, espacées de la largeur de deux panneaux. Une traverse relie les deux colonnes de chaque face, ce qui empêche le support de se tordre. Les panneaux, épais de 1 mm, sont collés sous les traverses par leur face arrière, avec huit morceaux d'adhésif double face 3M de 30 × 50 mm. Deux entretoises relient les traverses par-dessus les panneaux. Les panneaux, orientés selon l'axe gauche-droite, passent à deux entre les colonnes et un de chaque côté, et les faces avant et arrière restent libres pour accéder aux semis ou sortir le bac.
+Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par crans de 30 mm. Deux pieds sont collés sur les faces gauche et droite du réservoir et portent chacun deux colonnes, espacées de la largeur de deux panneaux. Une traverse relie les deux colonnes de chaque face, ce qui empêche le support de se tordre. Les panneaux, épais de 1 mm, sont collés sous les traverses par leur face arrière, avec huit morceaux d'adhésif double face 3M de 30 × 50 mm. Deux entretoises relient les traverses par-dessus les panneaux. Les panneaux, orientés selon l'axe gauche-droite, passent à deux entre les colonnes et un de chaque côté, et les faces avant et arrière restent libres pour accéder aux semis ou sortir le bac.
 
 ![Support LED monté sur le réservoir et le bac de semis](CAD/images/support_led_vue.png)
 
@@ -58,7 +58,7 @@ Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par
 | `support_led_pied.stl` | 2 | 72 g | Telle quelle, avec bordure (brim) |
 | `support_led_colonne.stl` | 4 | 29 g | Telle quelle, en diagonale du plateau, remplissage 10 % |
 | `support_led_traverse.stl` | 2 | 51 g | Telle quelle, en diagonale du plateau, bande de collage sur le plateau |
-| `support_led_entretoise.stl` | 2 | 15 g | Telle quelle, corps sur le plateau, pattes vers le haut |
+| `support_led_entretoise.stl` | 2 | 14 g | Telle quelle, corps sur le plateau, pattes vers le haut |
 | `support_led_goupille.stl` | 4 + rechange | 0,8 g | À plat |
 
 ![Les pièces à imprimer, à des échelles différentes](CAD/images/support_led_pieces.png)
@@ -72,7 +72,7 @@ Les fichiers sont déjà positionnés sur le plateau de 256 mm : ne pas utiliser
 1. Vider et sécher le réservoir, puis poncer légèrement et dégraisser la paroi et le dos des pieds.
 2. Coller un pied sur chaque face gauche et droite à la colle époxy bicomposant : pied posé sur la table et centré sur la face, avec le même retrait de 0,3 mm à chaque coin : le pied est un peu moins large que le réservoir. Respecter le temps de durcissement complet. Le bac reste amovible : le dos du pied s'arrête sous le joint avec le réservoir, et les fûts passent à 0,4 mm de sa paroi.
 3. Enfoncer les colonnes dans les fûts, la longue partie sans trous vers le bas et la face sans nervure tournée au choix. Leurs nervures d'écrasement suppriment le jeu : elles tiennent en force, sans goupille.
-4. Enfiler une traverse sur les deux colonnes de chaque face, la paroi vers l'extérieur, au même cran des deux côtés. Glisser une entretoise entre les coulisseaux en vis-à-vis, à l'avant et à l'arrière, puis bloquer chaque coulisseau avec une goupille, insérée côté bac à travers la patte de l'entretoise.
+4. Enfiler une traverse sur les deux colonnes de chaque face, la paroi vers l'extérieur, au même cran des deux côtés. Glisser une entretoise entre les coulisseaux en vis-à-vis, à l'avant et à l'arrière, puis bloquer chaque coulisseau avec une goupille, insérée côté bac à travers la patte de l'entretoise et le trou bas du coulisseau.
 5. Dégraisser la bande de collage et l'arrière des panneaux à l'alcool isopropylique, puis poser les adhésifs sous la bande, le long de la paroi, chacun dans l'axe d'une nervure.
 6. Présenter chaque panneau sous les traverses, LED vers le bas, le bout à 1 mm du bord extérieur de la bande : deux entre les colonnes et un de chaque côté. Presser fermement chaque collage. Le côté de 50 mm de l'adhésif suit la largeur du panneau.
 7. Brancher les fiches USB-C sous les panneaux : rien ne les gêne, la traverse restant au-dessus.
@@ -89,10 +89,10 @@ Pour déplacer le réservoir, sortir les colonnes en tirant fermement vers le ha
 
 ![Support aux hauteurs minimale et maximale](CAD/images/support_led_hauteurs.png)
 
-Chaque colonne a 6 trous espacés de 30 mm et chaque coulisseau en a deux, décalés de 15 mm : selon le trou utilisé, le cadre se déplace par crans de 15 mm. Une fois collés, les panneaux et les traverses forment un seul cadre : retirer les quatre goupilles, soulever le cadre d'un bloc par ses entretoises en le gardant horizontal, puis remettre les goupilles. Ne pas monter un côté avant l'autre, ce qui tordrait les panneaux et décollerait les adhésifs.
+Chaque colonne a 6 trous espacés de 30 mm : le cadre se déplace par crans de 30 mm. La goupille passe toujours par le trou bas du coulisseau, le seul que l'entretoise reprend ; le trou haut ne sert pas. Une fois collés, les panneaux et les traverses forment un seul cadre : retirer les quatre goupilles, soulever le cadre d'un bloc par ses entretoises en le gardant horizontal, puis remettre les goupilles. Ne pas monter un côté avant l'autre, ce qui tordrait les panneaux et décollerait les adhésifs.
 
-- La face LED se règle sur 12 positions, de 196 à 361 mm au-dessus de la table, soit de **66 à 231 mm au-dessus du haut des godets**, pour un adhésif de 1 mm.
-- Le cran le plus bas passe 4 mm au-dessus du capteur d'humidité, qui reste le point le plus haut du bac.
+- La face LED se règle sur 6 positions, de 211 à 361 mm au-dessus de la table, soit de **81 à 231 mm au-dessus du haut des godets**, pour un adhésif de 1 mm.
+- Le cran le plus bas passe 19 mm au-dessus du capteur d'humidité, qui reste le point le plus haut du bac.
 
 ### Limites
 

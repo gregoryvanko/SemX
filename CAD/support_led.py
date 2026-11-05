@@ -4,7 +4,7 @@
 Génère les pièces imprimables dans STL/ et une vue d'assemblage.
 Dépendances : pip install numpy scipy trimesh manifold3d shapely mapbox_earcut
 Usage : python CAD/support_led.py [hauteur_sous_traverse_mm]
-La hauteur de la vue doit être un cran : 198, 213, 228... jusqu'à 363.
+La hauteur de la vue doit être un cran : 213, 243, 273... jusqu'à 363.
 
 Repère d'assemblage : z vers le haut, axe des panneaux selon x, colonnes
 sur les faces x du réservoir, faces y libres. Unités : mm.
@@ -48,8 +48,8 @@ CRUSH_ZONES = ((3.0, 11.0), (29.0, 37.0))  # depuis le bas de la colonne
 CRUSH_W = 3.0
 CRUSH_RAMP = 1.5
 
-# Crémaillère : deux trous de coulisseau décalés de 15 mm sur un pas de 30 mm
-# donnent un réglage tous les 15 mm.
+# Crémaillère : un trou tous les 30 mm. Seul le trou bas du coulisseau sert :
+# l'entretoise n'est percée qu'à sa hauteur, d'où un réglage tous les 30 mm.
 HOLE_PITCH = 30.0
 HOLE_D = 4.4
 PIN_D = 4.0
@@ -73,10 +73,12 @@ CENTER_GAP = 2.0          # écart entre les deux panneaux centraux
 PANEL_CLEAR = 1.5         # écart entre une colonne et le panneau extérieur
 
 # Entretoise : relie deux coulisseaux face à face, au-dessus des panneaux. Son corps
-# passe au-dessus des trous pour laisser la tête de goupille accessible.
+# passe au-dessus du trou bas pour laisser la tête de goupille accessible.
 STRUT_CLEAR = 0.3         # jeu par côté contre les coulisseaux
-STRUT_Z0 = 24.0
-STRUT_Z1 = 34.0
+STRUT_HOLE = SLEEVE_HOLES[0]
+PIN_HEAD_CLEAR = 3.0      # entre le dessus de la tête de goupille et le corps
+STRUT_Z0 = STRUT_HOLE + PIN_D / 2 + PIN_HEAD_CLEAR
+STRUT_Z1 = STRUT_Z0 + 10.0
 STRUT_W = 8.0
 
 # Pied d'une seule pièce par face : ses deux douilles garantissent l'écartement
@@ -235,7 +237,7 @@ def make_strut():
     for s in (-1, 1):
         lo, hi = sorted((s * inner, s * outer))
         parts.append(box(lo, hi, -half, half, 0, STRUT_Z1))
-        tools += [teardrop_x(0, STRUT_Z1 - z, HOLE_D, lo - 1, hi + 1) for z in SLEEVE_HOLES]
+        tools.append(teardrop_x(0, STRUT_Z1 - STRUT_HOLE, HOLE_D, lo - 1, hi + 1))
     return cut(union(*parts), *tools)
 
 
@@ -271,9 +273,8 @@ def tr(x, y, z):
 
 
 def sleeve_hole_for(z_traverse):
-    for h in SLEEVE_HOLES:
-        if np.isclose(RACK_HOLES, z_traverse + h - COL_BOTTOM).any():
-            return h
+    if np.isclose(RACK_HOLES, z_traverse + STRUT_HOLE - COL_BOTTOM).any():
+        return STRUT_HOLE
     raise ValueError(f"{z_traverse} ne tombe pas sur un cran")
 
 

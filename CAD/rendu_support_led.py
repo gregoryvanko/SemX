@@ -34,7 +34,7 @@ COLORS = {
 }
 
 HERO_Z = 273
-MIN_Z = 198
+MIN_Z = 213
 MAX_Z = 363
 PANEL_DROP = s.TAPE_T + s.PANEL_T
 
