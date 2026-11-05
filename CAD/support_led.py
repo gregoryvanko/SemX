@@ -72,13 +72,16 @@ TRAVERSE_HALF = 158.0     # limité par la diagonale du plateau
 CENTER_GAP = 2.0          # écart entre les deux panneaux centraux
 PANEL_CLEAR = 1.5         # écart entre une colonne et le panneau extérieur
 
-# Entretoise : relie deux coulisseaux face à face, au-dessus des panneaux. Son corps
-# passe au-dessus du trou bas pour laisser la tête de goupille accessible.
+# Entretoise : relie deux coulisseaux face à face. Son corps pend sous la goupille,
+# ce qui l'empêche de basculer, et descend entre les panneaux, dans l'intervalle
+# où passent les colonnes. Hauteurs depuis le dessous de la traverse.
 STRUT_CLEAR = 0.3         # jeu par côté contre les coulisseaux
 STRUT_HOLE = SLEEVE_HOLES[0]
-PIN_HEAD_CLEAR = 3.0      # entre le dessus de la tête de goupille et le corps
-STRUT_Z0 = STRUT_HOLE + PIN_D / 2 + PIN_HEAD_CLEAR
-STRUT_Z1 = STRUT_Z0 + 10.0
+PIN_HEAD_CLEAR = 1.0      # entre le dessous de la tête de goupille et le corps
+STRUT_Z1 = STRUT_HOLE - (PIN_D / 2 - PIN_FLAT) - PIN_HEAD_CLEAR
+STRUT_Z0 = STRUT_Z1 - 10.0
+STRUT_TAB_W = 12.0
+STRUT_TAB_TOP = STRUT_HOLE + 6.0
 STRUT_W = 8.0
 
 # Pied d'une seule pièce par face : ses deux douilles garantissent l'écartement
@@ -227,17 +230,17 @@ def make_traverse():
 
 
 def make_strut():
-    """Entretoise retournée pour l'impression : corps sur le plateau, pattes vers le haut."""
-    half = SLEEVE_OUT / 2
-    outer = COL_X - half - STRUT_CLEAR
+    """Entretoise, z depuis le dessous de la traverse. S'imprime telle quelle :
+    corps sur le plateau, pattes vers le haut."""
+    outer = COL_X - SLEEVE_OUT / 2 - STRUT_CLEAR
     inner = outer - STRUT_TAB
-    h = STRUT_Z1 - STRUT_Z0
-    parts = [box(-outer, outer, -STRUT_W / 2, STRUT_W / 2, 0, h)]
+    w = STRUT_TAB_W / 2
+    parts = [box(-outer, outer, -STRUT_W / 2, STRUT_W / 2, STRUT_Z0, STRUT_Z1)]
     tools = []
     for s in (-1, 1):
         lo, hi = sorted((s * inner, s * outer))
-        parts.append(box(lo, hi, -half, half, 0, STRUT_Z1))
-        tools.append(teardrop_x(0, STRUT_Z1 - STRUT_HOLE, HOLE_D, lo - 1, hi + 1))
+        parts.append(box(lo, hi, -w, w, STRUT_Z0, STRUT_TAB_TOP))
+        tools.append(teardrop_x(0, STRUT_HOLE, HOLE_D, lo - 1, hi + 1))
     return cut(union(*parts), *tools)
 
 
@@ -283,7 +286,6 @@ def assembly(parts, z_traverse):
     groups = {"foot": [], "bar": [], "traverse": [], "strut": [], "tape": [], "panel": [], "pin": []}
     half = SLEEVE_OUT / 2
     lift = tr(0, 0, -PIN_D / 2 + PIN_FLAT)
-    flip = trimesh.transformations.rotation_matrix(np.pi, (1, 0, 0))
     pin_x = COL_X - half - STRUT_CLEAR - STRUT_TAB - 0.2
     hole = sleeve_hole_for(z_traverse)
     for side in (np.eye(4), ROT_180):
@@ -295,7 +297,7 @@ def assembly(parts, z_traverse):
                                         tr(COL_X, y, COL_BOTTOM), side))
             groups["pin"].append(placed(parts["pin"], lift, tr(pin_x, y, z_traverse + hole), side))
     for sy in (-1, 1):
-        groups["strut"].append(placed(parts["strut"], flip, tr(0, sy * COL_Y, z_traverse + STRUT_Z1)))
+        groups["strut"].append(placed(parts["strut"], tr(0, sy * COL_Y, z_traverse)))
     panel_top = z_traverse - TAPE_T
     for sy in (-1, 1):
         for panel_y, tape_y in zip(PANEL_Y, TAPE_Y):

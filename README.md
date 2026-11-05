@@ -58,7 +58,7 @@ Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par
 | `support_led_pied.stl` | 2 | 72 g | Telle quelle, avec bordure (brim) |
 | `support_led_colonne.stl` | 4 | 29 g | Telle quelle, en diagonale du plateau, remplissage 10 % |
 | `support_led_traverse.stl` | 2 | 51 g | Telle quelle, en diagonale du plateau, bande de collage sur le plateau |
-| `support_led_entretoise.stl` | 2 | 14 g | Telle quelle, corps sur le plateau, pattes vers le haut |
+| `support_led_entretoise.stl` | 2 | 13 g | Telle quelle, corps sur le plateau, pattes vers le haut |
 | `support_led_goupille.stl` | 4 + rechange | 0,8 g | À plat |
 
 ![Les pièces à imprimer, à des échelles différentes](CAD/images/support_led_pieces.png)

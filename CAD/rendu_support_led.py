@@ -208,8 +208,6 @@ def render_parts(parts):
     for key, title, direction, zoom in items:
         p = new_plotter((1100, 750))
         m = parts[key].copy()
-        if key == "strut":
-            m.apply_transform(trimesh.transformations.rotation_matrix(np.pi, (1, 0, 0)))
         m.apply_translation(-m.bounds.mean(axis=0))
         add(p, m, COLORS[key])
         d = np.array(direction, dtype=float)
