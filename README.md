@@ -47,6 +47,29 @@ Remarques :
 - Les DS18B20 acceptent de 3,0 à 5,5 V. Si elles sont alimentées en 5 V, la résistance de tirage doit rester reliée au 3V3, car les GPIO de l’ESP32 ne tolèrent pas le 5 V.
 - De nombreux modules relais sont actifs à l’état bas : vérifier la logique du module utilisé et sa compatibilité avec une commande en 3,3 V.
 
+## Réservoir, bac et godets
+
+Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis et un godet de mesure. L'eau monte dans le bac et les godets l'absorbent par les trous de leur fond. Un trop-plein limite la hauteur d'eau dans le bac et renvoie le surplus dans le réservoir.
+
+![Réservoir, bac et godets assemblés](CAD/images/assemblage_vue.png)
+
+![Vue éclatée : réservoir, bac, godets, capteur d'humidité et couvercle du godet de mesure](CAD/images/assemblage_eclate.png)
+
+![Les pièces, à des échelles différentes](CAD/images/pieces.png)
+
+| Pièce (`STL/`) | Quantité | Dimensions | Description |
+|---|---|---|---|
+| `reservoir_201x201x90_2piliers_paroi2.0.stl` | 1 | 201 × 201 × 90 mm | Réservoir d'eau aux parois de 2 mm, raidies par des nervures triangulaires. Deux piliers en croix soutiennent le centre du bac, et une grille de nervures renforce le fond. Une encoche dans le bord laisse passer le câble de la pompe immergée. |
+| `bac_semis_201x201x46_socle.stl` | 1 | 201 × 201 × 46 mm | Bac qui reçoit les godets. Son socle s'emboîte dans le haut du réservoir. Dans un coin, un trop-plein de Ø 14 mm (passage de Ø 10 mm) haut d'environ 25 mm renvoie l'eau en excès dans le réservoir. Un trou de Ø 8,4 mm au ras du fond, vers le coin opposé, reçoit l'eau envoyée par la pompe. |
+| `godet_semis_36x36x42.stl` | 24 | 36 × 36 × 42 mm | Godet de semis évasé, de 28 × 28 mm au fond. Il repose sur 4 pieds de 6 mm, et ses 9 trous de 3 mm laissent l'eau entrer par le dessous. Les godets se placent sur une grille de 5 × 5 cases de 36 mm. |
+| `godet_mesure_36x19x42.stl` | 1 | 36 × 19 × 42 mm | Demi-godet, avec le même substrat que les godets de semis, dans lequel plongent le capteur d'humidité et la sonde DS18B20 du semis. Il repose sur 4 pieds et a 5 trous de 3 mm au fond. |
+| `couvercle_godet_mesure_36x19.stl` | 1 | 42 × 22 × 8 mm | Couvercle emboîté sur le godet de mesure, qui maintient les capteurs : une fente de 24 × 2,4 mm pour le capteur d'humidité capacitif et un trou de Ø 6,6 mm pour la sonde DS18B20. |
+| `support_godet_mesure_36x19.stl` | 1 | 46 × 46 × 24 mm | Cadre posé dans la case d'angle du bac, à côté du trop-plein. Il cale le godet de mesure, et sa paroi en U entoure le trop-plein. |
+| `Tuyau Pompe.stl` | 1 | Ø 14 × 15 mm | Manchon de Ø 14 mm, au passage de Ø 8 mm, collé sous le bac, dans l'axe du trou d'arrivée d'eau. Il tient le tuyau qui remonte de la pompe jusqu'à ce trou. |
+| `assemblage_v12_vue.stl`, `assemblage_v12_eclate_vue.stl` | — | — | Vues d'assemblage, monté et éclaté, non destinées à l'impression. Elles représentent le capteur d'humidité et la sonde par de simples volumes, et montrent une ancienne version du couvercle, plate, sans le support du godet de mesure. |
+
+Les images sont générées par `python CAD/rendu_pieces.py` (`pip install trimesh pyvista pillow scipy`).
+
 ## Support des panneaux LED
 
 Support imprimable pour 4 panneaux LED de 80 × 300 mm, réglable en hauteur par crans de 30 mm. Deux pieds sont collés sur les faces gauche et droite du réservoir et portent chacun deux colonnes, espacées de la largeur de deux panneaux. Une traverse relie les deux colonnes de chaque face, ce qui empêche le support de se tordre. Les panneaux, épais de 1 mm, sont collés sous les traverses par leur face arrière, avec huit morceaux d'adhésif double face 3M de 30 × 50 mm. Deux entretoises relient les traverses par-dessus les panneaux. Les panneaux, orientés selon l'axe gauche-droite, passent à deux entre les colonnes et un de chaque côté, et les faces avant et arrière restent libres pour accéder aux semis ou sortir le bac.
@@ -106,3 +129,54 @@ Encombrement : 302 × 357 × 397 mm, et le pied ne dépasse pas la largeur du r�
 ## Licence
 
 Le projet est distribué sous licence Apache 2.0. Consulter le fichier [LICENSE](LICENSE) pour en connaître les conditions.
+
+## Circuit imprimé
+
+Carte simple face de 87 × 55 mm, à graver à la CNC, qui reçoit l'ESP32 DevKit C V4 sur deux barrettes femelles et relie les sondes, les relais et l'alimentation suivant le brochage ci-dessus. L'antenne de l'ESP32 dépasse du bord haut, et le connecteur USB reste accessible en bas.
+
+![Implantation des composants](PCB/images/pcb_implantation.png)
+
+| Repère | Composant | Raccordement |
+|---|---|---|
+| U1 | ESP32 AZ-Delivery DevKit C V4, sur 2 barrettes femelles 1 × 19 au pas de 2,54 mm | — |
+| J1 | Barrette mâle 1 × 3 | Capteur d'humidité : VCC (3V3), AOUT (GPIO34), GND |
+| J2 | Barrette mâle 1 × 6 | Relais : IN1 pompe (GPIO26), IN2 lumière (GPIO27), GND, GND, 5V, 5V |
+| J3 | Bornier à vis 2 points, pas de 5,08 mm | Alimentation 5 V : +5V, GND |
+| J4, J5 | Bornier à vis 3 points, pas de 5,08 mm | DS18B20 réservoir et semis : VCC (3V3), DATA (GPIO4), GND |
+| R1 | Résistance 4,7 kΩ 1/4 W | Tirage du bus 1-Wire vers le 3V3 |
+| C1 | Condensateur 100 µF 10 V radial, pas de 2,5 mm (facultatif) | Découplage du 5 V |
+| D1 | Diode Schottky 1N5819 (1 A, boîtier DO-41), bague vers l'ESP32 | Du bornier 5 V vers la broche 5V de l'ESP32 |
+
+Espacements et perçages, pour vérifier les composants avant d'usiner :
+
+| Repère | Broches | Pas entre broches | Perçage | Pastille de cuivre |
+|---|---|---|---|---|
+| U1 ESP32 | 2 rangées de 19 | 2,54 mm, rangées espacées de 25,4 mm d'axe en axe | 1,0 mm | 1,9 mm |
+| J1 humidité | 1 × 3 | 2,54 mm | 1,0 mm | 1,9 mm |
+| J2 relais | 1 × 6 | 2,54 mm | 1,0 mm | 1,9 mm |
+| J3 alimentation | 2 | 5,08 mm | 1,3 mm | 2,8 mm |
+| J4, J5 DS18B20 | 3 | 5,08 mm | 1,3 mm | 2,8 mm |
+| R1 | 2 | 10,16 mm | 1,0 mm | 2,0 mm |
+| C1 | 2 | 2,5 mm | 1,0 mm | 2,0 mm |
+| D1 | 2 | 10,16 mm | 1,3 mm | 2,6 mm |
+| Fixations | 4 trous M3 | Centres à (5 ; 50), (84 ; 52), (7,5 ; 34) et (62 ; 11) mm du coin bas gauche, vue côté composants | 3,2 mm, fraisé | Aucune |
+
+Le script `PCB/pcb_semix.py` (`pip install shapely matplotlib`) vérifie la continuité et l'isolement des réseaux, puis écrit :
+
+- `PCB/fabrication/gerber/` : cuivre face dessous en vue de dessus, contour et perçage Excellon, pour FlatCAM ou un autre logiciel de FAO ;
+- `PCB/fabrication/gcode/` : G-code GRBL prêt à l'emploi, déjà mis en miroir pour être usiné côté cuivre, à lancer dans l'ordre :
+  1. `1_isolation_fraiseV.nc` : fraise en V (30°, pointe 0,1 mm), 0,1 mm de profondeur, 3 passes ;
+  2. `2_percage_1.0mm.nc` et `3_percage_1.3mm.nc` : forets de 1,0 et 1,3 mm ;
+  3. `4_detourage_fraise2mm.nc` : fraise droite de 2 mm, trous de fixation M3 puis contour avec 4 attaches.
+
+![Trajectoires d'usinage, vue côté cuivre](PCB/images/pcb_usinage.png)
+
+Usinage :
+
+- Plaque FR1 ou FR4 simple face d'au moins 97 × 65 mm, cuivre vers le haut. L'origine X0 Y0 est le coin avant gauche de la plaque, la carte commençant 5 mm plus loin ; Z0 est la surface du cuivre.
+- Refaire le zéro Z à chaque changement d'outil, sans toucher à X et Y. Un relevé de planéité (autolevelling, par exemple dans Candle) est fortement conseillé pour l'isolation.
+- Avant d'usiner, mesurer l'entraxe des deux rangées de broches de l'ESP32 : la carte suppose 25,4 mm (`ESP_ROW_SPACING` dans le script).
+
+Montage : composants côté sans cuivre, soudures côté cuivre.
+
+L'USB de l'ESP32 peut rester branché pendant que la carte est alimentée par le bornier. D1 empêche le 5 V du bornier de remonter vers l'USB, et la diode que le DevKit C V4 place sur son USB empêche l'inverse : l'ESP32 prend la plus haute des deux tensions. Les relais restent alimentés directement par le bornier : avec l'USB seul, l'ESP32 fonctionne mais les relais ne commutent pas. La chute de tension de D1 laisse environ 4,6 V sur la broche 5V, ce qui suffit au régulateur 3,3 V de l'ESP32. Sur une copie du DevKit d'un autre fabricant, vérifier la présence de la diode USB avant de brancher les deux sources.
