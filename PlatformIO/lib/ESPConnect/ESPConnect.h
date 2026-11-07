@@ -59,9 +59,24 @@ public:
   String deviceName() const;
   String statusTopic() const;
 
+  // Configuration MQTT enregistrée (lecture seule, mot de passe jamais exposé)
+  struct MqttInfo {
+    bool enabled;     // connexion activée
+    bool configured;  // adresse du serveur renseignée
+    String server;    // URI du serveur, ex. "wss://broker:443/mqtt" (vide si non configuré)
+    String user;
+    bool passSet;
+    String clientId;
+    String error;     // dernière erreur de connexion
+  };
+  MqttInfo mqttInfo() const;
+
   // --- Effacement -----------------------------------------------------------
   void resetWifi();  // efface les identifiants WiFi et redémarre en mode portail
   void clearMqtt();  // ferme la connexion au broker et efface la configuration MQTT
+  // Active ou désactive la connexion MQTT en gardant le reste de la configuration (enregistré en NVS,
+  // appliqué au prochain loop()). Refusé (false) pour activer sans adresse de serveur configurée.
+  bool setMqttEnabled(bool enabled);
 
   // --- MQTT -----------------------------------------------------------------
   // Les souscriptions sont mémorisées et renouvelées à chaque (re)connexion.

@@ -181,6 +181,8 @@ L'identifiant client MQTT est `<nom d'appareil>-<3 derniers octets de la MAC>`, 
 | `enableOTA(password, port = 3232)` | Active la mise à jour par le réseau. |
 | `resetWifi()` | Efface les identifiants WiFi et redémarre sur le portail. |
 | `clearMqtt()` | Ferme la connexion MQTT et efface sa configuration. |
+| `setMqttEnabled(bool)` | Active ou désactive MQTT en gardant le reste de la configuration (refusé sans serveur configuré). |
+| `mqttInfo()` | Configuration MQTT en lecture seule : activée, serveur, utilisateur, mot de passe présent, identifiant client, dernière erreur. |
 
 ### État
 

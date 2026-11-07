@@ -27,7 +27,7 @@ La chambre de culture vise à agir sur plusieurs paramètres importants pour le 
 ### Actionneurs
 
 - **Relais pompe** : allume et éteint la pompe à eau.
-- **Relais éclairage** : allume et éteint les lumières.
+- **Relais éclairage** : simule un appui de 1 s sur le bouton marche / arrêt des lampes LED pour les allumer ou les éteindre.
 
 ### Brochage
 
@@ -37,7 +37,7 @@ La chambre de culture vise à agir sur plusieurs paramètres importants pour le 
 | DS18B20 semis | GPIO4 | 3V3 / GND | Une seule résistance de 4,7 kΩ entre DATA et 3V3 pour tout le bus |
 | Capteur d’humidité du sol | GPIO34 | 3V3 / GND | Modèle capacitif recommandé |
 | Relais pompe | GPIO26 (IN) | 5V / GND | Pompe branchée sur COM/NO, avec sa propre alimentation |
-| Relais éclairage | GPIO27 (IN) | 5V / GND | Lumières branchées sur COM/NO |
+| Relais éclairage | GPIO27 (IN) | 5V / GND | COM/NO en parallèle du bouton marche / arrêt des lampes |
 | Alimentation 5 V | VIN / 5V de l’ESP32 | 220v | Toutes les masses (GND) reliées entre elles |
 
 Remarques :

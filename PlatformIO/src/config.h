@@ -16,7 +16,12 @@ constexpr bool CONFIG_PUMP_MOISTURE_ENABLED = false;  // mode par défaut : arro
 constexpr uint8_t CONFIG_PUMP_MOISTURE_LOW = 40;      // seuil de démarrage de l'arrosage (%)
 constexpr uint8_t CONFIG_PUMP_MOISTURE_HIGH = 80;     // seuil d'arrêt de l'arrosage (%)
 
-constexpr uint8_t CONFIG_RELAY_Light_PIN = 27;         // GPIO du relais d'éclairage
+constexpr uint8_t CONFIG_RELAY_Light_PIN = 27;         // GPIO du relais d'éclairage (sur le bouton marche / arrêt des lampes)
+constexpr uint32_t CONFIG_LIGHT_PULSE_MS = 1000;       // durée d'appui simulé sur le bouton des lampes (relais fermé, ms)
+constexpr uint32_t CONFIG_LIGHT_PULSE_GAP_MS = 1000;   // relais ouvert au moins ce temps entre deux appuis (ms)
+// Après une coupure de courant (ou un appui sur EN / un téléversement par USB), les lampes sont
+// considérées éteintes ; après un redémarrage logiciel (OTA, plantage), l'état enregistré est repris.
+constexpr bool CONFIG_LIGHT_OFF_AFTER_POWER_ON = true;
 constexpr uint8_t CONFIG_LIGHT_START_HOUR = 6;         // heure d'allumage de l'éclairage (heure locale)
 constexpr uint8_t CONFIG_LIGHT_START_MINUTE = 0;       // minute d'allumage de l'éclairage
 constexpr uint32_t CONFIG_LIGHT_ON_DURATION = 16UL * 3600000UL;  // durée d'allumage de l'éclairage (ms) : 16 h, 24 h max

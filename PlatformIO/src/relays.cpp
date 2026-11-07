@@ -1,6 +1,8 @@
 #include "relays.h"
 
 #include <ESPConnect.h>
+#include <Preferences.h>
+#include <esp_system.h>
 #include <time.h>
 
 #include "config.h"
@@ -38,9 +40,28 @@ void pumpLoop() {
   }
 }
 
+// The lamps are switched by a pulse on their on / off button: their state cannot be read on the
+// relay, it is remembered in NVS (separate namespace, kept by Settings::reset()) at every change.
+constexpr const char *NVS_LIGHT = "semix_light";
+
+bool loadLightState() {
+  Preferences p;
+  p.begin(NVS_LIGHT, false);
+  bool on = p.isKey("on") && p.getBool("on", false);
+  p.end();
+  return on;
+}
+
+void saveLightState(bool on) {
+  Preferences p;
+  p.begin(NVS_LIGHT, false);
+  p.putBool("on", on);
+  p.end();
+}
+
 // Light schedule (automatic mode) on network time: on every day at settings.lightStartMin
 // for settings.lightOnMs, off the rest of the day.
-// The light stays off until the time is synchronised.
+// The light keeps its state at startup until the time is synchronised.
 void lightLoop() {
   static uint32_t lightLast = 0;
   if (lightMode != RelayMode::Auto || millis() - lightLast < 1000) return;
@@ -51,7 +72,7 @@ void lightLoop() {
   const int32_t secondsOfDay = now.tm_hour * 3600 + now.tm_min * 60 + now.tm_sec;
   const uint32_t elapsed = (secondsOfDay - start + 86400) % 86400;
   const bool lightOn = elapsed < settings.lightOnMs / 1000;
-  if (lightOn != relais_Light.isOn()) {
+  if (lightOn != relais_Light.target()) {
     lightOn ? relais_Light.turnOn() : relais_Light.turnOff();
     broadcastState();
   }
@@ -142,18 +163,15 @@ bool parseMode(String value, bool isPump, RelayMode &mode) {
   return true;
 }
 
-// In Auto, the pump cycle restarts with the off period and the light follows its schedule
-// again within one second. In Moisture, the pump follows the soil moisture as soon as it is
-// measured (immediately). The pump automatic mode (Auto or Moisture) is saved.
-void setRelayMode(RelayController &relay, RelayMode &current, RelayMode mode) {
-  current = mode;
-  const bool isPump = &relay == &relais_Pump;
+// In Auto, the pump cycle restarts with the off period. In Moisture, the pump follows the soil
+// moisture as soon as it is measured (immediately). The pump automatic mode (Auto or Moisture) is saved.
+void setPumpMode(RelayMode mode) {
+  pumpMode = mode;
   if (mode == RelayMode::On) {
-    if (!relay.isOn()) relay.turnOn();
-  } else if (mode == RelayMode::Off || isPump) {
-    if (relay.isOn()) relay.turnOff();
+    if (!relais_Pump.isOn()) relais_Pump.turnOn();
+  } else if (relais_Pump.isOn()) {
+    relais_Pump.turnOff();
   }
-  if (!isPump) return;
   pumpLast = millis();
   if (mode == RelayMode::Auto || mode == RelayMode::Moisture) {
     bool moisture = mode == RelayMode::Moisture;
@@ -168,19 +186,42 @@ void setRelayMode(RelayController &relay, RelayMode &current, RelayMode mode) {
   }
 }
 
+// In Auto, the light follows its schedule again within one second.
+void setLightMode(RelayMode mode) {
+  if (mode == RelayMode::Moisture) return;
+  lightMode = mode;
+  if (mode == RelayMode::On) relais_Light.turnOn();
+  else if (mode == RelayMode::Off) relais_Light.turnOff();
+}
+
+bool setLightActual(bool on) { return relais_Light.setActual(on); }
+
 void relaysBegin() {
   // Start pump relay (off at startup) in its saved automatic mode
   relais_Pump.begin();
   pumpMode = settings.pumpMoisture ? RelayMode::Moisture : RelayMode::Auto;
 
-  // Start light relay (off at startup)
-  relais_Light.begin();
+  // Start light relay (open) with the lamp state remembered before the restart. After a power cut
+  // the lamps are considered off (CONFIG_LIGHT_OFF_AFTER_POWER_ON).
+  const esp_reset_reason_t reason = esp_reset_reason();
+  const bool powerOn = reason == ESP_RST_POWERON || reason == ESP_RST_BROWNOUT;
+  const bool lightOn = (CONFIG_LIGHT_OFF_AFTER_POWER_ON && powerOn) ? false : loadLightState();
+  Serial.printf("[Éclairage] Redémarrage (%s) : état enregistré %s\n",
+                powerOn ? "mise sous tension" : "logiciel", lightOn ? "repris (allumées)" : "ignoré ou éteintes");
+  relais_Light.onChange([](bool on) {
+    saveLightState(on);
+    broadcastState();
+  });
+  relais_Light.begin(lightOn);
+  saveLightState(lightOn);
 }
 
 void relaysLoop() {
   subscribeCommands();
   pumpLoop();
   lightLoop();
+  // Pulses on the lamp button (non-blocking)
+  relais_Light.loop();
   // Publish the relay states and modes on MQTT when they change
   publishRelays();
 }
@@ -190,6 +231,17 @@ void handleMqttMessage(const String &topic, const String &payload) {
   String prefix = espConnect.deviceName() + "/cmd/";
   if (!topic.startsWith(prefix)) return;
   String cmd = topic.substring(prefix.length());
+  if (cmd == "light/actual") {
+    String value = payload;
+    value.trim();
+    value.toLowerCase();
+    if (value != "on" && value != "off") {
+      Serial.printf("Commande MQTT ignorée : « %s » (attendu : on ou off)\n", payload.c_str());
+      return;
+    }
+    if (setLightActual(value == "on")) broadcastState();
+    return;
+  }
   RelayMode mode;
   if (cmd != "pump" && cmd != "light") return;
   if (!parseMode(payload, cmd == "pump", mode)) {
@@ -197,7 +249,7 @@ void handleMqttMessage(const String &topic, const String &payload) {
                   cmd == "pump" ? "moisture, " : "");
     return;
   }
-  if (cmd == "pump") setRelayMode(relais_Pump, pumpMode, mode);
-  else setRelayMode(relais_Light, lightMode, mode);
+  if (cmd == "pump") setPumpMode(mode);
+  else setLightMode(mode);
   broadcastState();
 }

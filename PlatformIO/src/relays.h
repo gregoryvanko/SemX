@@ -26,15 +26,22 @@ const char *modeName(RelayMode mode);
 // "auto", "moisture" (pump only), "on" or "off" (case-insensitive). Returns false for any other value.
 bool parseMode(String value, bool isPump, RelayMode &mode);
 
-// Force a relay on / off, or give it back to an automatic mode.
-void setRelayMode(RelayController &relay, RelayMode &current, RelayMode mode);
+// Force the pump / the light on or off, or give it back to an automatic mode.
+void setPumpMode(RelayMode mode);
+void setLightMode(RelayMode mode);
 
-// Start both relays (off) and the pump in its saved automatic mode
+// The lamps are actually on (on = true) or off: correct the remembered light state without a pulse.
+// The light mode then applies again (pulse if needed). Returns false during a pulse.
+bool setLightActual(bool on);
+
+// Start both relays (open), the pump in its saved automatic mode and the light state remembered
+// before the restart (off after a power cut, see CONFIG_LIGHT_OFF_AFTER_POWER_ON)
 void relaysBegin();
 
 // Pump cycle / watering, light schedule and MQTT state (to call from loop())
 void relaysLoop();
 
 // MQTT commands ("<device>" is the device name set on /status): "<device>/cmd/pump" ("auto", "moisture", "on" or "off")
-// and "<device>/cmd/light" ("auto", "on" or "off") set the relay mode.
+// and "<device>/cmd/light" ("auto", "on" or "off") set the relay mode; "<device>/cmd/light/actual" ("on" or "off")
+// tells the actual state of the lamps (see setLightActual()).
 void handleMqttMessage(const String &topic, const String &payload);

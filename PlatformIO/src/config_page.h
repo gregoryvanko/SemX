@@ -3,6 +3,8 @@
 //   page → ESP32 : {"cmd":"get"}, {"cmd":"save",...}, {"cmd":"name","id":..,"name":..},
 //                  {"cmd":"scan"}, {"cmd":"moisture"}, {"cmd":"reset"},
 //                  {"cmd":"mode","relay":"pump"|"light","mode":"auto"|"moisture"|"on"|"off"} ("moisture" : pompe uniquement)
+//                  {"cmd":"lightActual","on":true|false} (état réel des lampes, corrigé sans impulsion)
+//                  {"cmd":"mqtt","enabled":true|false} (active / désactive MQTT, le reste se règle sur /status)
 //   ESP32 → page : {"type":"state",...} (état et réglages), {"type":"result","ok":..,"msg":..}
 
 #include <Arduino.h>
@@ -32,12 +34,21 @@ button:disabled{opacity:.5;cursor:default}
 .seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{flex:1 1 110px;margin-top:8px;padding:8px}
 h3{font-size:.95em;margin:16px 0 0}
 .forced{color:var(--err);font-weight:600}
+label.chk{display:flex;gap:8px;align-items:center;margin:4px 0 10px}label.chk input{width:auto;margin:0}
+table.kv{width:100%;border-collapse:collapse}table.kv td{padding:5px 0;border-top:1px solid var(--line);vertical-align:top}
+table.kv td:first-child{color:var(--mut);padding-right:12px;white-space:nowrap}table.kv td:last-child{word-break:break-all}
 #msg{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);margin:0;
 padding:10px 16px;border-radius:8px;background:var(--acc);color:#fff;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 #msg:empty{display:none}#msg.err{background:var(--err)}
 </style></head><body><main>
 <h1>SemX</h1>
-<p class="muted"><span id="ws-dot" class="dot"></span><span id="ws-state">Connexion…</span> · Heure : <b id="clock">–</b> · <a href="/status">Statut</a></p>
+<p class="muted"><span id="ws-dot" class="dot"></span><span id="ws-state">Connexion…</span> · Heure : <b id="clock">–</b></p>
+
+<details data-k="mqtt"><summary><h2>MQTT <span class="badge"><span id="mq-dot" class="dot"></span><span id="mq-state">–</span></span></h2></summary>
+<label class="chk"><input type="checkbox" id="mq-en">Activer la connexion MQTT</label>
+<table class="kv" id="mq-cfg"></table>
+<p class="muted">Le serveur, le port, l'utilisateur, le mot de passe et le nom d'appareil se règlent sur la page
+<a href="/status">Statut</a>.</p></details>
 
 <details data-k="sensors"><summary><h2>Sondes de température <span class="badge" id="ds-count"></span></h2></summary>
 <p class="muted">Une sonde sans nom n'envoie pas ses mesures sur MQTT. Le nom est utilisé dans le topic
@@ -91,7 +102,12 @@ est sous le second seuil. Sans lecture valide de la sonde, la pompe reste arrêt
 <label>Heure d'allumage<input type="time" id="lstart" required></label>
 <div class="row"><label>Durée (h)<input type="number" id="lon-h" min="0" max="24"></label>
 <label>(min)<input type="number" id="lon-m" min="0" max="59"></label></div>
-<p class="muted" id="lend"></p></details>
+<p class="muted" id="lend"></p>
+<h3>État des lampes</h3>
+<p class="muted">Les lampes sont commandées par un appui d'une seconde sur leur bouton marche / arrêt :
+l'ESP32 ne peut pas lire leur état et retient celui qu'il a commandé. Si les lampes ne correspondent pas
+à l'état affiché, indiquez leur état réel ; l'ESP32 appuie ensuite sur le bouton si le mode le demande.</p>
+<button type="button" class="sec" id="light-fix">–</button></details>
 
 <p class="muted">Chaque réglage est enregistré automatiquement dès qu'il est modifié.</p>
 <button type="button" class="danger" id="reset">Revenir aux valeurs par défaut</button>
@@ -111,7 +127,7 @@ function connect(){
   ws.onopen=()=>{$('ws-dot').className='dot on';$('ws-state').textContent='Connecté';send({cmd:'get'});};
   ws.onclose=()=>{$('ws-dot').className='dot err';$('ws-state').textContent='Déconnecté, reconnexion…';setTimeout(connect,2000);};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data);}catch(_){return;}
-    if(m.type=='state')show(m);else if(m.type=='result'){msg(m.msg,!m.ok);if(m.ok&&m.reload)dirty=false;}};
+    if(m.type=='state')show(m);else if(m.type=='result'){msg(m.msg,!m.ok);if(!m.ok)mqWait=0;if(m.ok&&m.reload)dirty=false;}};
 }
 
 function show(s){st=s;
@@ -123,12 +139,29 @@ function show(s){st=s;
   $('mo-state').textContent=mo.valid?mo.percent.toFixed(1)+' %':'lecture invalide';
   $('meas-state').textContent='toutes les '+dur(s.cfg.measure);
   for(const k of['pump','light']){$(k+'-dot').className='dot'+(s[k]?' on':'');$(k+'-state').textContent=s[k]?'allumé':'éteint';
+    if(k=='light'&&s.lightBusy)$(k+'-state').textContent+=s.light?' → extinction…':' → allumage…';
     const m=s[k+'Mode'];document.querySelectorAll('[data-relay="'+k+'"] button').forEach(b=>b.className=b.dataset.mode==m?'':'sec');
     $(k+'-forced').hidden=m!='on'&&m!='off';}
+  $('light-fix').textContent=s.light?'Les lampes sont en réalité éteintes':'Les lampes sont en réalité allumées';
+  $('light-fix').disabled=!!s.lightPulse;
   $('moist-state').textContent=s.pumpMode!='moisture'?'':!mo.valid?'Lecture de la sonde invalide : pompe arrêtée.':
     s.soilDry?'Sol sec : arrosage en cours.':'Sol assez humide : en attente.';
+  mqtt(s.mqtt);
   sensors(s.sensors);
   if(!dirty)fill(s.cfg);
+}
+
+// MQTT card. After a click on the checkbox, the state is not redrawn until the ESP32 has applied it.
+const MQ={disabled:['désactivé',''],connecting:['connexion…',''],connected:['connecté','on'],error:['erreur','err']};
+let mqWait=0;
+function mqtt(m){
+  const[t,c]=MQ[m.state]||[m.state,''];$('mq-state').textContent=t;$('mq-dot').className='dot '+c;
+  if(Date.now()>mqWait)$('mq-en').checked=m.enabled;
+  const r=m.configured?[['Serveur',m.server],['Utilisateur',m.user||'aucun'],['Mot de passe',m.passSet?'enregistré':'aucun']]:
+    [['Serveur','non configuré']];
+  r.push(['Identifiant client',m.clientId],['Topic de statut',m.topic],['Commandes',m.topic.replace(/status$/,'cmd/#')]);
+  if(m.error)r.push(['Dernière erreur',m.error]);
+  $('mq-cfg').innerHTML=r.map(x=>'<tr><td>'+esc(x[0])+'</td><td>'+esc(x[1])+'</td></tr>').join('');
 }
 
 function sensors(list){
@@ -173,6 +206,8 @@ $('cfg').oninput=()=>{dirty=true;end();};
 document.querySelectorAll('[data-take]').forEach(b=>b.onclick=()=>{if(!st)return;$(b.dataset.take).value=st.moisture.raw;dirty=true;save();});
 document.querySelectorAll('[data-relay] button').forEach(b=>b.onclick=()=>send({cmd:'mode',relay:b.parentNode.dataset.relay,mode:b.dataset.mode}));
 $('mo-read').onclick=()=>send({cmd:'moisture'});
+$('mq-en').onchange=e=>{mqWait=Date.now()+3000;if(!send({cmd:'mqtt',enabled:e.target.checked}))mqWait=0;};
+$('light-fix').onclick=()=>{if(st)send({cmd:'lightActual',on:!st.light});};
 $('scan').onclick=()=>send({cmd:'scan'});
 $('reset').onclick=()=>{if(confirm('Revenir aux valeurs par défaut pour la pompe, l\'éclairage et la calibration ?')&&send({cmd:'reset'}))dirty=false;};
 // Every change is saved at once. The ESP32 checks all the values together: if they are refused,

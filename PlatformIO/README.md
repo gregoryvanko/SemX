@@ -89,7 +89,27 @@ En mode Humidité, la pompe réagit au plus tard un intervalle de mesure après 
 | **Automatique** | Allumage chaque jour à l'**heure d'allumage** (6 h 00 par défaut) pendant la **durée d'allumage** (16 h par défaut, 24 h au maximum), puis extinction jusqu'au lendemain. La plage peut passer minuit (par exemple de 20 h à 6 h). |
 | **Marche forcée** / **Arrêt forcé** | Éclairage allumé ou éteint en permanence, non conservé après un redémarrage. |
 
-L'heure vient d'Internet (NTP, serveur `pool.ntp.org`), dans le fuseau de **Bruxelles**, avec passage automatique à l'heure d'été. Tant que l'heure n'est pas reçue, l'éclairage reste éteint. Après un redémarrage, il reprend directement l'état qui correspond à l'heure.
+L'heure vient d'Internet (NTP, serveur `pool.ntp.org`), dans le fuseau de **Bruxelles**, avec passage automatique à l'heure d'été. Tant que l'heure n'est pas reçue, l'éclairage garde son état. Dès qu'elle est reçue, il prend l'état qui correspond à l'heure.
+
+#### Commande par impulsion et état des lampes
+
+Le relais est câblé sur le bouton marche / arrêt des lampes LED : pour allumer comme pour éteindre, il se ferme pendant 1 s (`CONFIG_LIGHT_PULSE_MS`) puis se rouvre, et reste ouvert au moins 1 s (`CONFIG_LIGHT_PULSE_GAP_MS`) avant un nouvel appui. Les impulsions ne bloquent pas le programme.
+
+Le relais ne dit donc plus si les lampes sont allumées. L'ESP32 **mémorise l'état des lampes** et le bascule à la fin de chaque impulsion :
+
+- l'état est enregistré en mémoire (NVS) à chaque changement et repris après un redémarrage logiciel (OTA, plantage) ;
+- après une mise sous tension (coupure de courant, mais aussi appui sur EN ou téléversement par USB), les lampes sont considérées éteintes (`CONFIG_LIGHT_OFF_AFTER_POWER_ON`, à passer à `false` si les lampes gardent leur état après une coupure) ;
+- si les lampes ne correspondent pas à l'état affiché (appui manuel sur le bouton, coupure des seules lampes…), le bouton « Les lampes sont en réalité allumées / éteintes » de la carte Éclairage, ou le topic `semix/cmd/light/actual`, corrige l'état mémorisé **sans impulsion**. Le mode en cours s'applique ensuite : l'ESP32 appuie sur le bouton si les lampes ne sont pas dans l'état voulu.
+
+Sur le port série, chaque impulsion est détaillée :
+
+```
+[Éclairage] Demande : allumer
+[Éclairage] Impulsion pour allumer : relais fermé pendant 1000 ms
+[Relay GPIO27] Fermé (ON)
+[Relay GPIO27] Ouvert (OFF)
+[Éclairage] Fin d'impulsion : relais ouvert, lampes allumées
+```
 
 ## Page SemX
 
@@ -101,6 +121,7 @@ La page `/` est découpée en cartes repliables. Leur titre reste visible quand 
 | Mesures | intervalle de mesure |
 | Humidité du sol | pourcentage, valeur brute et tension, lecture immédiate, calibration « sec » / « humide » |
 | Pompe | choix du mode, durées du cycle, seuils du mode Humidité, état de l'arrosage |
+| MQTT | état de la connexion, case pour activer ou désactiver MQTT, configuration en lecture seule (serveur, utilisateur, identifiant client, topics) ; le reste se règle sur `/status` |
 | Éclairage | choix du mode, heure et durée d'allumage, heure d'extinction calculée |
 
 - **Enregistrement automatique** : chaque réglage est enregistré dès qu'on quitte le champ ou qu'on appuie sur Entrée. Un bandeau vert confirme « Enregistré. ».
@@ -156,6 +177,7 @@ Les températures et l'humidité sont publiées à chaque mesure. L'état et le 
 |---|---|
 | `semix/cmd/pump` | `auto`, `moisture`, `on` ou `off` |
 | `semix/cmd/light` | `auto`, `on` ou `off` |
+| `semix/cmd/light/actual` | `on` ou `off` : état réel des lampes, corrige l'état mémorisé sans impulsion |
 
 Les majuscules sont acceptées. Une commande MQTT a le même effet que les boutons de la page SemX.
 
@@ -194,6 +216,7 @@ Espaces NVS utilisés :
 |---|---|
 | `semix` | réglages de la page SemX |
 | `semix_ds` | noms des sondes de température |
+| `semix_light` | état mémorisé des lampes (conservé par « Revenir aux valeurs par défaut ») |
 | `espc_wifi`, `espc_mqtt`, `espc_dev` | WiFi, broker MQTT et nom d'appareil (ESPConnect) |
 
 Un réglage enregistré incohérent est ignoré au démarrage, et les valeurs par défaut sont alors utilisées.

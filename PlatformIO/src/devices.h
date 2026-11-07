@@ -1,6 +1,7 @@
 #pragma once
 // Matériel : sondes et relais.
 
+#include <PulseRelay.h>
 #include <RelayController.h>
 #include <SensorDS18B20.h>
 #include <SensorMoisture.h>
@@ -13,4 +14,5 @@ extern SensorMoisture sol;
 
 // Contrôleur de relais
 extern RelayController relais_Pump;
-extern RelayController relais_Light;
+// Éclairage : impulsion sur le bouton marche / arrêt des lampes, état des lampes mémorisé
+extern PulseRelay relais_Light;

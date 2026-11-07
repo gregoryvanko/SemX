@@ -21,6 +21,15 @@ namespace {
 
 const char *relayName(const String &relay) { return relay == "pump" ? "pompe" : "éclairage"; }
 
+const char *mqttStateName(ESPConnect::MqttState state) {
+  switch (state) {
+    case ESPConnect::MqttState::Connecting: return "connecting";
+    case ESPConnect::MqttState::Connected: return "connected";
+    case ESPConnect::MqttState::Error: return "error";
+    default: return "disabled";
+  }
+}
+
 String duration(uint32_t ms) {
   uint32_t s = ms / 1000;
   String out;
@@ -44,9 +53,23 @@ String stateJson() {
   }
   doc["pump"] = relais_Pump.isOn();
   doc["light"] = relais_Light.isOn();
+  doc["lightBusy"] = relais_Light.isBusy();
+  doc["lightPulse"] = relais_Light.isPulsing();
   doc["pumpMode"] = modeName(pumpMode);
   doc["lightMode"] = modeName(lightMode);
   doc["soilDry"] = soilDry;
+
+  const ESPConnect::MqttInfo mqttInfo = espConnect.mqttInfo();
+  JsonObject mqtt = doc["mqtt"].to<JsonObject>();
+  mqtt["state"] = mqttStateName(espConnect.mqttState());
+  mqtt["enabled"] = mqttInfo.enabled;
+  mqtt["configured"] = mqttInfo.configured;
+  mqtt["server"] = mqttInfo.server;
+  mqtt["user"] = mqttInfo.user;
+  mqtt["passSet"] = mqttInfo.passSet;
+  mqtt["clientId"] = mqttInfo.clientId;
+  mqtt["topic"] = espConnect.statusTopic();
+  mqtt["error"] = mqttInfo.error;
 
   JsonObject moisture = doc["moisture"].to<JsonObject>();
   moisture["raw"] = sol.raw();
@@ -143,7 +166,7 @@ void handleConfigMessage(uint32_t clientId, const String &message) {
     settings.reset();
     WEB_LOG("#%lu : retour aux valeurs par défaut de config.h", (unsigned long)clientId);
     if (pumpMode == RelayMode::Auto || pumpMode == RelayMode::Moisture)
-      setRelayMode(relais_Pump, pumpMode, settings.pumpMoisture ? RelayMode::Moisture : RelayMode::Auto);
+      setPumpMode(settings.pumpMoisture ? RelayMode::Moisture : RelayMode::Auto);
     sol.setCalibration(settings.moistureDry, settings.moistureWet);
     sol.measure();
     sendResult(clientId, true, "Valeurs par défaut rétablies.", true);
@@ -187,10 +210,29 @@ void handleConfigMessage(uint32_t clientId, const String &message) {
       WEB_LOG("#%lu : commande de mode invalide ignorée", (unsigned long)clientId);
       return;
     }
-    if (relay == "pump") setRelayMode(relais_Pump, pumpMode, mode);
-    else setRelayMode(relais_Light, lightMode, mode);
+    if (relay == "pump") setPumpMode(mode);
+    else setLightMode(mode);
     WEB_LOG("#%lu : %s en mode %s", (unsigned long)clientId, relayName(relay), modeName(mode));
     broadcastState();
+
+  } else if (cmd == "lightActual") {
+    bool on = doc["on"] | false;
+    if (!setLightActual(on)) {
+      sendResult(clientId, false, "Impulsion en cours, réessayez dans un instant.");
+      return;
+    }
+    WEB_LOG("#%lu : lampes %s en réalité", (unsigned long)clientId, on ? "allumées" : "éteintes");
+    sendResult(clientId, true, "État des lampes corrigé.");
+    broadcastState();
+
+  } else if (cmd == "mqtt") {
+    bool enabled = doc["enabled"] | false;
+    if (!espConnect.setMqttEnabled(enabled)) {
+      sendResult(clientId, false, "Aucun serveur MQTT configuré : renseignez-le sur la page Statut.");
+      return;
+    }
+    WEB_LOG("#%lu : MQTT %s", (unsigned long)clientId, enabled ? "activé" : "désactivé");
+    sendResult(clientId, true, enabled ? "MQTT activé." : "MQTT désactivé.");
 
   } else if (cmd == "moisture") {
     WEB_LOG("#%lu : lecture immédiate de la sonde d'humidité", (unsigned long)clientId);

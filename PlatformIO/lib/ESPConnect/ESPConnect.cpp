@@ -946,6 +946,35 @@ void ESPConnect::applyPendingMqtt() {
   if (s.enabled && isWifiConnected()) startMqtt();
 }
 
+ESPConnect::MqttInfo ESPConnect::mqttInfo() const {
+  Guard g(_lock);
+  MqttInfo info;
+  info.enabled = _mqttCfg.enabled;
+  info.configured = !_mqttCfg.host.isEmpty();
+  info.server = info.configured ? mqttUri(_mqttCfg) : String();
+  info.user = _mqttCfg.user;
+  info.passSet = !_mqttCfg.pass.isEmpty();
+  info.clientId = _clientId;
+  info.error = _mqttError;
+  return info;
+}
+
+bool ESPConnect::setMqttEnabled(bool enabled) {
+  {
+    Guard g(_lock);
+    if (enabled && _mqttCfg.host.isEmpty()) {
+      ESPC_LOG("MQTT : activation refusée, aucun serveur configuré");
+      return false;
+    }
+    _pendingMqtt = _mqttCfg;
+    _pendingMqtt.enabled = enabled;
+    _pendingName = _deviceName;
+  }
+  _mqttApplyPending = true;
+  ESPC_LOG("MQTT : %s demandée", enabled ? "activation" : "désactivation");
+  return true;
+}
+
 void ESPConnect::clearMqtt() {
   stopMqtt(true);
   eraseNamespace(NVS_MQTT);
