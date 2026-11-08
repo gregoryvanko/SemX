@@ -28,6 +28,7 @@ COLORS = {
     "tuyau": "#d1402f",
     "capteur": "#8a5fb0",
     "sonde": "#9aa3ad",
+    "grille": "#e0a030",
 }
 
 # (fichier, clé de couleur, titre, direction de la caméra, recul)
@@ -39,6 +40,8 @@ PARTS = [
     ("couvercle_godet_mesure_36x19.stl", "couvercle", "Couvercle du godet de mesure", (1, -1.2, 1.3), 2.4),
     ("support_godet_mesure_36x19.stl", "support", "Support du godet de mesure", (1, -1.2, 1.1), 2.4),
     ("Tuyau Pompe.stl", "tuyau", "Tuyau de pompe", (1, -1.2, 1.0), 2.8),
+    ("grille_godets_pieds_193x193x2.stl", "grille", "Grille sur pieds des godets", (1, -1.2, 1.6), 1.9),
+    ("grille_godets_pied_14x33.stl", "grille", "Pied de la grille (x 8)", (1, -1.2, 1.0), 2.6),
 ]
 
 
@@ -129,10 +132,41 @@ def render_part(name, key, title, direction, zoom, size=(1100, 800)):
 
 def render_parts():
     views = [render_part(*item) for item in PARTS]
-    blank = np.full_like(views[0], views[0][0, 0])
-    views.append(blank)
+    if len(views) % 2:
+        views.append(np.full_like(views[0], views[0][0, 0]))
     rows = [np.hstack(views[i:i + 2]) for i in range(0, len(views), 2)]
     save(np.vstack(rows), "pieces.png")
+
+
+def render_grid():
+    """Bac, godets, godet de mesure et grille sur pieds, montés puis éclatés."""
+    import grille_godets_pieds as gp
+    grid, *feet = gp.make_assembly()
+    godet = load("godet_semis_36x36x42.stl")
+    mesure = load("godet_mesure_36x19x42.stl")
+    lid = load("couvercle_godet_mesure_36x19.stl")
+    lid.apply_transform(np.diag([1, -1, -1, 1]))           # emboîté, dessus vers le haut
+    mx, my = gp.MESURE_XY[0] - 1.0, gp.MESURE_XY[1]
+    lid.apply_translation((mx, my, 46.0 - lid.bounds[1, 2]))
+    cells = ((-78, -78), (-39, 0), (0, -39), (39, 39), (78, 39), (39, 78))
+    views = (("grille_pieds_vue.png", 0, 0, True),
+             ("grille_pieds_eclate.png", 70, 35, False))
+    for name, lift_grid, lift_feet, with_godets in views:
+        p = new_plotter((2000, 1500))
+        add_ground(p)
+        add(p, load("bac_semis_201x201x46_socle.stl"), COLORS["bac"])
+        if with_godets:
+            for x, y in cells:
+                add(p, godet.copy().apply_translation((x, y, 2)), COLORS["godet"], edges=False)
+        add(p, mesure.copy().apply_translation((mx, my, 2)), COLORS["mesure"])
+        add(p, lid, COLORS["couvercle"])
+        add(p, grid.copy().apply_translation((0, 0, lift_grid)), COLORS["grille"])
+        for f in feet:
+            add(p, f.copy().apply_translation((0, 0, lift_feet)), COLORS["grille"])
+        p.enable_ssao(radius=30, bias=1, kernel_size=64)
+        p.camera_position = [(330, -420, 440 + lift_grid), (0, 0, 20 + lift_grid / 2), UP]
+        p.camera.view_angle = 24
+        save(shot(p), name)
 
 
 def main():
@@ -142,6 +176,7 @@ def main():
     render_assembly("assemblage_v12_eclate_vue.stl", "assemblage_eclate.png",
                     [(640, -790, 560), (0, 0, 205), UP])
     render_parts()
+    render_grid()
 
 
 if __name__ == "__main__":

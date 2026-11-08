@@ -65,8 +65,45 @@ Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis 
 | `godet_mesure_36x19x42.stl` | 1 | 36 × 19 × 42 mm | Demi-godet, avec le même substrat que les godets de semis, dans lequel plongent le capteur d'humidité et la sonde DS18B20 du semis. Il repose sur 4 pieds et a 5 trous de 3 mm au fond. |
 | `couvercle_godet_mesure_36x19.stl` | 1 | 42 × 22 × 8 mm | Couvercle emboîté sur le godet de mesure, qui maintient les capteurs : une fente de 24 × 2,4 mm pour le capteur d'humidité capacitif et un trou de Ø 6,6 mm pour la sonde DS18B20. |
 | `support_godet_mesure_36x19.stl` | 1 | 46 × 46 × 24 mm | Cadre posé dans la case d'angle du bac, à côté du trop-plein. Il cale le godet de mesure, et sa paroi en U entoure le trop-plein. |
+| `grille_godets_pieds_193x193x2.stl` | 1 | 193 × 193 × 2,4 mm | Grille mince posée à mi-hauteur des godets, qui les empêche de basculer. Voir [Grille sur pieds](#grille-sur-pieds). |
+| `grille_godets_pied_14x33.stl` | 8 | 14 × 33 × 1,8 mm | Pied plat de la grille, emboîté dans une fente par son tenon. |
+| `grille_godets_haute_201x206x6.stl` | — | 201 × 206 × 6 mm | Variante : grille posée sur le bord du bac, qui empêche aussi les godets de flotter. Voir [Variante](#variante--grille-posée-sur-le-bord-du-bac). |
 | `Tuyau Pompe.stl` | 1 | Ø 14 × 15 mm | Manchon de Ø 14 mm, au passage de Ø 8 mm, collé sous le bac, dans l'axe du trou d'arrivée d'eau. Il tient le tuyau qui remonte de la pompe jusqu'à ce trou. |
 | `assemblage_v12_vue.stl`, `assemblage_v12_eclate_vue.stl` | — | — | Vues d'assemblage, monté et éclaté, non destinées à l'impression. Elles représentent le capteur d'humidité et la sonde par de simples volumes, et montrent une ancienne version du couvercle, plate, sans le support du godet de mesure. |
+
+### Grille sur pieds
+
+Quand l'eau monte, le terreau sec contient trop d'air : un godet plein pèse 13 à 16 g, alors qu'il déplace jusqu'à 19 g d'eau au niveau du trop-plein. Il se soulève, puis bascule. La grille tient chaque godet droit dans sa case, quel que soit le nombre de godets dans le bac.
+
+| Montée | Éclatée |
+|---|---|
+| ![Grille sur pieds dans le bac, avec des godets](CAD/images/grille_pieds_vue.png) | ![Grille, pieds et godet de mesure](CAD/images/grille_pieds_eclate.png) |
+
+- **Grille** : des nervures de 3 × 2,4 mm, au pas de 39 mm, à 31 mm au-dessus du fond, donc 6 mm au-dessus du trop-plein. À cette hauteur, un godet mesure 34 mm : il garde environ 1 mm de jeu de chaque côté et ne peut pas s'incliner de plus de 2°. Le bout des nervures touche presque les parois et centre la grille dans le bac.
+- **Pieds** : 8 lames plates, imprimées à part. Chacune se place entre deux godets, au milieu d'un côté de case, et s'emboîte par un tenon dans une fente de la grille. Les pieds évitent l'arrivée d'eau et le coin du godet de mesure. Comme les bouts des nervures bloquent la grille contre les parois, les pieds ne peuvent pas basculer.
+- **Coin du godet de mesure** : la case d'angle reste libre. La grille passe au-dessus du support du godet de mesure, haut de 26 mm. La nervure qui longe le godet de mesure est amincie de son côté, pour accepter un décalage du godet jusqu'à 1,5 mm vers le centre.
+- **Limite** : la grille empêche le basculement, pas la flottaison. Les godets sont évasés : un godet qui monte prend du jeu dans sa case. Il reste debout, puis redescend quand le terreau a bu. Humidifier le terreau avant de remplir les godets évite qu'ils se soulèvent.
+- **Impression** : grille et 8 pieds tiennent sur un seul plateau, à plat, sans support. Avec Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couches de 0,20 mm, 3 parois), comptez **33 min et 19 g**. Avec des pieds imprimés d'un bloc avec la grille, il faudrait 54 min : ces 150 couches presque vides seraient ralenties par le temps minimal de couche.
+
+Montage : enfoncer les 8 pieds dans les fentes, poser la grille dans le bac, puis glisser chaque godet dans sa case. Le script [`CAD/grille_godets_pieds.py`](CAD/grille_godets_pieds.py) régénère les deux STL. Ses principaux réglages :
+
+- `GRID_Z` : hauteur de la grille ;
+- `RIB_T` : épaisseur des nervures, et donc le jeu des godets ;
+- `SLOT_CLEAR` : serrage des tenons ;
+- `FEET` : position des pieds.
+
+#### Variante : grille posée sur le bord du bac
+
+![Grille posée sur le bord du bac](CAD/images/grille_bord_vue.png)
+
+La grille `grille_godets_haute_201x206x6.stl` repose sur le bord du bac et passe 0,4 mm au-dessus du bord des godets. Elle les empêche donc aussi de se soulever, et tient le couvercle du godet de mesure. Elle se serre sur les faces avant et arrière du bac.
+
+En contrepartie :
+- il faut la retirer pour sortir un godet ;
+- elle demande 1 h 03 d'impression ;
+- son serrage est à régler à l'essai.
+
+Script : [`CAD/grille_godets_bord.py`](CAD/grille_godets_bord.py).
 
 Les images sont générées par `python CAD/rendu_pieces.py` (`pip install trimesh pyvista pillow scipy`).
 
