@@ -67,7 +67,6 @@ Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis 
 | `support_godet_mesure_36x19.stl` | 1 | 46 × 46 × 24 mm | Cadre posé dans la case d'angle du bac, à côté du trop-plein. Il cale le godet de mesure, et sa paroi en U entoure le trop-plein. |
 | `grille_godets_pieds_193x193x2.stl` | 1 | 193 × 193 × 2,4 mm | Grille mince posée à mi-hauteur des godets, qui les empêche de basculer. Voir [Grille sur pieds](#grille-sur-pieds). |
 | `grille_godets_pied_14x33.stl` | 8 | 14 × 33 × 1,8 mm | Pied plat de la grille, emboîté dans une fente par son tenon. |
-| `grille_godets_haute_201x206x6.stl` | — | 201 × 206 × 6 mm | Variante : grille posée sur le bord du bac, qui empêche aussi les godets de flotter. Voir [Variante](#variante--grille-posée-sur-le-bord-du-bac). |
 | `Tuyau Pompe.stl` | 1 | Ø 14 × 15 mm | Manchon de Ø 14 mm, au passage de Ø 8 mm, collé sous le bac, dans l'axe du trou d'arrivée d'eau. Il tient le tuyau qui remonte de la pompe jusqu'à ce trou. |
 | `assemblage_v12_vue.stl`, `assemblage_v12_eclate_vue.stl` | — | — | Vues d'assemblage, monté et éclaté, non destinées à l'impression. Elles représentent le capteur d'humidité et la sonde par de simples volumes, et montrent une ancienne version du couvercle, plate, sans le support du godet de mesure. |
 
@@ -91,19 +90,6 @@ Montage : enfoncer les 8 pieds dans les fentes, poser la grille dans le bac, pui
 - `RIB_T` : épaisseur des nervures, et donc le jeu des godets ;
 - `SLOT_CLEAR` : serrage des tenons ;
 - `FEET` : position des pieds.
-
-#### Variante : grille posée sur le bord du bac
-
-![Grille posée sur le bord du bac](CAD/images/grille_bord_vue.png)
-
-La grille `grille_godets_haute_201x206x6.stl` repose sur le bord du bac et passe 0,4 mm au-dessus du bord des godets. Elle les empêche donc aussi de se soulever, et tient le couvercle du godet de mesure. Elle se serre sur les faces avant et arrière du bac.
-
-En contrepartie :
-- il faut la retirer pour sortir un godet ;
-- elle demande 1 h 03 d'impression ;
-- son serrage est à régler à l'essai.
-
-Script : [`CAD/grille_godets_bord.py`](CAD/grille_godets_bord.py).
 
 Les images sont générées par `python CAD/rendu_pieces.py` (`pip install trimesh pyvista pillow scipy`).
 
