@@ -149,6 +149,23 @@ Chaque colonne a 6 trous espacés de 30 mm : le cadre se déplace par crans de 3
 
 Encombrement : 302 × 357 × 397 mm, et le pied ne dépasse pas la largeur du réservoir. Le script paramétrique [`CAD/support_led.py`](CAD/support_led.py) permet d'ajuster les dimensions : `TAPE_L` et `TAPE_W` pour l'adhésif, `COL` pour la section des colonnes, `FIT` pour le jeu des coulisseaux, `CRUSH` pour le serrage des nervures, `BAR_L` pour la longueur des colonnes. Le script [`CAD/rendu_support_led.py`](CAD/rendu_support_led.py) régénère les images de cette section.
 
+## Boîtier de l'électronique
+
+Boîtier imprimé de 100 × 125 × 61,4 mm, fermé par un couvercle à emboîter, qui reçoit l'électronique.
+
+![Boîtier fermé et couvercle soulevé](CAD/images/boitier_vue.png)
+
+![Intérieur du boîtier, avec la hauteur des entretoises](CAD/images/boitier_dessus.png)
+
+- Parois et fond de 1,4 mm. Volume intérieur de 97,2 × 122,2 × 58,6 mm.
+- 9 entretoises de 6 mm de haut et 4 entretoises de 33 mm de haut, ces dernières aux angles d'un rectangle de 59,6 × 71,5 mm d'axe en axe. Toutes font 5 mm de diamètre et sont percées à 1,5 mm.
+- Une encoche de 15 × 10 mm en haut de la paroi arrière laisse passer les câbles.
+- Le couvercle est une plaque de 1,4 mm, avec un rebord de 2,8 mm qui s'emboîte dans le boîtier avec 0,2 mm de jeu par côté. Le rebord est interrompu au droit de l'encoche.
+
+![Les deux pièces dans leur sens d'impression](CAD/images/boitier_pieces.png)
+
+Les fichiers à imprimer sont [`STL/Electronique boitier.stl`](STL/Electronique%20boitier.stl) et [`STL/Electronique couvercle.stl`](STL/Electronique%20couvercle.stl). Le couvercle s'imprime à l'envers, rebord vers le haut. Le script [`CAD/rendu_boitier.py`](CAD/rendu_boitier.py) régénère les images de cette section.
+
 ## Licence
 
 Le projet est distribué sous licence Apache 2.0. Consulter le fichier [LICENSE](LICENSE) pour en connaître les conditions.
