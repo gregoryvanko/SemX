@@ -169,8 +169,29 @@ def render_grid():
         save(shot(p), name)
 
 
+def render_godets():
+    """Ouvertures des godets : vue de côté et vue de dessous."""
+    views = []
+    for name, key, title in (("godet_semis_36x36x42.stl", "godet", "Godet de semis"),
+                             ("godet_mesure_36x19x42.stl", "mesure", "Godet de mesure")):
+        for direction, label in (((1, -1.2, 0.5), "fentes des parois"),
+                                 ((0.5, -0.6, -1.4), "trous du fond")):
+            p = new_plotter((800, 800))
+            m = load(name)
+            m.apply_translation(-m.bounds.mean(axis=0))
+            add(p, m, COLORS[key])
+            d = np.array(direction, dtype=float)
+            p.camera_position = [tuple(d / np.linalg.norm(d) * 170), (0, 0, 0), UP]
+            p.camera.view_angle = 24
+            p.reset_camera_clipping_range()
+            caption(p, f"{title} : {label}")
+            views.append(shot(p))
+    save(np.hstack(views), "godets_ouvertures.png")
+
+
 def main():
     OUT.mkdir(exist_ok=True)
+    render_godets()
     render_assembly("assemblage_v12_vue.stl", "assemblage_vue.png",
                     [(520, -640, 470), (0, 0, 80), UP])
     render_assembly("assemblage_v12_eclate_vue.stl", "assemblage_eclate.png",

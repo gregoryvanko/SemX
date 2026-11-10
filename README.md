@@ -61,14 +61,32 @@ Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis 
 |---|---|---|---|
 | `reservoir_201x201x90_2piliers_paroi2.0.stl` | 1 | 201 × 201 × 90 mm | Réservoir d'eau aux parois de 2 mm, raidies par des nervures triangulaires. Deux piliers en croix soutiennent le centre du bac, et une grille de nervures renforce le fond. Une encoche dans le bord laisse passer le câble de la pompe immergée. |
 | `bac_semis_201x201x46_socle.stl` | 1 | 201 × 201 × 46 mm | Bac qui reçoit les godets. Son socle s'emboîte dans le haut du réservoir. Dans un coin, un trop-plein de Ø 14 mm (passage de Ø 10 mm) haut d'environ 25 mm renvoie l'eau en excès dans le réservoir. Un trou de Ø 8,4 mm au ras du fond, vers le coin opposé, reçoit l'eau envoyée par la pompe. |
-| `godet_semis_36x36x42.stl` | 24 | 36 × 36 × 42 mm | Godet de semis évasé, de 28 × 28 mm au fond. Il repose sur 4 pieds de 6 mm, et ses 9 trous de 3 mm laissent l'eau entrer par le dessous. Les godets se placent sur une grille de 5 × 5 cases de 36 mm. |
-| `godet_mesure_36x19x42.stl` | 1 | 36 × 19 × 42 mm | Demi-godet, avec le même substrat que les godets de semis, dans lequel plongent le capteur d'humidité et la sonde DS18B20 du semis. Il repose sur 4 pieds et a 5 trous de 3 mm au fond. |
+| `godet_semis_36x36x42.stl` | 24 | 36 × 36 × 42 mm | Godet de semis évasé, de 28 × 28 mm au fond. Il repose sur 4 pieds de 6 mm. L'eau entre par 13 trous de 4 mm au fond et 12 fentes au bas des parois. Voir [Ouvertures des godets](#ouvertures-des-godets). Les godets se placent sur une grille de 5 × 5 cases de 36 mm. |
+| `godet_mesure_36x19x42.stl` | 1 | 36 × 19 × 42 mm | Demi-godet, avec le même substrat que les godets de semis, dans lequel plongent le capteur d'humidité et la sonde DS18B20 du semis. Il repose sur 4 pieds et a les mêmes ouvertures que les godets de semis : 11 trous de 4 mm au fond, et 8 fentes au bas des parois. |
 | `couvercle_godet_mesure_36x19.stl` | 1 | 42 × 22 × 8 mm | Couvercle emboîté sur le godet de mesure, qui maintient les capteurs : une fente de 24 × 2,4 mm pour le capteur d'humidité capacitif et un trou de Ø 6,6 mm pour la sonde DS18B20. |
 | `support_godet_mesure_36x19.stl` | 1 | 46 × 46 × 24 mm | Cadre posé dans la case d'angle du bac, à côté du trop-plein. Il cale le godet de mesure, et sa paroi en U entoure le trop-plein. |
 | `grille_godets_pieds_193x193x2.stl` | 1 | 193 × 193 × 2,4 mm | Grille mince posée à mi-hauteur des godets, qui les empêche de basculer. Voir [Grille sur pieds](#grille-sur-pieds). |
 | `grille_godets_pied_14x33.stl` | 8 | 14 × 33 × 1,8 mm | Pied plat de la grille, emboîté dans une fente par son tenon. |
 | `Tuyau Pompe.stl` | 1 | Ø 14 × 15 mm | Manchon de Ø 14 mm, au passage de Ø 8 mm, collé sous le bac, dans l'axe du trou d'arrivée d'eau. Il tient le tuyau qui remonte de la pompe jusqu'à ce trou. |
 | `assemblage_v12_vue.stl`, `assemblage_v12_eclate_vue.stl` | — | — | Vues d'assemblage, monté et éclaté, non destinées à l'impression. Elles représentent le capteur d'humidité et la sonde par de simples volumes, et montrent une ancienne version du couvercle, plate, sans le support du godet de mesure. |
+
+### Ouvertures des godets
+
+Avec 9 trous de 3 mm au fond, soit 64 mm² d'ouverture, l'eau entrait trop lentement dans les godets. Le terreau sec, peu mouillable, ne buvait que par ces quelques points. Les godets gardent les mêmes dimensions, mais sont beaucoup plus ouverts :
+
+- **Fond** : 13 trous de 4 mm, soit 163 mm², 2,5 fois plus qu'avant. Les trous restent à l'écart des pieds. Le godet de mesure en a 11.
+- **Parois** : 3 fentes verticales de 1,5 mm de large sur chaque face, du fond intérieur jusqu'à 20 mm du dessous des pieds, donc 5 mm sous le niveau du trop-plein. Dès que l'eau monte, elle mouille le terreau sur ses quatre côtés au lieu du seul fond. L'air que l'eau chasse du terreau s'échappe aussi par les fentes. Le terreau s'humidifie plus vite, ce qui raccourcit aussi le moment où un godet sec risque de flotter. Les petites faces du godet de mesure n'ont qu'une fente.
+- **Terreau** : 1,5 mm de large suffit à retenir le terreau. Seules quelques fines particules peuvent passer au premier arrosage.
+- **Impression** : comme avant, sans support. Le haut de chaque fente forme un pont de 1,5 mm, et les trous sont dans le fond, déjà imprimé en pont entre les pieds.
+
+![Fentes des parois et trous du fond](CAD/images/godets_ouvertures.png)
+
+Le script [`CAD/godets.py`](CAD/godets.py) régénère les deux STL (`pip install numpy trimesh manifold3d`). Ses principaux réglages :
+
+- `HOLE_D` : diamètre des trous ;
+- `SLOT_W` : largeur des fentes, à réduire si le terreau fuit ;
+- `SLOT_TOP` : hauteur des fentes ;
+- `SLOT_PITCH` : écartement des fentes.
 
 ### Grille sur pieds
 
