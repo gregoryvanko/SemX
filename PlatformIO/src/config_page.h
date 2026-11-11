@@ -11,8 +11,8 @@
 
 const char SEMX_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>SemX</title><style>
-:root{--bg:#f4f6f8;--card:#fff;--fg:#1d2733;--mut:#6b7785;--line:#dde3ea;--acc:#1f7a5a;--err:#c0392b}
-@media(prefers-color-scheme:dark){:root{--bg:#12171d;--card:#1b232c;--fg:#e6ebf0;--mut:#93a0ad;--line:#2c3742;--acc:#3fbf8f;--err:#ff6b5b}}
+:root{--bg:#f4f6f8;--card:#fff;--fg:#1d2733;--mut:#6b7785;--line:#dde3ea;--acc:#1f7a5a;--ok:#2ecc71;--err:#c0392b}
+@media(prefers-color-scheme:dark){:root{--bg:#12171d;--card:#1b232c;--fg:#e6ebf0;--mut:#93a0ad;--line:#2c3742;--acc:#3fbf8f;--ok:#5ee89a;--err:#ff6b5b}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 main{max-width:560px;margin:0 auto;padding:16px}h1{font-size:1.4em;margin:8px 0 4px}
 h2{font-size:1.05em;margin:0 0 10px;display:flex;gap:8px;align-items:center}
@@ -30,7 +30,7 @@ button:disabled{opacity:.5;cursor:default}
 .row button{flex:0 0 auto;width:auto;padding:10px 14px}
 .sensor{border-top:1px solid var(--line);padding:8px 0}.sensor:first-of-type{border-top:0}
 .val{font-size:1.6em;font-weight:600}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:#999}
-.dot.on{background:var(--acc)}.dot.err{background:var(--err)}.badge{margin-left:auto;font-size:.8em;font-weight:500;color:var(--mut)}
+.dot.on{background:var(--ok)}.dot.err{background:var(--err)}.badge{margin-left:auto;font-size:.8em;font-weight:500;color:var(--mut)}
 .seg{display:flex;flex-wrap:wrap;gap:6px}.seg button{flex:1 1 110px;margin-top:8px;padding:8px}
 h3{font-size:.95em;margin:16px 0 0}
 .forced{color:var(--err);font-weight:600}
@@ -109,8 +109,11 @@ l'ESP32 ne peut pas lire leur état et retient celui qu'il a commandé. Si les l
 à l'état affiché, indiquez leur état réel ; l'ESP32 appuie ensuite sur le bouton si le mode le demande.</p>
 <button type="button" class="sec" id="light-fix">–</button></details>
 
+<details data-k="reset"><summary><h2>Reset</h2></summary>
+<p class="muted">Remet la pompe, l'éclairage et la calibration de l'humidité à leurs valeurs par défaut.</p>
+<button type="button" class="danger" id="reset">Revenir aux valeurs par défaut</button></details>
+
 <p class="muted">Chaque réglage est enregistré automatiquement dès qu'il est modifié.</p>
-<button type="button" class="danger" id="reset">Revenir aux valeurs par défaut</button>
 </form>
 <p id="msg"></p>
 </main><script>
