@@ -34,6 +34,10 @@ void setLightMode(RelayMode mode);
 // The light mode then applies again (pulse if needed). Returns false during a pulse.
 bool setLightActual(bool on);
 
+// Publish the pump and light states and modes on MQTT on the next relaysLoop(), even unchanged
+// (called with every measurement)
+void publishRelayStates();
+
 // Start both relays (open), the pump in its saved automatic mode and the light state remembered
 // before the restart (off after a power cut, see CONFIG_LIGHT_OFF_AFTER_POWER_ON)
 void relaysBegin();

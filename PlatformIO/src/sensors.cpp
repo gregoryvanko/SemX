@@ -70,5 +70,7 @@ void sensorsLoop() {
     sondes.requestMeasure();
     // Read the soil moisture sensor (synchronous, ≈ 1 ms)
     sol.measure();
+    // Publish the pump and light states with the measurements
+    publishRelayStates();
   }
 }

@@ -74,6 +74,8 @@ void lightLoop() {
   }
 }
 
+bool republish = false;  // set by publishRelayStates(): publish every relay topic on the next loop
+
 const char *const RELAY_TOPICS[] = {"/pump/state", "/pump/mode", "/light/state", "/light/mode"};
 
 // Subscribe to "<device>/cmd/#", and follow the device name when it is changed on /status
@@ -88,6 +90,7 @@ void subscribeCommands() {
 
 // Publish the relay states and modes (retained) on "<device>/pump/state", "<device>/pump/mode",
 // "<device>/light/state" and "<device>/light/mode" when they change or when MQTT (re)connects.
+// They are also published with every measurement (publishRelayStates()).
 // After a device rename on /status, the retained messages of the former name are cleared.
 void publishRelays() {
   static bool wasConnected = false;
@@ -95,8 +98,9 @@ void publishRelays() {
   static bool pumpOn, lightOn;
   static RelayMode pumpM, lightM;
   bool connected = espConnect.isMqttConnected();
-  bool reconnected = connected && !wasConnected;
+  bool reconnected = connected && (!wasConnected || republish);
   wasConnected = connected;
+  republish = false;
   if (!connected) return;
 
   String base = espConnect.deviceName();
@@ -186,6 +190,8 @@ void setLightMode(RelayMode mode) {
   if (mode == RelayMode::On) relais_Light.turnOn();
   else if (mode == RelayMode::Off) relais_Light.turnOff();
 }
+
+void publishRelayStates() { republish = true; }
 
 bool setLightActual(bool on) { return relais_Light.setActual(on); }
 

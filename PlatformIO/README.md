@@ -169,7 +169,7 @@ Le préfixe des topics est le **nom d'appareil** réglé sur la page `/status` (
 | `semix/light/mode` | `auto` / `on` / `off` | oui |
 | `semix/status` | `online` toutes les 60 s ; `offline` en cas de déconnexion (testament) | oui |
 
-Les températures et l'humidité sont publiées à chaque mesure. L'état et le mode des relais sont publiés à chaque changement et à chaque reconnexion au broker.
+Les températures et l'humidité sont publiées à chaque mesure. L'état et le mode des relais sont publiés à chaque mesure, à chaque changement et à chaque reconnexion au broker.
 
 ### Commandes reçues
 
