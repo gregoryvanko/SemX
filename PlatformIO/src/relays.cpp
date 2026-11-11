@@ -18,10 +18,6 @@ namespace {
 
 uint32_t pumpLast = 0;  // millis() of the last pump cycle change
 
-// On the first valid reading (after a restart or when the Moisture mode is selected), the soil
-// is considered dry as long as it is below the high threshold.
-bool soilDryInit = false;
-
 // Pump in Auto mode: on for settings.pumpOnMs, then off for settings.pumpOffMs (non-blocking)
 // Pump in Moisture mode: on while the soil is dry (below the low threshold, until the high one)
 void pumpLoop() {
@@ -133,9 +129,6 @@ void publishRelays() {
 void updateSoilDry() {
   if (!sol.valid()) {
     soilDry = false;  // no reliable reading: no watering
-  } else if (!soilDryInit) {
-    soilDry = sol.percent() < settings.pumpMoistureHigh;
-    soilDryInit = true;
   } else if (sol.percent() < settings.pumpMoistureLow) {
     soilDry = true;
   } else if (sol.percent() >= settings.pumpMoistureHigh) {
@@ -163,8 +156,8 @@ bool parseMode(String value, bool isPump, RelayMode &mode) {
   return true;
 }
 
-// In Auto, the pump cycle restarts with the off period. In Moisture, the pump follows the soil
-// moisture as soon as it is measured (immediately). The pump automatic mode (Auto or Moisture) is saved.
+// In Auto, the pump cycle restarts with the off period. In Moisture, the pump starts off and only
+// starts once the soil moisture falls below the low threshold (measured immediately). The pump automatic mode (Auto or Moisture) is saved.
 void setPumpMode(RelayMode mode) {
   pumpMode = mode;
   if (mode == RelayMode::On) {
@@ -181,7 +174,7 @@ void setPumpMode(RelayMode mode) {
     }
   }
   if (mode == RelayMode::Moisture) {
-    soilDryInit = false;
+    soilDry = false;
     sol.measure();
   }
 }

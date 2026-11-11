@@ -91,8 +91,8 @@ comme au retour en mode automatique.</p>
 <div class="row"><label>Démarrer sous (%)<input type="number" id="moist-low" min="0" max="99"></label>
 <label>Arrêter à (%)<input type="number" id="moist-high" min="1" max="100"></label></div>
 <p class="muted">La pompe démarre quand l'humidité passe sous le premier seuil et s'arrête dès que le second
-est atteint, sans suivre le cycle. Après un redémarrage, ou en choisissant ce mode, elle démarre si l'humidité
-est sous le second seuil. Sans lecture valide de la sonde, la pompe reste arrêtée.</p>
+est atteint, sans suivre le cycle. Après un redémarrage, ou en choisissant ce mode, elle reste arrêtée tant que l'humidité
+n'est pas passée sous le premier seuil. Sans lecture valide de la sonde, la pompe reste arrêtée.</p>
 <p class="muted">Le mode choisi (automatique ou humidité) est conservé après un redémarrage, pas les modes forcés.</p></details>
 
 <details data-k="light"><summary><h2>Éclairage <span class="badge"><span id="light-dot" class="dot"></span><span id="light-state">–</span></span></h2></summary>
