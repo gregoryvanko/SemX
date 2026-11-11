@@ -184,10 +184,6 @@ Boîtier imprimé de 100 × 125 × 61,4 mm, fermé par un couvercle à emboîter
 
 Les fichiers à imprimer sont [`STL/Electronique boitier.stl`](STL/Electronique%20boitier.stl) et [`STL/Electronique couvercle.stl`](STL/Electronique%20couvercle.stl). Le couvercle s'imprime à l'envers, rebord vers le haut. Le script [`CAD/rendu_boitier.py`](CAD/rendu_boitier.py) régénère les images de cette section.
 
-## Licence
-
-Le projet est distribué sous licence Apache 2.0. Consulter le fichier [LICENSE](LICENSE) pour en connaître les conditions.
-
 ## Circuit imprimé
 
 Carte simple face de 87 × 55 mm, à graver à la CNC, qui reçoit l'ESP32 DevKit C V4 sur deux barrettes femelles et relie les sondes, les relais et l'alimentation suivant le brochage ci-dessus. L'antenne de l'ESP32 dépasse du bord haut, et le connecteur USB reste accessible en bas.
