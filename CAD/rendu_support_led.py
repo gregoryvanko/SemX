@@ -41,13 +41,12 @@ PANEL_DROP = s.TAPE_T + s.PANEL_T
 
 def load_base():
     """Réservoir, bac, godets et capteurs, séparés pour les colorer."""
-    res = trimesh.load(STL_DIR / "reservoir_201x201x90_2piliers_paroi2.0.stl", force="mesh")
-    bac = trimesh.load(STL_DIR / "bac_semis_201x201x46_socle.stl", force="mesh")
-    bac.apply_translation((0, 0, 86))
-    bodies = trimesh.load(STL_DIR / "assemblage_v12_vue.stl", force="mesh").split(only_watertight=False)
-    godets = [b for b in bodies if len(b.faces) == 984]
-    others = [b for b in bodies if len(b.faces) not in (984, 820, 742)]
-    return {"reservoir": [res], "bac": [bac], "godet": godets, "base": others}
+    import assemblage
+    base = {"reservoir": [], "bac": [], "godet": [], "base": []}
+    for key, m in assemblage.make_assembly():
+        if key != "grille":
+            base[key if key in base else "base"].append(m)
+    return base
 
 
 def add(plotter, mesh, color, edges=True):

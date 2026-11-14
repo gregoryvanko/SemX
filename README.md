@@ -49,11 +49,11 @@ Remarques :
 
 ## Réservoir, bac et godets
 
-Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis et un godet de mesure. L'eau monte dans le bac et les godets l'absorbent par les trous de leur fond. Un trop-plein limite la hauteur d'eau dans le bac et renvoie le surplus dans le réservoir.
+Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis et un godet de mesure en L, qui entoure le trop-plein dans la case d'angle. L'eau monte dans le bac et les godets l'absorbent par les trous de leur fond. Un trop-plein limite la hauteur d'eau dans le bac et renvoie le surplus dans le réservoir.
 
 ![Réservoir, bac et godets assemblés](CAD/images/assemblage_vue.png)
 
-![Vue éclatée : réservoir, bac, godets, capteur d'humidité et couvercle du godet de mesure](CAD/images/assemblage_eclate.png)
+![Vue éclatée : réservoir, bac, grille sur pieds, godets, capteur d'humidité et sonde du semis](CAD/images/assemblage_eclate.png)
 
 ![Les pièces, à des échelles différentes](CAD/images/pieces.png)
 
@@ -62,26 +62,37 @@ Le bac de semis est posé sur le réservoir d'eau et reçoit 24 godets de semis 
 | `reservoir_201x201x90_2piliers_paroi2.0.stl` | 1 | 201 × 201 × 90 mm | Réservoir d'eau aux parois de 2 mm, raidies par des nervures triangulaires. Deux piliers en croix soutiennent le centre du bac, et une grille de nervures renforce le fond. Une encoche dans le bord laisse passer le câble de la pompe immergée. |
 | `bac_semis_201x201x46_socle.stl` | 1 | 201 × 201 × 46 mm | Bac qui reçoit les godets. Son socle s'emboîte dans le haut du réservoir. Dans un coin, un trop-plein de Ø 14 mm (passage de Ø 10 mm) haut d'environ 25 mm renvoie l'eau en excès dans le réservoir. Un trou de Ø 8,4 mm au ras du fond, vers le coin opposé, reçoit l'eau envoyée par la pompe. |
 | `godet_semis_36x36x42.stl` | 24 | 36 × 36 × 42 mm | Godet de semis évasé, de 28 × 28 mm au fond. Il repose sur 4 pieds de 6 mm. L'eau entre par 13 trous de 4 mm au fond et 12 fentes au bas des parois. Voir [Ouvertures des godets](#ouvertures-des-godets). Les godets se placent sur une grille de 5 × 5 cases de 36 mm. |
-| `godet_mesure_36x19x42.stl` | 1 | 36 × 19 × 42 mm | Demi-godet, avec le même substrat que les godets de semis, dans lequel plongent le capteur d'humidité et la sonde DS18B20 du semis. Il repose sur 4 pieds et a les mêmes ouvertures que les godets de semis : 11 trous de 4 mm au fond, et 8 fentes au bas des parois. |
-| `couvercle_godet_mesure_36x19.stl` | 1 | 42 × 22 × 8 mm | Couvercle emboîté sur le godet de mesure, qui maintient les capteurs : une fente de 24 × 2,4 mm pour le capteur d'humidité capacitif et un trou de Ø 6,6 mm pour la sonde DS18B20. |
-| `support_godet_mesure_36x19.stl` | 1 | 46 × 46 × 24 mm | Cadre posé dans la case d'angle du bac, à côté du trop-plein. Il cale le godet de mesure, et sa paroi en U entoure le trop-plein. |
+| `godet_mesure_L_36x36x42.stl` | 1 | 36 × 36 × 42 mm | Godet de mesure, avec le même substrat que les godets de semis. Il a l'emprise et l'évasement d'un godet de semis, mais son coin est échancré en L autour du trop-plein. Il se place dans la case d'angle de la grille, comme les autres godets. Le capteur d'humidité et la sonde DS18B20 du semis se plantent directement dans son terreau. Voir [Godet de mesure en L](#godet-de-mesure-en-l). |
 | `grille_godets_pieds_193x193x2.stl` | 1 | 193 × 193 × 2,4 mm | Grille mince posée à mi-hauteur des godets, qui les empêche de basculer. Voir [Grille sur pieds](#grille-sur-pieds). |
 | `grille_godets_pied_14x33.stl` | 8 | 14 × 33 × 1,8 mm | Pied plat de la grille, emboîté dans une fente par son tenon. |
 | `Tuyau Pompe.stl` | 1 | Ø 14 × 15 mm | Manchon de Ø 14 mm, au passage de Ø 8 mm, collé sous le bac, dans l'axe du trou d'arrivée d'eau. Il tient le tuyau qui remonte de la pompe jusqu'à ce trou. |
-| `assemblage_v12_vue.stl`, `assemblage_v12_eclate_vue.stl` | — | — | Vues d'assemblage, monté et éclaté, non destinées à l'impression. Elles représentent le capteur d'humidité et la sonde par de simples volumes, et montrent une ancienne version du couvercle, plate, sans le support du godet de mesure. |
+| `assemblage_v13_vue.stl`, `assemblage_v13_eclate_vue.stl` | — | — | Vues d'assemblage, monté et éclaté, non destinées à l'impression. Elles représentent le capteur d'humidité et la sonde par de simples volumes. Le script [`CAD/assemblage.py`](CAD/assemblage.py) les régénère. |
+
+### Godet de mesure en L
+
+Le trop-plein est un tube de Ø 14 mm, haut de 25 mm, placé dans le coin du bac, à 1 mm des parois. Il empiète sur la case d'angle de la grille. Le godet de mesure reprend le godet de semis, de 28 × 28 mm au fond et 36 × 36 mm en haut, et lui retire un coin carré de 15 × 15 mm sur toute la hauteur, autour du tube. Il prend donc la forme d'un L, avec 1 mm de jeu autour du trop-plein, et se tient dans la grille comme un godet de semis. Il n'a plus besoin de support.
+
+- **Capteurs** : sans couvercle. Le capteur d'humidité capacitif se plante dans le terreau, à plat le long de la grande face opposée au trop-plein, et la sonde DS18B20 au bout de l'autre branche. Comme ils ne passent plus par un couvercle, ils mesurent l'humidité et la température du terreau du godet lui-même.
+- **Pieds** : 5 pieds de 6 mm, 3 dans les coins et 1 au bout de chaque branche, contre l'échancrure.
+- **Ouvertures** : 8 trous de 4 mm au fond, à l'écart des pieds et de l'échancrure, et 12 fentes de 1,5 mm : 3 sur chaque grande face, 2 au bout de chaque branche et 1 sur chaque face de l'échancrure.
+- **Impression** : comme les godets de semis, à l'endroit, sans support.
+
+![Godet de mesure en L dans la case d'angle, autour du trop-plein](CAD/images/grille_pieds_eclate.png)
+
+Le réglage `NOTCH` de [`CAD/godets.py`](CAD/godets.py) fixe la taille de l'échancrure, et donc le jeu autour du trop-plein.
 
 ### Ouvertures des godets
 
 Avec 9 trous de 3 mm au fond, soit 64 mm² d'ouverture, l'eau entrait trop lentement dans les godets. Le terreau sec, peu mouillable, ne buvait que par ces quelques points. Les godets gardent les mêmes dimensions, mais sont beaucoup plus ouverts :
 
-- **Fond** : 13 trous de 4 mm, soit 163 mm², 2,5 fois plus qu'avant. Les trous restent à l'écart des pieds. Le godet de mesure en a 11.
-- **Parois** : 3 fentes verticales de 1,5 mm de large sur chaque face, du fond intérieur jusqu'à 20 mm du dessous des pieds, donc 5 mm sous le niveau du trop-plein. Dès que l'eau monte, elle mouille le terreau sur ses quatre côtés au lieu du seul fond. L'air que l'eau chasse du terreau s'échappe aussi par les fentes. Le terreau s'humidifie plus vite, ce qui raccourcit aussi le moment où un godet sec risque de flotter. Les petites faces du godet de mesure n'ont qu'une fente.
+- **Fond** : 13 trous de 4 mm, soit 163 mm², 2,5 fois plus qu'avant. Les trous restent à l'écart des pieds. Le godet de mesure en a 8.
+- **Parois** : 3 fentes verticales de 1,5 mm de large sur chaque face, du fond intérieur jusqu'à 20 mm du dessous des pieds, donc 5 mm sous le niveau du trop-plein. Dès que l'eau monte, elle mouille le terreau sur ses quatre côtés au lieu du seul fond. L'air que l'eau chasse du terreau s'échappe aussi par les fentes. Le terreau s'humidifie plus vite, ce qui raccourcit aussi le moment où un godet sec risque de flotter. Le godet de mesure n'a que 2 fentes au bout de chaque branche et 1 sur chaque face de l'échancrure.
 - **Terreau** : 1,5 mm de large suffit à retenir le terreau. Seules quelques fines particules peuvent passer au premier arrosage.
 - **Impression** : comme avant, sans support. Le haut de chaque fente forme un pont de 1,5 mm, et les trous sont dans le fond, déjà imprimé en pont entre les pieds.
 
-![Fentes des parois et trous du fond](CAD/images/godets_ouvertures.png)
+![Fentes des parois et trous du fond des deux godets](CAD/images/godets_ouvertures.png)
 
-Le script [`CAD/godets.py`](CAD/godets.py) régénère les deux STL (`pip install numpy trimesh manifold3d`). Ses principaux réglages :
+Le script [`CAD/godets.py`](CAD/godets.py) régénère les STL des deux godets (`pip install numpy trimesh manifold3d`). Ses principaux réglages :
 
 - `HOLE_D` : diamètre des trous ;
 - `SLOT_W` : largeur des fentes, à réduire si le terreau fuit ;
@@ -94,11 +105,11 @@ Quand l'eau monte, le terreau sec contient trop d'air : un godet plein pèse 13 
 
 | Montée | Éclatée |
 |---|---|
-| ![Grille sur pieds dans le bac, avec des godets](CAD/images/grille_pieds_vue.png) | ![Grille, pieds et godet de mesure](CAD/images/grille_pieds_eclate.png) |
+| ![Grille sur pieds dans le bac, avec des godets](CAD/images/grille_pieds_vue.png) | ![Grille, pieds et godet de mesure en L](CAD/images/grille_pieds_eclate.png) |
 
 - **Grille** : des nervures de 3 × 2,4 mm, au pas de 39 mm, à 31 mm au-dessus du fond, donc 6 mm au-dessus du trop-plein. À cette hauteur, un godet mesure 34 mm : il garde environ 1 mm de jeu de chaque côté et ne peut pas s'incliner de plus de 2°. Le bout des nervures touche presque les parois et centre la grille dans le bac.
-- **Pieds** : 8 lames plates, imprimées à part. Chacune se place entre deux godets, au milieu d'un côté de case, et s'emboîte par un tenon dans une fente de la grille. Les pieds évitent l'arrivée d'eau et le coin du godet de mesure. Comme les bouts des nervures bloquent la grille contre les parois, les pieds ne peuvent pas basculer.
-- **Coin du godet de mesure** : la case d'angle reste libre. La grille passe au-dessus du support du godet de mesure, haut de 26 mm. La nervure qui longe le godet de mesure est amincie de son côté, pour accepter un décalage du godet jusqu'à 1,5 mm vers le centre.
+- **Pieds** : 8 lames plates, imprimées à part. Chacune se place entre deux godets, au milieu d'un côté de case, et s'emboîte par un tenon dans une fente de la grille. Les pieds évitent l'arrivée d'eau et la case d'angle du trop-plein. Comme les bouts des nervures bloquent la grille contre les parois, les pieds ne peuvent pas basculer.
+- **Godet de mesure** : il occupe la case d'angle, autour du trop-plein, et la grille le tient comme un godet de semis.
 - **Limite** : la grille empêche le basculement, pas la flottaison. Les godets sont évasés : un godet qui monte prend du jeu dans sa case. Il reste debout, puis redescend quand le terreau a bu. Humidifier le terreau avant de remplir les godets évite qu'ils se soulèvent.
 - **Impression** : grille et 8 pieds tiennent sur un seul plateau, à plat, sans support. Avec Bambu Studio (X1 Carbon, buse 0,4, PETG HF, couches de 0,20 mm, 3 parois), comptez **33 min et 19 g**. Avec des pieds imprimés d'un bloc avec la grille, il faudrait 54 min : ces 150 couches presque vides seraient ralenties par le temps minimal de couche.
 
@@ -109,7 +120,7 @@ Montage : enfoncer les 8 pieds dans les fentes, poser la grille dans le bac, pui
 - `SLOT_CLEAR` : serrage des tenons ;
 - `FEET` : position des pieds.
 
-Les images sont générées par `python CAD/rendu_pieces.py` (`pip install trimesh pyvista pillow scipy`).
+Les images sont générées par `python CAD/rendu_pieces.py` (`pip install trimesh pyvista pillow scipy`), après `python CAD/assemblage.py` pour les vues d'assemblage.
 
 ## Support des panneaux LED
 

@@ -23,8 +23,6 @@ COLORS = {
     "bac": "#c9c6be",
     "godet": "#4f4640",
     "mesure": "#6f8f7a",
-    "couvercle": "#2f6fab",
-    "support": "#2e9e78",
     "tuyau": "#d1402f",
     "capteur": "#8a5fb0",
     "sonde": "#9aa3ad",
@@ -36,9 +34,7 @@ PARTS = [
     ("reservoir_201x201x90_2piliers_paroi2.0.stl", "reservoir", "Réservoir", (1, -1.2, 1.1), 2.3),
     ("bac_semis_201x201x46_socle.stl", "bac", "Bac de semis", (1, -1.2, 1.1), 2.3),
     ("godet_semis_36x36x42.stl", "godet", "Godet de semis", (1, -1.2, 1.0), 2.5),
-    ("godet_mesure_36x19x42.stl", "mesure", "Godet de mesure", (1, -1.2, 1.0), 2.5),
-    ("couvercle_godet_mesure_36x19.stl", "couvercle", "Couvercle du godet de mesure", (1, -1.2, 1.3), 2.4),
-    ("support_godet_mesure_36x19.stl", "support", "Support du godet de mesure", (1, -1.2, 1.1), 2.4),
+    ("godet_mesure_L_36x36x42.stl", "mesure", "Godet de mesure en L", (1.2, 1, 1.0), 2.5),
     ("Tuyau Pompe.stl", "tuyau", "Tuyau de pompe", (1, -1.2, 1.0), 2.8),
     ("grille_godets_pieds_193x193x2.stl", "grille", "Grille sur pieds des godets", (1, -1.2, 1.6), 1.9),
     ("grille_godets_pied_14x33.stl", "grille", "Pied de la grille (x 8)", (1, -1.2, 1.0), 2.6),
@@ -86,32 +82,13 @@ def caption(plotter, text):
     plotter.add_text(text, position=(0.05, 0.92), viewport=True, font_size=16, color="#333333")
 
 
-def classify(body):
-    """Corps de l'assemblage, reconnus par leurs dimensions."""
-    ext = tuple(np.round(body.extents))
-    if ext[:2] == (201, 201):
-        return "reservoir" if ext[2] == 90 else "bac"
-    if ext == (36, 36, 42):
-        return "godet"
-    if ext == (36, 19, 42):
-        return "mesure"
-    if ext[:2] == (36, 19):
-        return "couvercle"
-    if ext[0] == 23:
-        return "capteur"
-    return "sonde"
-
-
-def render_assembly(name, out, camera, labels=()):
+def render_assembly(exploded, out, camera):
+    """Vue d'assemblage, montée ou éclatée, construite par CAD/assemblage.py."""
+    import assemblage
     p = new_plotter((2000, 1500))
     add_ground(p)
-    for body in load(name).split(only_watertight=False):
-        key = classify(body)
+    for key, body in assemblage.make_assembly(exploded):
         add(p, body, COLORS[key], edges=key != "godet")
-    if labels:
-        p.add_point_labels(np.array([pt for pt, _ in labels], dtype=float), [t for _, t in labels],
-                           font_size=30, text_color="#222222", shape=None, show_points=False,
-                           always_visible=True, margin=0)
     p.enable_ssao(radius=30, bias=1, kernel_size=64)
     p.camera_position = camera
     p.camera.view_angle = 24
@@ -143,11 +120,7 @@ def render_grid():
     import grille_godets_pieds as gp
     grid, *feet = gp.make_assembly()
     godet = load("godet_semis_36x36x42.stl")
-    mesure = load("godet_mesure_36x19x42.stl")
-    lid = load("couvercle_godet_mesure_36x19.stl")
-    lid.apply_transform(np.diag([1, -1, -1, 1]))           # emboîté, dessus vers le haut
-    mx, my = gp.MESURE_XY[0] - 1.0, gp.MESURE_XY[1]
-    lid.apply_translation((mx, my, 46.0 - lid.bounds[1, 2]))
+    mesure = load("godet_mesure_L_36x36x42.stl")
     cells = ((-78, -78), (-39, 0), (0, -39), (39, 39), (78, 39), (39, 78))
     views = (("grille_pieds_vue.png", 0, 0, True),
              ("grille_pieds_eclate.png", 70, 35, False))
@@ -158,8 +131,7 @@ def render_grid():
         if with_godets:
             for x, y in cells:
                 add(p, godet.copy().apply_translation((x, y, 2)), COLORS["godet"], edges=False)
-        add(p, mesure.copy().apply_translation((mx, my, 2)), COLORS["mesure"])
-        add(p, lid, COLORS["couvercle"])
+        add(p, mesure.copy().apply_translation((78, 78, 2)), COLORS["mesure"])
         add(p, grid.copy().apply_translation((0, 0, lift_grid)), COLORS["grille"])
         for f in feet:
             add(p, f.copy().apply_translation((0, 0, lift_feet)), COLORS["grille"])
@@ -172,10 +144,10 @@ def render_grid():
 def render_godets():
     """Ouvertures des godets : vue de côté et vue de dessous."""
     views = []
-    for name, key, title in (("godet_semis_36x36x42.stl", "godet", "Godet de semis"),
-                             ("godet_mesure_36x19x42.stl", "mesure", "Godet de mesure")):
-        for direction, label in (((1, -1.2, 0.5), "fentes des parois"),
-                                 ((0.5, -0.6, -1.4), "trous du fond")):
+    for name, key, title, side, below in (
+            ("godet_semis_36x36x42.stl", "godet", "Godet de semis", (1, -1.2, 0.5), (0.5, -0.6, -1.4)),
+            ("godet_mesure_L_36x36x42.stl", "mesure", "Godet de mesure", (1.2, 1, 0.5), (0.6, 0.5, -1.4))):
+        for direction, label in ((side, "fentes des parois"), (below, "trous du fond")):
             p = new_plotter((800, 800))
             m = load(name)
             m.apply_translation(-m.bounds.mean(axis=0))
@@ -192,10 +164,8 @@ def render_godets():
 def main():
     OUT.mkdir(exist_ok=True)
     render_godets()
-    render_assembly("assemblage_v12_vue.stl", "assemblage_vue.png",
-                    [(520, -640, 470), (0, 0, 80), UP])
-    render_assembly("assemblage_v12_eclate_vue.stl", "assemblage_eclate.png",
-                    [(640, -790, 560), (0, 0, 205), UP])
+    render_assembly(False, "assemblage_vue.png", [(520, -640, 470), (0, 0, 80), UP])
+    render_assembly(True, "assemblage_eclate.png", [(640, -790, 620), (0, 0, 190), UP])
     render_parts()
     render_grid()
 

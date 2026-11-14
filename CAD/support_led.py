@@ -342,7 +342,7 @@ def main():
     on_bed(parts["strut"]).export(STL_DIR / "support_led_entretoise.stl")
     on_bed(parts["pin"]).export(STL_DIR / "support_led_goupille.stl")
     groups = assembly(parts, z_traverse)
-    base = trimesh.load(STL_DIR / "assemblage_v12_vue.stl", force="mesh")
+    base = trimesh.load(STL_DIR / "assemblage_v13_vue.stl", force="mesh")
     trimesh.util.concatenate([base] + [m for g in groups.values() for m in g]).export(
         STL_DIR / "assemblage_support_led_vue.stl")
 

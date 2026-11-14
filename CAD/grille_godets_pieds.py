@@ -7,6 +7,9 @@ le terreau sec le fait flotter. Elle ne l'empêche pas de se soulever : les gode
 évasés, et un godet qui monte prend du jeu dans sa case. Il reste debout, puis
 redescend quand le terreau a bu.
 
+Le godet de mesure, en L autour du trop-plein, occupe la case d'angle (+x, +y) et y est
+tenu comme les autres godets.
+
 Les pieds sont des lames plates, imprimées à part et à plat, qui se placent dans
 l'intervalle entre deux godets et s'emboîtent par un tenon dans une fente de la
 grille. Imprimés d'un bloc avec la grille, des pieds de 31 mm ajouteraient 150 couches
@@ -46,7 +49,8 @@ RIB_T = 3.0               # laisse 0,9 à 1,2 mm de jeu de chaque côté du gode
 WALL_CLEAR = 0.3          # bout des nervures contre la paroi
 
 # Pieds : lames verticales dans l'intervalle entre deux godets, au milieu d'un côté de
-# case. Elles évitent l'arrivée d'eau (-58.5, -58.5) et le coin du godet de mesure.
+# case. Elles évitent l'arrivée d'eau (-58.5, -58.5) et la case d'angle (+x, +y), où le
+# godet de mesure en L entoure le trop-plein.
 # (x, y, direction de la nervure au-dessus : "x" ou "y")
 FEET = [(-39.0, -19.5, "x"), (39.0, -19.5, "x"), (-39.0, 19.5, "x"), (39.0, 19.5, "x"),
         (-58.5, 0.0, "y"), (58.5, 0.0, "y"), (0.0, -58.5, "x"), (0.0, 58.5, "x")]
@@ -59,13 +63,6 @@ SLOT_CLEAR = 0.15         # jeu par côté entre le tenon et la fente
 BOSS_W = 4.0              # nervure élargie autour de la fente : 0,4 mm de jeu avec les godets
 BOSS_L = TENON_W + 2 * SLOT_CLEAR + 4.0
 FOOT_OUT = STL_DIR / "grille_godets_pied_14x33.stl"
-
-# Godet de mesure, dans la case d'angle (+x, +y), tenu par son propre support.
-# Il peut être décalé jusqu'à 1,5 mm vers le centre : la nervure qui le longe est
-# amincie de 1 mm de son côté.
-MESURE_XY = (78.0, 69.5)
-MESURE_HALF_Y = 9.5
-MESURE_SIDE_TRIM = 1.0
 
 RIB_POS = (np.arange(N - 1) - (N - 2) / 2) * PITCH        # -58.5, -19.5, 19.5, 58.5
 
@@ -121,10 +118,6 @@ def make_grid():
         parts.append(boss)
         slots.append(slot)
     grid = trimesh.boolean.union(parts, engine="manifold")
-    # Nervure x = 58.5 amincie le long du godet de mesure
-    x_edge = RIB_POS[-1] + t
-    y0 = MESURE_XY[1] - MESURE_HALF_Y - 2.0
-    slots.append(box(x_edge - MESURE_SIDE_TRIM, x_edge + 1, y0, INNER_HALF + 1, 0, 100))
     return trimesh.boolean.difference([grid] + slots, engine="manifold")
 
 

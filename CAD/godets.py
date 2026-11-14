@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Godets de SemiX : godet de semis et godet de mesure.
+"""Godets de SemiX : godet de semis et godet de mesure en L.
 
 Les godets boivent par le dessous quand l'eau monte dans le bac. Avec seulement 9 trous
 de 3 mm au fond (64 mm² d'ouverture), l'eau entrait trop lentement et le terreau sec,
@@ -12,12 +12,19 @@ ouvre davantage le godet, sans laisser fuir le terreau :
   lieu de ne l'atteindre que par le fond, et l'air chassé du terreau s'échappe aussi
   par les fentes.
 
+Le godet de mesure occupe la case d'angle du bac, celle du trop-plein. Il a l'emprise et
+l'évasement d'un godet de semis, mais son coin est échancré en L sur toute la hauteur
+autour du tube du trop-plein. Il tient donc dans la grille comme les autres godets, sans
+support. Le capteur d'humidité se plante dans une branche du L, la sonde DS18B20 dans
+l'autre, directement dans le terreau.
+
 Dépendances : pip install numpy trimesh manifold3d
 Usage : python CAD/godets.py
 
 Repère : z vers le haut, dessous des pieds à z = 0, godet centré en x et y. Dans le bac,
 le godet repose sur le fond (z = 2 du bac) et le haut du trop-plein (z = 27 du bac) est
-à z = 25 du godet. Les STL sont exportés à l'endroit, prêts à imprimer. Unités : mm.
+à z = 25 du godet. Le godet de mesure est centré sur la case d'angle (78, 78) du bac,
+échancrure vers le coin (+x, +y), où se trouve le trop-plein. Les STL sont exportés à l'endroit, prêts à imprimer. Unités : mm.
 """
 from pathlib import Path
 
@@ -35,7 +42,12 @@ WALL_T = 0.8              # épaisseur des parois, mesurée à l'horizontale
 HALF_BOTTOM = 14.0        # demi-côté extérieur sous le fond (28 mm)
 HALF_TOP = 18.0           # demi-côté extérieur en haut (36 mm)
 FOOT_IN = 8.0             # pieds de 6 × 6 mm dans les coins, de 8 à 14 mm de l'axe
-MESURE_HALF_Y = 9.5       # godet de mesure : 19 mm, parois droites suivant y
+
+# Godet de mesure en L. Le trop-plein du bac, tube de Ø 14 mm centré en (89, 89), est
+# en (11, 11) dans le repère du godet : il occupe de 4 à 18 mm de l'axe.
+OVERFLOW_XY = 11.0
+OVERFLOW_R = 7.0
+NOTCH = 3.0               # échancrure : x > 3 et y > 3, à 1 mm du tube
 
 WATER_MAX_Z = 25.0        # haut du trop-plein, dans le repère du godet
 
@@ -83,42 +95,90 @@ def slot(axis, side, u, n_in, n_out):
     return box(u - SLOT_W / 2, u + SLOT_W / 2, n0, n1, FLOOR_Z, SLOT_TOP)
 
 
-def make_godet(half_y=None):
-    """Godet de semis (half_y=None) ou godet de mesure (half_y : demi-largeur, parois
-    droites suivant y)."""
-    mesure = half_y is not None
-    hy0 = half_y if mesure else HALF_BOTTOM
-    hy1 = half_y if mesure else HALF_TOP
-    outer = frustum(HALF_BOTTOM, HALF_TOP, hy0, hy1, FOOT_H, H)
+def corner_feet(skip=()):
+    """Pieds de 6 mm dans les coins, au ras des bords extérieurs."""
+    return [box(min(sx * FOOT_IN, sx * HALF_BOTTOM), max(sx * FOOT_IN, sx * HALF_BOTTOM),
+                min(sy * FOOT_IN, sy * HALF_BOTTOM), max(sy * FOOT_IN, sy * HALF_BOTTOM), 0, FOOT_H)
+            for sx in (1, -1) for sy in (1, -1) if (sx, sy) not in skip]
+
+
+def shell():
+    """Corps évasé plein et son vide intérieur."""
+    outer = frustum(HALF_BOTTOM, HALF_TOP, HALF_BOTTOM, HALF_TOP, FOOT_H, H)
     z0, z1 = FLOOR_Z, H + 1
-    ix0, ix1 = half_at(z0) - WALL_T, half_at(z1) - WALL_T
-    iy0, iy1 = (half_y - WALL_T,) * 2 if mesure else (ix0, ix1)
-    inner = frustum(ix0, ix1, iy0, iy1, z0, z1)
+    i0, i1 = half_at(z0) - WALL_T, half_at(z1) - WALL_T
+    return outer, frustum(i0, i1, i0, i1, z0, z1)
 
-    # Pieds de 6 mm dans les coins, au ras des bords extérieurs
-    fy = hy0 - (HALF_BOTTOM - FOOT_IN)
-    feet = [box(min(sx * FOOT_IN, sx * HALF_BOTTOM), max(sx * FOOT_IN, sx * HALF_BOTTOM),
-                min(sy * fy, sy * hy0), max(sy * fy, sy * hy0), 0, FOOT_H)
-            for sx in (1, -1) for sy in (1, -1)]
-    body = trimesh.boolean.union([outer] + feet, engine="manifold")
 
+def make_godet():
+    """Godet de semis."""
+    outer, inner = shell()
+    body = trimesh.boolean.union([outer] + corner_feet(), engine="manifold")
     g = (-HOLE_PITCH, 0.0, HOLE_PITCH)
-    holes = [hole(x, y) for x in g for y in g] + [hole(s * EDGE_HOLE, 0) for s in (1, -1)]
-    if not mesure:
-        holes += [hole(0, s * EDGE_HOLE) for s in (1, -1)]
-
-    three = (-SLOT_PITCH, 0.0, SLOT_PITCH)
-    x_in = ix0 - 2.0                  # dans le vide du godet, sous la paroi évasée
-    cuts = []
-    for s in (1, -1):
-        for u in ((0.0,) if mesure else three):          # faces ±x
-            cuts.append(slot("x", s, u, x_in, HALF_TOP + 1))
-        y_in = (half_y - WALL_T - 1.0) if mesure else x_in
-        y_out = (half_y + 1.0) if mesure else HALF_TOP + 1
-        for u in three:                                    # faces ±y
-            cuts.append(slot("y", s, u, y_in, y_out))
+    holes = [hole(x, y) for x in g for y in g]
+    holes += [hole(s * EDGE_HOLE, 0) for s in (1, -1)] + [hole(0, s * EDGE_HOLE) for s in (1, -1)]
+    x_in = half_at(FLOOR_Z) - WALL_T - 2.0     # dans le vide du godet, sous la paroi évasée
+    cuts = [slot(axis, s, u, x_in, HALF_TOP + 1)
+            for axis in "xy" for s in (1, -1) for u in (-SLOT_PITCH, 0.0, SLOT_PITCH)]
     m = trimesh.boolean.difference([body, inner] + holes + cuts, engine="manifold")
     return m, len(holes), len(cuts)
+
+
+MESURE_HOLES = [(-HOLE_PITCH, -HOLE_PITCH), (0.0, -HOLE_PITCH), (HOLE_PITCH, -HOLE_PITCH),
+                (-HOLE_PITCH, 0.0), (0.0, 0.0), (-HOLE_PITCH, HOLE_PITCH),
+                (-EDGE_HOLE, 0.0), (0.0, -EDGE_HOLE)]
+
+
+def mesure_feet():
+    """3 pieds d'angle, et un pied au bout de chaque branche, contre l'échancrure."""
+    return corner_feet(skip=((1, 1),)) + [
+        box(FOOT_IN, HALF_BOTTOM, NOTCH - 6.0, NOTCH, 0, FOOT_H),
+        box(NOTCH - 6.0, NOTCH, FOOT_IN, HALF_BOTTOM, 0, FOOT_H)]
+
+
+def make_godet_mesure():
+    """Godet de mesure en L : godet de semis dont le coin (+x, +y) est échancré sur toute
+    la hauteur autour du trop-plein."""
+    outer, inner = shell()
+    notch = box(NOTCH, HALF_TOP + 1, NOTCH, HALF_TOP + 1, -1, H + 2)
+    wall = box(NOTCH - WALL_T, HALF_TOP + 1, NOTCH - WALL_T, HALF_TOP + 1, -1, H + 2)
+    body = trimesh.boolean.union([outer] + mesure_feet(), engine="manifold")
+    body = trimesh.boolean.difference([body, notch], engine="manifold")
+    cavity = trimesh.boolean.difference([inner, wall], engine="manifold")
+
+    holes = [hole(x, y) for x, y in MESURE_HOLES]
+
+    a = half_at(FLOOR_Z) - WALL_T          # intérieur au niveau du fond, faces évasées
+    b = NOTCH - WALL_T                     # intérieur, faces de l'échancrure
+    x_in = a - 2.0
+    cuts = []
+    for axis in "xy":
+        # Grande face (-x ou -y) : 3 fentes
+        cuts += [slot(axis, -1, u, x_in, HALF_TOP + 1) for u in (-SLOT_PITCH, 0.0, SLOT_PITCH)]
+        # Bout de branche (+x ou +y) : 2 fentes, de -a à b
+        c = (b - a) / 2
+        cuts += [slot(axis, 1, c + d, x_in, HALF_TOP + 1) for d in (-3.5, 3.5)]
+        # Face de l'échancrure : 1 fente, de b à a
+        cuts.append(slot(axis, 1, (a + b) / 2, b - 1.0, NOTCH + 1.0))
+    m = trimesh.boolean.difference([body, cavity] + holes + cuts, engine="manifold")
+    return m, len(holes), len(cuts)
+
+
+def check_mesure():
+    a, b = half_at(FLOOR_Z) - WALL_T, NOTCH - WALL_T
+    feet = [f.bounds for f in mesure_feet()]
+    for x, y in MESURE_HOLES:
+        r = HOLE_D / 2
+        assert max(abs(x), abs(y)) + r < a, (x, y)                    # dans le fond
+        assert not (x + r > b and y + r > b), (x, y)                  # hors de l'échancrure
+        for (x0, y0, _), (x1, y1, _) in feet:                         # hors des pieds
+            dx, dy = max(x0 - x, 0, x - x1), max(y0 - y, 0, y - y1)
+            assert np.hypot(dx, dy) > r + 0.3, (x, y)
+    # Jeu autour du tube du trop-plein
+    assert OVERFLOW_XY - OVERFLOW_R - NOTCH >= 1.0
+    # Fentes des bouts de branche à plus de 3 mm des arêtes
+    c = (b - a) / 2
+    assert c + 3.5 + SLOT_W / 2 < b - 3.0 and c - 3.5 - SLOT_W / 2 > -a + 3.0
 
 
 def main():
@@ -128,8 +188,10 @@ def main():
     # Trous d'angle hors des pieds (diagonale)
     assert np.hypot(FOOT_IN - HOLE_PITCH, FOOT_IN - HOLE_PITCH) > HOLE_D / 2
 
+    check_mesure()
+
     for name, (m, n_holes, n_slots) in (("godet_semis_36x36x42.stl", make_godet()),
-                                        ("godet_mesure_36x19x42.stl", make_godet(MESURE_HALF_Y))):
+                                        ("godet_mesure_L_36x36x42.stl", make_godet_mesure())):
         assert m.is_volume and m.body_count == 1, name
         m.export(STL_DIR / name)
         e = m.extents
