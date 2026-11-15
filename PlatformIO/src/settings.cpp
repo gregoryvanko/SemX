@@ -9,8 +9,8 @@ SensorNames sensorNames;
 
 namespace {
 
-constexpr const char *NVS_SETTINGS = "semix";
-constexpr const char *NVS_NAMES = "semix_ds";
+constexpr const char *NVS_SETTINGS = "semx";
+constexpr const char *NVS_NAMES = "semx_ds";
 constexpr uint32_t DAY_MS = 24UL * 3600000UL;
 
 // Preferences journalise une erreur quand la clé n'existe pas encore : on vérifie sa présence avant de la lire.

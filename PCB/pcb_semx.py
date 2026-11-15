@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Circuit imprimé simple face de SemiX, à graver à la CNC.
+"""Circuit imprimé simple face de SemX, à graver à la CNC.
 
 Relie l'ESP32 AZ-Delivery DevKit C V4 (38 broches) aux deux sondes DS18B20,
 au capteur d'humidité du sol, aux deux relais et à un bornier d'alimentation 5 V.
@@ -10,7 +10,7 @@ Génère dans PCB/fabrication/ :
 et dans PCB/images/ : plan d'implantation et aperçu de l'usinage.
 
 Dépendances : pip install shapely matplotlib
-Usage : python PCB/pcb_semix.py
+Usage : python PCB/pcb_semx.py
 """
 from pathlib import Path
 
@@ -207,7 +207,7 @@ def write_gerber(path, function, flashes, draws):
     apertures = {}
     for d in [f[0] for f in flashes] + [w for w, _ in draws]:
         apertures.setdefault(round(d, 3), 10 + len(apertures))
-    lines = ["G04 SemiX - genere par PCB/pcb_semix.py*", f"%TF.FileFunction,{function}*%",
+    lines = ["G04 SemX - genere par PCB/pcb_semx.py*", f"%TF.FileFunction,{function}*%",
              "%FSLAX46Y46*%", "%MOMM*%", "%LPD*%"]
     lines += [f"%ADD{n}C,{d:.3f}*%" for d, n in apertures.items()]
     for w, pts in draws:
@@ -223,7 +223,7 @@ def write_gerber(path, function, flashes, draws):
 
 def write_excellon(path, holes):
     sizes = sorted({d for d, _, _ in holes})
-    lines = ["M48", "; SemiX - genere par PCB/pcb_semix.py", "METRIC,TZ"]
+    lines = ["M48", "; SemX - genere par PCB/pcb_semx.py", "METRIC,TZ"]
     lines += [f"T{i}C{d:.3f}" for i, d in enumerate(sizes, 1)]
     lines += ["%", "G90", "G05"]
     for i, d in enumerate(sizes, 1):
@@ -240,7 +240,7 @@ def mx(x, y):
 
 
 def header(title, tool):
-    return [f"( SemiX - {title} )", f"( Outil : {tool} )",
+    return [f"( SemX - {title} )", f"( Outil : {tool} )",
             "( Z0 = surface du cuivre, X0 Y0 = coin avant gauche de la plaque )",
             f"( Carte {W:.0f} x {H:.0f} mm placee a {OFFSET:.0f} mm de l'origine, vue cote cuivre )",
             "G21 G90 G94", "G17", f"G0 Z{Z_SAFE:.3f}", f"M3 S{SPINDLE}", "G4 P3"]
@@ -460,14 +460,14 @@ def main():
     for d in (gerber, gcode, IMG):
         d.mkdir(parents=True, exist_ok=True)
 
-    write_gerber(gerber / "SemiX-B_Cu.gbl", "Copper,L2,Bot",
+    write_gerber(gerber / "SemX-B_Cu.gbl", "Copper,L2,Bot",
                  [(d, x, y) for _, _, x, y, d, _, _ in pads],
                  [(w, pts) for _, w, pts in traces])
-    write_gerber(gerber / "SemiX-Edge_Cuts.gm1", "Profile,NP",
+    write_gerber(gerber / "SemX-Edge_Cuts.gm1", "Profile,NP",
                  [], [(0.1, [(0, 0), (W, 0), (W, H), (0, H), (0, 0)])])
     holes = [(drill, x, y) for _, _, x, y, _, drill, _ in pads]
     holes += [(MOUNT_DRILL, x, y) for x, y in MOUNT_HOLES]
-    write_excellon(gerber / "SemiX.drl", holes)
+    write_excellon(gerber / "SemX.drl", holes)
 
     iso_g, iso_paths = gcode_isolation(isolation_paths(copper))
     (gcode / "1_isolation_fraiseV.nc").write_text("\n".join(iso_g) + "\n")

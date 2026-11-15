@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Vues d'assemblage de SemiX : réservoir, bac, grille sur pieds, godets et capteurs.
+"""Vues d'assemblage de SemX : réservoir, bac, grille sur pieds, godets et capteurs.
 
 Le bac porte 24 godets de semis et, dans la case d'angle du trop-plein, le godet de
 mesure en L. Le capteur d'humidité capacitif et la sonde DS18B20 du semis, représentés

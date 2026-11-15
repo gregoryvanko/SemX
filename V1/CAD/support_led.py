@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Support de panneaux LED à hauteur réglable pour SemiX, version quatre colonnes.
+"""Support de panneaux LED à hauteur réglable pour SemX, version quatre colonnes.
 
 Génère les pièces imprimables dans STL/ et une vue d'assemblage.
 Dépendances : pip install numpy scipy trimesh manifold3d shapely mapbox_earcut

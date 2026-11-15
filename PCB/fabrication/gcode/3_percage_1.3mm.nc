@@ -1,4 +1,4 @@
-( SemiX - percage 1.3 mm )
+( SemX - percage 1.3 mm )
 ( Outil : foret 1.3 mm )
 ( Z0 = surface du cuivre, X0 Y0 = coin avant gauche de la plaque )
 ( Carte 87 x 55 mm placee a 5 mm de l'origine, vue cote cuivre )

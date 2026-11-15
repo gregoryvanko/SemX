@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Grille sur pieds pour le bac de semis de SemiX.
+"""Grille sur pieds pour le bac de semis de SemX.
 
 Grille mince tenue à mi-hauteur des godets par huit pieds posés sur le fond du bac.
 Chaque godet passe dans une case qui l'empêche de basculer quand l'eau monte et que

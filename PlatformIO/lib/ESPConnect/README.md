@@ -30,8 +30,8 @@ Le client MQTT est `esp-mqtt`, fourni avec le framework arduino-esp32 (testé av
 
 // Page de démonstration servie sur /semis : échange de messages via le WebSocket /ws.
 const char SEMIS_HTML[] PROGMEM = R"rawliteral(<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1"><title>SemiX</title></head><body>
-<h1>SemiX</h1><p id="state">Connexion…</p>
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>SemX</title></head><body>
+<h1>SemX</h1><p id="state">Connexion…</p>
 <button onclick="ws.send('ping')">Envoyer ping</button><pre id="log"></pre>
 <script>
 const ws = new WebSocket('ws://' + location.host + '/ws');
@@ -52,12 +52,12 @@ void setup() {
   espConnect.onMqttMessage([](const String &topic, const String &payload) {
     Serial.printf("Message MQTT %s : %s\n", topic.c_str(), payload.c_str());
   });
-  espConnect.subscribe("semix/cmd/#");
+  espConnect.subscribe("semx/cmd/#");
 
   // Enable OTA updates with the password "gregory"
   espConnect.enableOTA("gregory");
 
-  espConnect.begin("semix", "SemiX-Setup");
+  espConnect.begin("semx", "SemX-Setup");
 }
 
 void loop() {
@@ -158,13 +158,13 @@ La page n'est pas protégée par mot de passe : tout appareil du réseau local p
 
 ### Statut et testament (LWT)
 
-Le topic de statut est `<nom d'appareil>/status` (par exemple `semix/status`).
+Le topic de statut est `<nom d'appareil>/status` (par exemple `semx/status`).
 
 - À la connexion puis toutes les 60 s (`setStatusInterval()`), l'ESP32 y publie `online` (retenu, QoS 1).
 - Ce topic est déclaré comme testament : en cas de déconnexion brutale (coupure de courant, perte du signal), le broker y publie lui-même `offline` (retenu) après expiration du keepalive (30 s × 1,5).
 - Lors d'une déconnexion volontaire (changement ou effacement de la configuration), l'ESP32 publie `offline` avant de fermer la connexion.
 
-L'identifiant client MQTT est `<nom d'appareil>-<3 derniers octets de la MAC>`, par exemple `semix-A1B2C3`.
+L'identifiant client MQTT est `<nom d'appareil>-<3 derniers octets de la MAC>`, par exemple `semx-A1B2C3`.
 
 ## API
 
@@ -198,7 +198,7 @@ void onMqttMessage(std::function<void(const String &topic, const String &payload
 bool publish(const String &topic, const String &payload, bool retain = false, uint8_t qos = 0);
 // Surcharges : const char*, bool ("true"/"false"), int, unsigned int, long, unsigned long,
 // float et double (paramètre supplémentaire decimals = 2 en dernière position).
-espConnect.publish("semix/temp", 21.437f, false, 0, 1);  // publie "21.4"
+espConnect.publish("semx/temp", 21.437f, false, 0, 1);  // publie "21.4"
 ```
 
 Les souscriptions peuvent être déclarées à tout moment, même avant la connexion : elles sont mémorisées et renouvelées à chaque (re)connexion. `publish()` renvoie `false` si le broker n'est pas connecté.

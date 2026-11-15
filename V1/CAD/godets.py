@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Godets de SemiX : godet de semis et godet de mesure en L.
+"""Godets de SemX : godet de semis et godet de mesure en L.
 
 Les godets boivent par le dessous quand l'eau monte dans le bac. Avec seulement 9 trous
 de 3 mm au fond (64 mm² d'ouverture), l'eau entrait trop lentement et le terreau sec,

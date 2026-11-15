@@ -27,8 +27,8 @@ void setup() {
   // Configuration page (sensor names, measurements, moisture calibration, pump and light)
   espConnect.addRoute("/", HTTP_GET, SEMX_HTML);
 
-  // Start ESPConnect with device name "semix" and AP name "SemiX-Setup"
-  espConnect.begin(CONFIG_DEVICE_NAME, "SemiX-Setup");
+  // Start ESPConnect with device name "semx" and AP name "SemX-Setup"
+  espConnect.begin(CONFIG_DEVICE_NAME, "SemX-Setup");
 
   // Start the temperature and soil moisture sensors
   sensorsBegin();

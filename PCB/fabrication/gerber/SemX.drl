@@ -1,5 +1,5 @@
 M48
-; SemiX - genere par PCB/pcb_semix.py
+; SemX - genere par PCB/pcb_semx.py
 METRIC,TZ
 T1C1.000
 T2C1.300

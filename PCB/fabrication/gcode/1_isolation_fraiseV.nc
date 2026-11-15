@@ -1,4 +1,4 @@
-( SemiX - isolation des pistes )
+( SemX - isolation des pistes )
 ( Outil : fraise V, coupe 0.2 mm, profondeur 0.1 mm, 3 passes )
 ( Z0 = surface du cuivre, X0 Y0 = coin avant gauche de la plaque )
 ( Carte 87 x 55 mm placee a 5 mm de l'origine, vue cote cuivre )

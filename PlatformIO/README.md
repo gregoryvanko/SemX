@@ -27,7 +27,7 @@ Le projet utilise PlatformIO ([platformio.ini](platformio.ini)) avec deux enviro
 | Environnement | Téléversement |
 |---|---|
 | `az-delivery-devkit-v4` | par le câble USB |
-| `az-delivery-devkit-v4_ota` | par le réseau (OTA), vers `ESP-SemiX.rix`, mot de passe `gregory` |
+| `az-delivery-devkit-v4_ota` | par le réseau (OTA), vers `ESP-SemX.rix`, mot de passe `gregory` |
 
 ```bash
 pio run -e az-delivery-devkit-v4 -t upload
@@ -43,7 +43,7 @@ Bibliothèques téléchargées automatiquement : AsyncTCP, ESPAsyncWebServer, On
 
 La connexion est gérée par la bibliothèque [ESPConnect](lib/ESPConnect/README.md).
 
-1. Sans réseau WiFi enregistré, l'ESP32 ouvre le point d'accès **SemiX-Setup** (sans mot de passe).
+1. Sans réseau WiFi enregistré, l'ESP32 ouvre le point d'accès **SemX-Setup** (sans mot de passe).
 2. En s'y connectant, une page s'ouvre (sinon : `http://192.168.1.1`) pour choisir le réseau WiFi et saisir son mot de passe.
 3. L'ESP32 redémarre et se connecte à ce réseau.
 
@@ -99,7 +99,7 @@ Le relais ne dit donc plus si les lampes sont allumées. L'ESP32 **mémorise l'�
 
 - l'état est enregistré en mémoire (NVS) à chaque changement et repris après un redémarrage logiciel (OTA, plantage) ;
 - après une mise sous tension (coupure de courant, mais aussi appui sur EN ou téléversement par USB), les lampes sont considérées éteintes (`CONFIG_LIGHT_OFF_AFTER_POWER_ON`, à passer à `false` si les lampes gardent leur état après une coupure) ;
-- si les lampes ne correspondent pas à l'état affiché (appui manuel sur le bouton, coupure des seules lampes…), le bouton « Les lampes sont en réalité allumées / éteintes » de la carte Éclairage, ou le topic `semix/cmd/light/actual`, corrige l'état mémorisé **sans impulsion**. Le mode en cours s'applique ensuite : l'ESP32 appuie sur le bouton si les lampes ne sont pas dans l'état voulu.
+- si les lampes ne correspondent pas à l'état affiché (appui manuel sur le bouton, coupure des seules lampes…), le bouton « Les lampes sont en réalité allumées / éteintes » de la carte Éclairage, ou le topic `semx/cmd/light/actual`, corrige l'état mémorisé **sans impulsion**. Le mode en cours s'applique ensuite : l'ESP32 appuie sur le bouton si les lampes ne sont pas dans l'état voulu.
 
 Sur le port série, chaque impulsion est détaillée :
 
@@ -154,20 +154,20 @@ Le rafraîchissement automatique de l'état toutes les 2 s n'est pas journalisé
 
 ## MQTT
 
-Le préfixe des topics est le **nom d'appareil** réglé sur la page `/status` (`semix` par défaut, valeur de `CONFIG_DEVICE_NAME`). Les exemples ci-dessous utilisent `semix`.
+Le préfixe des topics est le **nom d'appareil** réglé sur la page `/status` (`semx` par défaut, valeur de `CONFIG_DEVICE_NAME`). Les exemples ci-dessous utilisent `semx`.
 
 ### Publiés par l'ESP32
 
 | Topic | Contenu | Retenu |
 |---|---|---|
-| `semix/temperature/<nom>` | température d'une sonde nommée, en °C (2 décimales) | non |
-| `semix/temperature` | JSON des sondes nommées : `[{"id":"28FF…","name":"serre","temperature":21.50}]` | non |
-| `semix/moisture/percent` | humidité du sol en % (1 décimale) | non |
-| `semix/pump/state` | `ON` / `OFF` | oui |
-| `semix/pump/mode` | `auto` / `moisture` / `on` / `off` | oui |
-| `semix/light/state` | `ON` / `OFF` | oui |
-| `semix/light/mode` | `auto` / `on` / `off` | oui |
-| `semix/status` | `online` toutes les 60 s ; `offline` en cas de déconnexion (testament) | oui |
+| `semx/temperature/<nom>` | température d'une sonde nommée, en °C (2 décimales) | non |
+| `semx/temperature` | JSON des sondes nommées : `[{"id":"28FF…","name":"serre","temperature":21.50}]` | non |
+| `semx/moisture/percent` | humidité du sol en % (1 décimale) | non |
+| `semx/pump/state` | `ON` / `OFF` | oui |
+| `semx/pump/mode` | `auto` / `moisture` / `on` / `off` | oui |
+| `semx/light/state` | `ON` / `OFF` | oui |
+| `semx/light/mode` | `auto` / `on` / `off` | oui |
+| `semx/status` | `online` toutes les 60 s ; `offline` en cas de déconnexion (testament) | oui |
 
 Les températures et l'humidité sont publiées à chaque mesure. L'état et le mode des relais sont publiés à chaque mesure, à chaque changement et à chaque reconnexion au broker.
 
@@ -175,16 +175,16 @@ Les températures et l'humidité sont publiées à chaque mesure. L'état et le 
 
 | Topic | Message |
 |---|---|
-| `semix/cmd/pump` | `auto`, `moisture`, `on` ou `off` |
-| `semix/cmd/light` | `auto`, `on` ou `off` |
-| `semix/cmd/light/actual` | `on` ou `off` : état réel des lampes, corrige l'état mémorisé sans impulsion |
+| `semx/cmd/pump` | `auto`, `moisture`, `on` ou `off` |
+| `semx/cmd/light` | `auto`, `on` ou `off` |
+| `semx/cmd/light/actual` | `on` ou `off` : état réel des lampes, corrige l'état mémorisé sans impulsion |
 
 Les majuscules sont acceptées. Une commande MQTT a le même effet que les boutons de la page SemX.
 
 **Ne pas envoyer de commande en mode « retenu »** : le broker la renverrait à chaque reconnexion.
 
 ```bash
-mosquitto_pub -h <broker> -t semix/cmd/pump -m on
+mosquitto_pub -h <broker> -t semx/cmd/pump -m on
 ```
 
 Quand le nom d'appareil change sur `/status`, sans redémarrage :
@@ -214,9 +214,9 @@ Espaces NVS utilisés :
 
 | Espace | Contenu |
 |---|---|
-| `semix` | réglages de la page SemX |
-| `semix_ds` | noms des sondes de température |
-| `semix_light` | état mémorisé des lampes (conservé par « Revenir aux valeurs par défaut ») |
+| `semx` | réglages de la page SemX |
+| `semx_ds` | noms des sondes de température |
+| `semx_light` | état mémorisé des lampes (conservé par « Revenir aux valeurs par défaut ») |
 | `espc_wifi`, `espc_mqtt`, `espc_dev` | WiFi, broker MQTT et nom d'appareil (ESPConnect) |
 
 Un réglage enregistré incohérent est ignoré au démarrage, et les valeurs par défaut sont alors utilisées.

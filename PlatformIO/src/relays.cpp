@@ -38,7 +38,7 @@ void pumpLoop() {
 
 // The lamps are switched by a pulse on their on / off button: their state cannot be read on the
 // relay, it is remembered in NVS (separate namespace, kept by Settings::reset()) at every change.
-constexpr const char *NVS_LIGHT = "semix_light";
+constexpr const char *NVS_LIGHT = "semx_light";
 
 bool loadLightState() {
   Preferences p;
