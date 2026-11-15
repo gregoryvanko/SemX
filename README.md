@@ -23,7 +23,7 @@ L'électronique et le firmware sont communs. Seule la partie mécanique, qui por
 | Dossier | Contenu | Documentation |
 |---|---|---|
 | [`V1/`](V1/) | Première version de la partie mécanique : fichiers STL à imprimer (réservoir, bac, godets, grille, support LED, boîtier) et scripts Python qui les génèrent (`CAD/`) | [V1/README.md](V1/README.md) |
-| [`V2/`](V2/) | Deuxième version de la partie mécanique : cadre en bois pour un bac à semis du commerce, avec réservoir dessous et panneaux LED réglables en hauteur. Scripts de conception (`CAD/`), plan coté des pièces en PDF (`plan_pieces_bois.pdf`), goupille à imprimer et vues d'assemblage (`STL/`) | [V2/README.md](V2/README.md) |
+| [`V2/`](V2/) | Deuxième version de la partie mécanique : cadre en bois pour un bac à semis du commerce, avec réservoir dessous et panneaux LED réglables en hauteur. Scripts de conception (`CAD/`), plan coté des pièces en PDF (`plan_pieces_bois.pdf`), goupille et support du boîtier à imprimer, vues d'assemblage (`STL/`) | [V2/README.md](V2/README.md) |
 | [`PlatformIO/`](PlatformIO/) | Firmware de l'ESP32 : mesures, pompe, éclairage, page web, MQTT, OTA | [PlatformIO/README.md](PlatformIO/README.md) |
 | [`PCB/`](PCB/) | Circuit imprimé simple face à graver à la CNC : script de génération, Gerber et G-code | [PCB/README.md](PCB/README.md) |
 
@@ -39,7 +39,7 @@ Ce document décrit la version 1 du matériel :
 
 ## Cadre en bois — [V2/README.md](V2/README.md)
 
-La version 2 remplace le réservoir, le bac et les godets imprimés par un bac à semis du commerce, posé sur un cadre en bois de 475 × 340 × 660 mm. Quatre montants sont reliés par deux ceintures, en bas et en haut. La ceinture basse porte les lattes du porte-bac, et le réservoir passe dessous. Entre les deux ceintures, un cadre lumière porte les quatre panneaux LED de V1 et se règle en hauteur avec des goupilles imprimées.
+La version 2 remplace le réservoir, le bac et les godets imprimés par un bac à semis du commerce, posé sur un cadre en bois de 475 × 340 × 660 mm. Quatre montants sont reliés par deux ceintures, en bas et en haut. La ceinture basse porte les lattes du porte-bac, et le réservoir passe dessous. Entre les deux ceintures, un cadre lumière porte les quatre panneaux LED de V1 et se règle en hauteur avec des goupilles imprimées. Le boîtier de l'électronique de V1 est debout au coin arrière droit, glissé dans un support imprimé.
 
 Ce document décrit :
 
@@ -47,7 +47,7 @@ Ce document décrit :
 - la [liste de débit](V2/README.md#liste-de-débit) des 8 pièces en bois numérotées et la quincaillerie, avec le [plan coté](V2/README.md#plan-coté-des-pièces) de chaque pièce, aussi en PDF à imprimer ;
 - le [montage](V2/README.md#montage) : [ceintures](V2/README.md#ceintures-basse-et-haute), [porte-bac](V2/README.md#porte-bac), [cadre lumière](V2/README.md#cadre-lumière) et [perçage des montants](V2/README.md#perçage-des-montants) ;
 - le [réglage de la hauteur](V2/README.md#réglage-de-la-hauteur) des LED, de 48 à 318 mm au-dessus du bac ;
-- les [goupilles imprimées](V2/README.md#goupilles-imprimées) en PETG, et l'[arrosage](V2/README.md#arrosage) par la pompe et le trop-plein ;
+- les [goupilles imprimées](V2/README.md#goupilles-imprimées) en PETG, le [support du boîtier de l'électronique](V2/README.md#boîtier-de-lélectronique) et l'[arrosage](V2/README.md#arrosage) par la pompe et le trop-plein ;
 - les [limites](V2/README.md#limites) connues de cette version.
 
 ## Circuit imprimé — [PCB/README.md](PCB/README.md)

@@ -27,6 +27,8 @@ COLORS = {
     "frame": "#a97c4c",
     "pin": "#d1402f",
     "screw": "#5a5f66",
+    "bracket": "#2f6fab",
+    "ebox": "#b9bec4",
     "tape": "#f2a33a",
     "panel": "#e4e7ea",
 }
@@ -197,6 +199,42 @@ def render_belt():
     Image.fromarray(np.hstack(views)).save(OUT / "cadre_detail_ceinture.png", optimize=True)
 
 
+def render_box():
+    """Boîtier de l'électronique au coin arrière droit : en place, puis soulevé hors de sa glissière."""
+    views = []
+    groups = c.assembly()
+    keep = ("leg", "rail", "slat", "reservoir", "bac", "bracket", "top")
+    focus = (c.BOX_XC, c.BRK_Y0 + 20, 205)
+
+    for lift, title in ((0.0, "Boîtier glissé dans son support, au coin arrière droit"),
+                        (150.0, "Boîtier soulevé : il se glisse par le haut, sans vis")):
+        p = new_plotter((1300, 1100))
+        for key in keep:
+            for m in groups[key]:
+                add(p, m, COLORS["rail" if key == "top" else key], opacity=0.55 if key == "reservoir" else 1.0)
+        for m in c.make_box(lift):
+            add(p, m, COLORS["ebox"])
+        p.camera_position = [(focus[0] + 560, focus[1] + 600, focus[2] + 330 + lift / 2),
+                             (focus[0], focus[1], focus[2] + lift / 2), UP]
+        p.camera.view_angle = 32
+        caption(p, title)
+        views.append(shot(p))
+    Image.fromarray(np.hstack(views)).save(OUT / "cadre_detail_boitier.png", optimize=True)
+
+
+def render_bracket_part():
+    """Support du boîtier seul, dans son sens d'impression (debout)."""
+    p = pv.Plotter(off_screen=True, window_size=(1400, 1000))
+    p.set_background(BACKGROUND)
+    m = c.bracket_print(c.make_bracket())
+    m.apply_translation(-m.bounds.mean(axis=0))
+    add(p, m, COLORS["bracket"])
+    p.camera_position = [(260, 330, 200), (0, 0, 0), UP]
+    p.camera.view_angle = 30
+    caption(p, "Support du boîtier, debout comme sur le plateau")
+    shot(p, "cadre_support_boitier.png")
+
+
 def render_pin_part():
     """Goupille seule, posée sur son méplat comme sur le plateau d'impression."""
     p = pv.Plotter(off_screen=True, window_size=(1400, 800))
@@ -212,6 +250,8 @@ def render_pin_part():
 def main():
     OUT.mkdir(exist_ok=True)
     render_pin_part()
+    render_bracket_part()
+    render_box()
     render_belt()
     render_hero()
     render_exploded()

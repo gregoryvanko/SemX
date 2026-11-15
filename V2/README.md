@@ -11,8 +11,9 @@ Deuxième version de la partie mécanique de SemX. Le réservoir, le bac et les 
 - **Un porte-bac** de quatre lattes en tasseau, posées à plat sur la ceinture basse, porte le bac, dont le fond est à 210 mm de la table.
 - **Le réservoir** passe sous la ceinture basse avant et se glisse sous le bac par l'avant.
 - **Le cadre lumière** est fait de deux côtés, dans la largeur, et de deux barres posées dessus, dans la longueur. Les quatre panneaux LED sont collés sous les barres, entre les côtés. Le cadre coulisse entre les montants et repose sur quatre goupilles imprimées en 3D, qui traversent les montants percés tous les 30 mm.
+- **Le boîtier de l'électronique** de V1 est debout au coin arrière droit, son dessus au niveau du haut du bac, glissé dans un support imprimé en 3D.
 
-Encombrement : 475 × 340 × 660 mm, ceintures comprises, et 435 × 300 mm entre les ceintures. Dans la largeur, l'extérieur des montants est aligné sur la longueur des panneaux LED (300 mm) : les bouts des panneaux, des barres et des côtés du cadre lumière arrivent au ras des montants. Toutes les pièces de bois sont taillées dans du tasseau raboté de 20 × 40 mm.
+Encombrement : 475 × 340 × 660 mm, ceintures comprises, et 435 × 300 mm entre les ceintures. Avec le boîtier de l'électronique et son support, au coin arrière droit, l'emprise au sol est de 478 × 410 mm. Dans la largeur, l'extérieur des montants est aligné sur la longueur des panneaux LED (300 mm) : les bouts des panneaux, des barres et des côtés du cadre lumière arrivent au ras des montants. Toutes les pièces de bois sont taillées dans du tasseau raboté de 20 × 40 mm.
 
 ## Éléments du commerce
 
@@ -21,6 +22,7 @@ Encombrement : 475 × 340 × 660 mm, ceintures comprises, et 435 × 300 mm entre
 | Bac à semis en plastique | Intérieur : 340 × 205 mm au fond, 355 × 220 mm en haut. Extérieur en haut, rebord compris : 375 × 240 mm. Hauteur : 60 mm | Posé à plat sur les lattes du porte-bac |
 | Réservoir d'eau | 255 × 184 × 140 mm | Reçoit la pompe immergée |
 | Panneaux LED (ceux de V1) | 4 panneaux de 300 × 80 × 1 mm | Collés avec 8 adhésifs double face 3M de 30 × 50 mm |
+| Boîtier de l'électronique (celui de V1) | 100 × 125 × 61,4 mm, couvercle compris : 62,8 mm | Imprimé à partir de [`V1/STL/`](../V1/STL/), voir [V1](../V1/README.md#boîtier-de-lélectronique) |
 
 Le modèle suppose une paroi de 2 mm et un rebord plat de 3 mm pour le bac : seules les cotes mesurées comptent pour le cadre.
 
@@ -41,7 +43,7 @@ Soit 9,03 m de tasseau, qui se débitent dans cinq longueurs de 2 m (660 + 660 +
 
 Les goupilles sont imprimées : voir [Goupilles imprimées](#goupilles-imprimées).
 
-Quincaillerie : 64 vis à bois 4 × 40 mm (24 par ceinture, 8 pour les lattes du porte-bac, 8 pour le cadre lumière), et de la colle à bois.
+Quincaillerie : 64 vis à bois 4 × 40 mm (24 par ceinture, 8 pour les lattes du porte-bac, 8 pour le cadre lumière), et de la colle à bois. Pour le support du boîtier de l'électronique : 2 vis à bois à tête fraisée 4 × 25 mm.
 
 Orientation des tasseaux :
 
@@ -138,6 +140,41 @@ Impression (Bambu Studio, imprimante Bambu Lab avec buse de 0,4 mm) :
 
 Essayer une goupille dans un trou avant d'imprimer les autres. Le diamètre réel d'un trou percé dans le bois varie selon le foret et l'essence : si la goupille force, réduire `PIN_D` de 0,1 ou 0,2 mm ; si elle a trop de jeu, l'augmenter, puis relancer le script.
 
+## Boîtier de l'électronique
+
+Le boîtier de V1 est debout au coin arrière droit de la structure, son dessus au niveau du haut du bac. Il se glisse par le haut dans un support imprimé, sans vis. Cet emplacement :
+
+- est hors de l'emprise du bac (50 mm derrière son rebord) : l'eau qui coulerait du bac ne tombe pas dessus ;
+- laisse libre l'avant, par où passe le réservoir, et reste 26 mm sous les goupilles les plus basses du cadre lumière ;
+- est proche du réservoir et de la pompe, et à mi-chemin des capteurs du bac et des panneaux LED.
+
+![Boîtier de l'électronique : glissé dans son support au coin arrière droit, puis soulevé](CAD/images/cadre_detail_boitier.png)
+
+Le boîtier est debout, sa longueur de 125 mm à la verticale, de 145 à 270 mm du sol : son dessus est au niveau du haut du bac. Son côté droit arrive au ras du côté droit de la structure, son fond est contre le support et son couvercle vers l'arrière. L'encoche des câbles se trouve dans la paroi du bas, près du couvercle : les câbles entrent par-dessous, et l'eau qui coulerait le long d'un câble ne peut pas entrer dans le boîtier.
+
+### Support à glissière
+
+![Support du boîtier, debout comme sur le plateau d'impression](CAD/images/cadre_support_boitier.png)
+
+Le support, [`STL/support_boitier.stl`](STL/support_boitier.stl), est un U en PETG de 3 mm d'épaisseur, de 107 × 70 × 129 mm, qui enveloppe le boîtier sur trois côtés :
+
+- **une plaque** contre la ceinture basse arrière (3), vissée par deux vis à bois 4 × 25 mm, à 35 mm l'une de l'autre, à mi-hauteur de la ceinture ;
+- **deux joues** le long des côtés du boîtier, terminées par **des lèvres** de 5 mm qui passent devant les bords du couvercle et retiennent le boîtier vers l'arrière ;
+- **une butée** en bas, sur laquelle le boîtier repose. Elle ne fait que 33 mm de profondeur et laisse l'encoche des câbles libre ;
+- au dos de la plaque, **des creux** pour les têtes des vis de la ceinture, qui se trouvent derrière ;
+- **des fenêtres en losange** qui allègent la plaque et les joues.
+
+Le boîtier a 0,5 mm de jeu de chaque côté dans la glissière. Il se glisse par le haut, et il en sort de la même façon pour ouvrir le couvercle : les lèvres empêchent de retirer le couvercle tant que le boîtier est en place.
+
+Impression (Bambu Studio, buse de 0,4 mm) : importer le STL tel quel, il est déjà debout, posé sur le bas de ses parois et de sa butée. Toutes les parois sont verticales et les fenêtres en losange se ferment en pointe : aucun support n'est nécessaire. PETG, couches de 0,20 mm, 3 parois, remplissage de 25 %. Au plus 107 g de filament.
+
+### Montage
+
+1. Présenter le support au coin arrière droit, la plaque contre la ceinture basse arrière (3), la joue droite au ras du côté droit de la structure, et le bas de la butée à 141 mm du sol, soit 9 mm sous la ceinture.
+2. Le visser avec deux vis à bois 4 × 25 mm, après des avant-trous, à travers la plaque, dans la ceinture. Ces vis sont à au moins 30 mm des vis de la ceinture. La vis de droite se trouve derrière le boîtier : on y accède en sortant le boîtier par le haut.
+3. Installer l'électronique dans le boîtier, faire passer les câbles par l'encoche du bas, puis emboîter le couvercle.
+4. Glisser le boîtier par le haut dans le support, couvercle vers l'arrière, jusqu'à la butée.
+
 ## Arrosage
 
 Le principe de V1 reste valable : la pompe du réservoir envoie l'eau dans le bac, et un trop-plein en renvoie l'excédent dans le réservoir.
@@ -155,6 +192,7 @@ Le passe-cloison et le tube ne sont pas dessinés. La position du trop-plein se 
 | [`CAD/rendu_cadre.py`](CAD/rendu_cadre.py) | Régénère les images de ce document dans `CAD/images/` |
 | [`CAD/plan_pieces.py`](CAD/plan_pieces.py) | Régénère le plan coté des pièces : `CAD/images/cadre_pieces_cotes.png` et `plan_pieces_bois.pdf` |
 | `STL/goupille_cadre_lumiere.stl` | Goupille à imprimer, déjà posée sur son méplat |
+| `STL/support_boitier.stl` | Support à glissière du boîtier de l'électronique à imprimer, déjà debout |
 | `STL/assemblage_v2_vue.stl`, `STL/assemblage_v2_eclate_vue.stl` | Vues d'assemblage, montée et éclatée, non destinées à l'impression |
 
 ```bash
@@ -185,4 +223,4 @@ Principaux réglages, en tête de `cadre_bois.py` :
 - Le réservoir ne passe sous la ceinture basse avant qu'avec 10 mm de marge : un réservoir plus haut, ou posé sur un support, demande d'augmenter `CLEAR_UNDER`, ce qui rehausse toute la structure.
 - Le fond du bac repose sur les lattes, sauf au droit de la fente centrale de 40 mm. Un fond très souple peut s'y creuser légèrement sous le poids du terreau mouillé : réduire `DRAIN_GAP` si nécessaire, sans descendre sous l'encombrement du passe-cloison.
 - Les panneaux ne sont tenus qu'à leurs deux bouts, sur 236 mm de portée libre entre les adhésifs, comme dans V1.
-- Le boîtier de l'électronique n'a pas encore de place prévue. Il peut se visser contre un montant ou contre une ceinture basse latérale, à côté du réservoir.
+- Le support du boîtier n'a pas été imprimé ni essayé : le jeu de 0,5 mm par côté dans la glissière dépend de la précision de l'impression, du boîtier comme du support. Si le boîtier force, augmenter `BRK_CLEAR` dans le script ; s'il bouge trop, le diminuer.
