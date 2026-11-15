@@ -296,6 +296,11 @@ CUT_LIST = [
 ]
 
 
+def piece_number(name):
+    """Numéro de repère d'une pièce en bois : son rang dans la liste de débit, à partir de 1."""
+    return [n for n, *_ in CUT_LIST].index(name) + 1
+
+
 def check():
     """Contrôle les jeux de la conception et affiche les hauteurs utiles."""
     res_x = (-RES[0] / 2, RES[0] / 2)
@@ -350,9 +355,9 @@ def check():
 
 def print_cut_list():
     print("Liste de débit :")
-    for name, mat, length, qty, note in CUT_LIST:
+    for i, (name, mat, length, qty, note) in enumerate(CUT_LIST, 1):
         length = f"{length:.0f}" if isinstance(length, float) else length
-        print(f"  {qty} × {name:24s} {mat:20s} {length:>10s} mm  {note}")
+        print(f"  [{i}] {qty} × {name:24s} {mat:20s} {length:>10s} mm  {note}")
 
 
 def explode(groups):

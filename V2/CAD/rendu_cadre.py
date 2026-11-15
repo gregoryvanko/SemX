@@ -80,9 +80,39 @@ def render_hero():
     shot(p, "cadre_vue.png")
 
 
+def piece_marks(groups):
+    """Repères des pièces en bois (numéros du plan coté), chacun posé sur une pièce visible
+    depuis l'avant droit : (numéro, point)."""
+    def on(mesh, fx, fy, fz):
+        lo, hi = mesh.bounds
+        return lo + (hi - lo) * np.array((fx, fy, fz))
+
+    n = c.piece_number
+    return [
+        (n("Montant"), on(groups["leg"][2], 0.5, 0.0, 0.12)),
+        (n("Traverse latérale"), on(groups["rail"][0], 0.5, 0.3, 1.0)),
+        (n("Traverse arrière"), on(groups["rail"][2], 0.93, 0.5, 1.0)),
+        (n("Latte du porte-bac"), on(groups["slat"][2], 0.72, 0.0, 1.0)),
+        (n("Côté du cadre lumière"), on(groups["frame"][1], 0.5, 0.5, 1.0)),
+        (n("Barre du cadre lumière"), on(groups["frame"][2], 0.3, 0.0, 1.0)),
+        (n("Ceinture avant ou arrière"), on(groups["top"][0], 0.35, 0.0, 0.5)),
+        (n("Ceinture latérale"), on(groups["top"][3], 1.0, 0.5, 0.5)),
+    ]
+
+
+def add_marks(plotter, marks, size=30):
+    plotter.add_point_labels(np.array([pt for _, pt in marks], dtype=float), [f" {k} " for k, _ in marks],
+                             font_size=size, bold=True, text_color="white", shape="rounded_rect",
+                             shape_color="#222222", shape_opacity=1.0, point_color="#222222", point_size=12,
+                             render_points_as_spheres=True, always_visible=True, margin=4)
+
+
 def render_exploded():
     p = new_plotter((2000, 1700))
-    add_groups(p, c.explode(c.assembly(c.FRAME_Z[0])))
+    groups = c.explode(c.assembly(c.FRAME_Z[0]))
+    add_groups(p, groups)
+    add_marks(p, piece_marks(groups))
+    caption(p, "Numéros : pièces du plan coté")
     p.camera_position = [(1650, -2050, 1300), (40, -110, 430), UP]
     p.camera.view_angle = 27
     shot(p, "cadre_eclate.png")

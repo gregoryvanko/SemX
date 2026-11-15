@@ -26,16 +26,16 @@ Le modèle suppose une paroi de 2 mm et un rebord plat de 3 mm pour le bac : seu
 
 ## Liste de débit
 
-| Pièce | Quantité | Matériau | Longueur | Usinage |
-|---|---|---|---|---|
-| Montant | 4 | Tasseau raboté 20 × 40 mm | 620 mm | 10 trous Ø 8 traversant les 20 mm, voir [Perçage des montants](#perçage-des-montants) |
-| Traverse latérale | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posée sur chant |
-| Traverse arrière | 1 | Tasseau raboté 20 × 40 mm | 355 mm | Posée sur chant |
-| Latte du porte-bac | 4 | Tasseau raboté 20 × 40 mm | 395 mm | Posée à plat sur les traverses latérales |
-| Côté du cadre lumière | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posé sur chant ; 2 trous Ø 8 traversant les 20 mm, à 20 mm de chaque bout et à mi-hauteur |
-| Barre du cadre lumière | 2 | Tasseau raboté 20 × 40 mm | 393 mm | Posée à plat sur les côtés |
-| Ceinture avant ou arrière | 2 | Tasseau raboté 20 × 40 mm | 475 mm | Posée sur chant, contre l'extérieur des montants |
-| Ceinture latérale | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posée sur chant, contre l'extérieur des montants |
+| Repère | Pièce | Quantité | Matériau | Longueur | Usinage |
+|---|---|---|---|---|---|
+| 1 | Montant | 4 | Tasseau raboté 20 × 40 mm | 620 mm | 10 trous Ø 8 traversant les 20 mm, voir [Perçage des montants](#perçage-des-montants) |
+| 2 | Traverse latérale | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posée sur chant |
+| 3 | Traverse arrière | 1 | Tasseau raboté 20 × 40 mm | 355 mm | Posée sur chant |
+| 4 | Latte du porte-bac | 4 | Tasseau raboté 20 × 40 mm | 395 mm | Posée à plat sur les traverses latérales |
+| 5 | Côté du cadre lumière | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posé sur chant ; 2 trous Ø 8 traversant les 20 mm, à 20 mm de chaque bout et à mi-hauteur |
+| 6 | Barre du cadre lumière | 2 | Tasseau raboté 20 × 40 mm | 393 mm | Posée à plat sur les côtés |
+| 7 | Ceinture avant ou arrière | 2 | Tasseau raboté 20 × 40 mm | 475 mm | Posée sur chant, contre l'extérieur des montants |
+| 8 | Ceinture latérale | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posée sur chant, contre l'extérieur des montants |
 
 Soit 7,95 m de tasseau, qui se débitent dans cinq longueurs de 2 m (620 + 620 + 620, 620 + 475 + 475 + 395, 395 + 395 + 395 + 393 + 393, 355 + 300 + 300 + 300 + 300 + 300, 300), en comptant 3 mm par trait de scie. Le pin ou le sapin conviennent. Une finition à l'huile ou au vernis, surtout sur les lattes du porte-bac, résiste mieux à l'humidité du bac.
 
@@ -50,18 +50,24 @@ Orientation des tasseaux :
 - **Lattes du porte-bac** : à plat, 40 mm de large, pour porter le fond du bac.
 - **Barres du cadre lumière** : à plat, 40 mm de large, posées sur les côtés, pour recevoir les adhésifs de 30 mm sous les panneaux.
 
+### Plan coté des pièces
+
+Chaque pièce est dessinée vue sur sa face de 40 mm, avec sa longueur, ses perçages, ses vis et l'emplacement des pièces qui s'y fixent : hachures bleues ou orange pour une pièce vissée contre la face, bande verte numérotée pour une pièce posée sur le dessus (par exemple les lattes 4 sur les traverses latérales 2, ou les barres 6 sur les côtés 5). Les cotes partent du bout gauche de la pièce. Une version à imprimer pour l'atelier est dans [`plan_pieces_bois.pdf`](plan_pieces_bois.pdf).
+
+![Plan coté des pièces en bois](CAD/images/cadre_pieces_cotes.png)
+
 ## Montage
 
 ![Vue éclatée : montants, traverses, lattes du porte-bac, réservoir, bac, panneaux LED, adhésifs, cadre lumière, goupilles et ceinture](CAD/images/cadre_eclate.png)
 
-De bas en haut : montants et traverses, réservoir (sorti vers l'avant), lattes du porte-bac, bac, panneaux et adhésifs, cadre lumière et goupilles, ceinture (soulevée).
+Les numéros renvoient à la liste de débit et au [plan coté](#plan-coté-des-pièces). De bas en haut : montants et traverses, réservoir (sorti vers l'avant), lattes du porte-bac, bac, panneaux et adhésifs, cadre lumière et goupilles, ceinture (soulevée).
 
 ### Base
 
 1. Percer les montants (voir ci-dessous) avant tout assemblage.
-2. Visser et coller une traverse latérale contre la face intérieure de deux montants, le dessus de la traverse à 150 mm du bas des montants et ses bouts au ras de leurs faces extérieures. Recommencer pour l'autre côté. Les traverses doivent être sur les faces qui se regardent, côté intérieur du cadre.
-3. Visser la traverse arrière entre les deux traverses latérales, au ras de leur dessus et de l'arrière, à travers les traverses latérales.
-4. Poser les quatre lattes du porte-bac, à plat, sur les traverses latérales, entre les montants de gauche et de droite. Leurs axes sont à 40 et 84,5 mm de part et d'autre du milieu : les deux lattes extérieures arrivent au bord du fond du bac (209 mm), et les deux du milieu laissent entre elles une fente de 40 mm pour le trop-plein. Il reste 4,5 mm entre une latte du milieu et sa voisine. Visser chaque latte dans les traverses, une vis 4 × 40 mm à chaque bout, après un avant-trou.
+2. Visser et coller une traverse latérale (2) contre la face intérieure de deux montants (1), le dessus de la traverse à 150 mm du bas des montants et ses bouts au ras de leurs faces extérieures. Recommencer pour l'autre côté. Les traverses doivent être sur les faces qui se regardent, côté intérieur du cadre.
+3. Visser la traverse arrière (3) entre les deux traverses latérales, au ras de leur dessus et de l'arrière, à travers les traverses latérales.
+4. Poser les quatre lattes du porte-bac (4), à plat, sur les traverses latérales, entre les montants de gauche et de droite. Leurs axes sont à 40 et 84,5 mm de part et d'autre du milieu : les deux lattes extérieures arrivent au bord du fond du bac (209 mm), et les deux du milieu laissent entre elles une fente de 40 mm pour le trop-plein. Il reste 4,5 mm entre une latte du milieu et sa voisine. Visser chaque latte dans les traverses, une vis 4 × 40 mm à chaque bout, après un avant-trou.
 
 ![Porte-bac et réservoir vus de l'avant, sans le bac](CAD/images/cadre_reservoir.png)
 
@@ -73,20 +79,20 @@ La ceinture entoure le haut des quatre montants, vissée contre leurs faces ext�
 
 ![Ceinture du haut : coin assemblé, et ceinture écartée des montants avec ses vis](CAD/images/cadre_detail_ceinture.png)
 
-- **Traverses latérales** (300 mm, gauche et droite) : sur chant, contre les faces extérieures de 40 mm des montants, au ras de leurs bouts avant et arrière.
-- **Traverses avant et arrière** (475 mm) : sur chant, contre les faces extérieures de 20 mm des montants. Elles débordent de 20 mm de chaque côté pour couvrir les bouts des traverses latérales.
+- **Ceintures latérales (8)** (300 mm, gauche et droite) : sur chant, contre les faces extérieures de 40 mm des montants, au ras de leurs bouts avant et arrière.
+- **Ceintures avant et arrière (7)** (475 mm) : sur chant, contre les faces extérieures de 20 mm des montants. Elles débordent de 20 mm de chaque côté pour couvrir les bouts des ceintures latérales.
 
-1. Visser chaque traverse latérale contre deux montants, son dessus au ras du haut des montants : deux vis 4 × 40 mm par montant, l'une au-dessus de l'autre, et de la colle. Vérifier l'équerre entre la traverse et les montants.
-2. Visser les traverses avant et arrière : deux vis 4 × 40 mm dans chaque montant, et deux dans le bout de chaque traverse latérale, toujours avec de la colle. Faire des avant-trous de Ø 2,5 mm, surtout dans les bouts des traverses latérales, à 10 mm du bord.
+1. Visser chaque ceinture latérale (8) contre deux montants, son dessus au ras du haut des montants : deux vis 4 × 40 mm par montant, l'une au-dessus de l'autre, et de la colle. Vérifier l'équerre entre la traverse et les montants.
+2. Visser les ceintures avant et arrière (7) : deux vis 4 × 40 mm dans chaque montant, et deux dans le bout de chaque ceinture latérale, toujours avec de la colle. Faire des avant-trous de Ø 2,5 mm, surtout dans les bouts des traverses latérales, à 10 mm du bord.
 3. Avant que la colle prenne, vérifier que la structure est d'équerre en mesurant les deux diagonales du dessus, qui doivent être égales.
 
-Il faut 24 vis pour la ceinture : 8 par traverse avant ou arrière et 4 par traverse latérale. Elles traversent les 20 mm de la traverse et entrent de 20 mm dans le bois.
+Il faut 24 vis pour la ceinture : 8 par ceinture avant ou arrière et 4 par ceinture latérale. Elles traversent les 20 mm de la pièce et entrent de 20 mm dans le bois.
 
 Le cadre lumière reste à l'intérieur des montants : la ceinture ne le gêne pas, et au plus haut, son dessus reste 10 mm sous la ceinture. Les goupilles du trou le plus haut passent 46 mm sous la ceinture et se saisissent facilement.
 
 ### Cadre lumière
 
-1. Poser les deux barres, à plat, sur les deux côtés posés sur chant, chacune à 15 mm du bout des côtés et au ras de leur face extérieure : leurs bords extérieurs sont alors à 300 mm l'un de l'autre, la longueur des panneaux. Deux vis 4 × 40 mm par croisement, de haut en bas à travers la barre, et de la colle. Vérifier l'équerrage avant que la colle prenne.
+1. Poser les deux barres (6), à plat, sur les deux côtés (5) posés sur chant, au ras des bouts des côtés et de leur face extérieure : leurs bords extérieurs sont alors à 300 mm l'un de l'autre, la longueur des panneaux. Deux vis 4 × 40 mm par croisement, de haut en bas à travers la barre, et de la colle. Vérifier l'équerrage avant que la colle prenne.
 2. Vérifier que le cadre entre entre les montants avec environ 1 mm de jeu de chaque côté. Il se met en place par l'avant, en le glissant à plat entre les deux montants avant (393 mm de large pour 395 mm de passage), sous la ceinture.
 3. Dégraisser le dessous des barres et le dos des panneaux à l'alcool isopropylique. Coller un adhésif à chaque bout de panneau, puis les panneaux sous les barres, LED vers le bas, dans le sens avant-arrière, avec 8 mm d'écart entre deux panneaux. Les panneaux se logent entre les côtés, avec 4,5 mm de jeu de chaque côté.
 
@@ -148,15 +154,16 @@ Le passe-cloison et le tube ne sont pas dessinés. La position du trop-plein se 
 |---|---|
 | [`CAD/cadre_bois.py`](CAD/cadre_bois.py) | Script paramétrique : affiche la liste de débit, contrôle les jeux (réservoir, trop-plein, panneaux, cadre lumière, goupilles) et écrit dans `STL/` la goupille et les vues d'assemblage |
 | [`CAD/rendu_cadre.py`](CAD/rendu_cadre.py) | Régénère les images de ce document dans `CAD/images/` |
+| [`CAD/plan_pieces.py`](CAD/plan_pieces.py) | Régénère le plan coté des pièces : `CAD/images/cadre_pieces_cotes.png` et `plan_pieces_bois.pdf` |
 | `STL/goupille_cadre_lumiere.stl` | Goupille à imprimer, déjà posée sur son méplat |
 | `STL/assemblage_v2_vue.stl`, `STL/assemblage_v2_eclate_vue.stl` | Vues d'assemblage, montée et éclatée, non destinées à l'impression |
 
 ```bash
-pip install numpy trimesh manifold3d pyvista pillow
+pip install numpy trimesh manifold3d pyvista pillow matplotlib
 ```
 
 ```bash
-python V2/CAD/cadre_bois.py && python V2/CAD/rendu_cadre.py
+python V2/CAD/cadre_bois.py && python V2/CAD/rendu_cadre.py && python V2/CAD/plan_pieces.py
 ```
 
 Principaux réglages, en tête de `cadre_bois.py` :
