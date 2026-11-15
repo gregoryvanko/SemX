@@ -8,11 +8,11 @@ Deuxième version de la partie mécanique de SemX. Le réservoir, le bac et les 
 
 - **Quatre montants** en tasseau de 20 × 40 mm servent à la fois de pieds et de colonnes pour l'éclairage.
 - **Un porte-bac** de quatre lattes en tasseau, posées à plat sur deux traverses latérales, porte le bac à 150 mm au-dessus de la table. Une traverse arrière relie les deux côtés.
-- **Un cadre du haut**, posé sur les montants, les relie entre eux et stabilise la structure.
+- **Une ceinture**, vissée autour du haut des montants, les relie entre eux et stabilise la structure.
 - **Le réservoir** se glisse sous le porte-bac par l'avant, qui reste ouvert.
 - **Le cadre lumière** est fait de deux côtés, dans la largeur, et de deux barres posées dessus, dans la longueur. Les quatre panneaux LED sont collés sous les barres, entre les côtés. Le cadre coulisse entre les montants et repose sur quatre goupilles imprimées en 3D, qui traversent les montants percés tous les 30 mm.
 
-Encombrement : 435 × 300 × 640 mm, cadre du haut compris. Dans la largeur, l'extérieur des montants est aligné sur la longueur des panneaux LED (300 mm) : les bouts des panneaux, des barres et des côtés du cadre lumière arrivent au ras des montants. Toutes les pièces de bois sont taillées dans du tasseau raboté de 20 × 40 mm.
+Encombrement : 475 × 340 × 620 mm, ceinture comprise, et 435 × 300 mm sous la ceinture. Dans la largeur, l'extérieur des montants est aligné sur la longueur des panneaux LED (300 mm) : les bouts des panneaux, des barres et des côtés du cadre lumière arrivent au ras des montants. Toutes les pièces de bois sont taillées dans du tasseau raboté de 20 × 40 mm.
 
 ## Éléments du commerce
 
@@ -28,20 +28,20 @@ Le modèle suppose une paroi de 2 mm et un rebord plat de 3 mm pour le bac : seu
 
 | Pièce | Quantité | Matériau | Longueur | Usinage |
 |---|---|---|---|---|
-| Montant | 4 | Tasseau raboté 20 × 40 mm | 600 mm | 10 trous Ø 8 traversant les 20 mm, voir [Perçage des montants](#perçage-des-montants) |
+| Montant | 4 | Tasseau raboté 20 × 40 mm | 620 mm | 10 trous Ø 8 traversant les 20 mm, voir [Perçage des montants](#perçage-des-montants) |
 | Traverse latérale | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posée sur chant |
 | Traverse arrière | 1 | Tasseau raboté 20 × 40 mm | 355 mm | Posée sur chant |
 | Latte du porte-bac | 4 | Tasseau raboté 20 × 40 mm | 395 mm | Posée à plat sur les traverses latérales |
 | Côté du cadre lumière | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posé sur chant ; 2 trous Ø 8 traversant les 20 mm, à 20 mm de chaque bout et à mi-hauteur |
 | Barre du cadre lumière | 2 | Tasseau raboté 20 × 40 mm | 393 mm | Posée à plat sur les côtés |
-| Traverse haute avant ou arrière | 2 | Tasseau raboté 20 × 40 mm | 435 mm | Posée sur chant, sur les montants |
-| Traverse haute latérale | 2 | Tasseau raboté 20 × 40 mm | 260 mm | Posée sur chant, entre les traverses hautes |
+| Ceinture avant ou arrière | 2 | Tasseau raboté 20 × 40 mm | 475 mm | Posée sur chant, contre l'extérieur des montants |
+| Ceinture latérale | 2 | Tasseau raboté 20 × 40 mm | 300 mm | Posée sur chant, contre l'extérieur des montants |
 
-Soit 7,71 m de tasseau, qui se débitent dans cinq longueurs de 2 m (600 + 600 + 600, 600 + 435 + 435 + 395, 395 + 395 + 395 + 393 + 393, 355 + 300 + 300 + 300 + 300 + 260, 260), en comptant 3 mm par trait de scie. Le pin ou le sapin conviennent. Une finition à l'huile ou au vernis, surtout sur les lattes du porte-bac, résiste mieux à l'humidité du bac.
+Soit 7,95 m de tasseau, qui se débitent dans cinq longueurs de 2 m (620 + 620 + 620, 620 + 475 + 475 + 395, 395 + 395 + 395 + 393 + 393, 355 + 300 + 300 + 300 + 300 + 300, 300), en comptant 3 mm par trait de scie. Le pin ou le sapin conviennent. Une finition à l'huile ou au vernis, surtout sur les lattes du porte-bac, résiste mieux à l'humidité du bac.
 
 Les goupilles sont imprimées : voir [Goupilles imprimées](#goupilles-imprimées).
 
-Quincaillerie : une vingtaine de vis à bois 4 × 35 mm (traverses), huit vis 4 × 40 mm (lattes du porte-bac), seize vis 4 × 40 mm (cadre lumière, coins du cadre du haut), quatre vis 5 × 70 mm (cadre du haut dans les montants), quatre équerres d'angle plates d'environ 40 mm (facultatives), et de la colle à bois.
+Quincaillerie : une dizaine de vis à bois 4 × 35 mm (traverses sous le porte-bac), une quarantaine de vis 4 × 40 mm (8 pour les lattes du porte-bac, 8 pour le cadre lumière, 24 pour la ceinture), et de la colle à bois.
 
 Orientation des tasseaux :
 
@@ -52,9 +52,9 @@ Orientation des tasseaux :
 
 ## Montage
 
-![Vue éclatée : montants, traverses, lattes du porte-bac, réservoir, bac, panneaux LED, adhésifs, cadre lumière, goupilles et cadre du haut](CAD/images/cadre_eclate.png)
+![Vue éclatée : montants, traverses, lattes du porte-bac, réservoir, bac, panneaux LED, adhésifs, cadre lumière, goupilles et ceinture](CAD/images/cadre_eclate.png)
 
-De bas en haut : montants et traverses, réservoir (sorti vers l'avant), lattes du porte-bac, bac, panneaux et adhésifs, cadre lumière et goupilles, cadre du haut.
+De bas en haut : montants et traverses, réservoir (sorti vers l'avant), lattes du porte-bac, bac, panneaux et adhésifs, cadre lumière et goupilles, ceinture (soulevée).
 
 ### Base
 
@@ -67,20 +67,27 @@ De bas en haut : montants et traverses, réservoir (sorti vers l'avant), lattes 
 
 Sous le porte-bac, il reste 150 mm de hauteur libre : 10 mm de marge au-dessus du réservoir, qui se glisse par l'avant. Le réservoir passe à 50 mm de chaque traverse latérale et s'arrête 41 mm devant la traverse arrière.
 
-### Cadre du haut
+### Ceinture du haut
 
-Posé sur le haut des montants, il les relie entre eux. Avec les traverses sous le porte-bac, chaque côté forme un rectangle fermé, ce qui empêche la structure de se déformer, surtout d'avant en arrière, où l'avant est ouvert.
+La ceinture entoure le haut des quatre montants, vissée contre leurs faces extérieures, le dessus au ras du haut des montants. Avec les traverses sous le porte-bac, chaque côté forme un rectangle fermé, ce qui empêche la structure de se déformer, surtout d'avant en arrière, où l'avant est ouvert.
 
-1. Visser les deux traverses latérales hautes (260 mm) entre les deux traverses hautes avant et arrière (435 mm), toutes sur chant, au ras des bouts : deux vis 4 × 40 mm par coin, à travers la traverse avant ou arrière, et de la colle. Vérifier l'équerrage en mesurant les deux diagonales, qui doivent être égales.
-2. Poser le cadre sur les montants, au ras de leurs faces extérieures : chaque coin du cadre couvre le haut d'un montant.
-3. Encoller le haut des montants, puis visser le cadre dans chaque montant par le dessus, avec une vis 5 × 70 mm au milieu du coin, après un avant-trou de Ø 3 mm. Une vis tient moins bien dans le bois de bout que dans le fil : une équerre plate vissée à l'intérieur de chaque coin renforce l'assemblage.
+![Ceinture du haut : coin assemblé, et ceinture écartée des montants avec ses vis](CAD/images/cadre_detail_ceinture.png)
 
-Le cadre lumière, au plus haut, reste 30 mm sous le cadre du haut.
+- **Traverses latérales** (300 mm, gauche et droite) : sur chant, contre les faces extérieures de 40 mm des montants, au ras de leurs bouts avant et arrière.
+- **Traverses avant et arrière** (475 mm) : sur chant, contre les faces extérieures de 20 mm des montants. Elles débordent de 20 mm de chaque côté pour couvrir les bouts des traverses latérales.
+
+1. Visser chaque traverse latérale contre deux montants, son dessus au ras du haut des montants : deux vis 4 × 40 mm par montant, l'une au-dessus de l'autre, et de la colle. Vérifier l'équerre entre la traverse et les montants.
+2. Visser les traverses avant et arrière : deux vis 4 × 40 mm dans chaque montant, et deux dans le bout de chaque traverse latérale, toujours avec de la colle. Faire des avant-trous de Ø 2,5 mm, surtout dans les bouts des traverses latérales, à 10 mm du bord.
+3. Avant que la colle prenne, vérifier que la structure est d'équerre en mesurant les deux diagonales du dessus, qui doivent être égales.
+
+Il faut 24 vis pour la ceinture : 8 par traverse avant ou arrière et 4 par traverse latérale. Elles traversent les 20 mm de la traverse et entrent de 20 mm dans le bois.
+
+Le cadre lumière reste à l'intérieur des montants : la ceinture ne le gêne pas, et au plus haut, son dessus reste 10 mm sous la ceinture. Les goupilles du trou le plus haut passent 46 mm sous la ceinture et se saisissent facilement.
 
 ### Cadre lumière
 
 1. Poser les deux barres, à plat, sur les deux côtés posés sur chant, chacune à 15 mm du bout des côtés et au ras de leur face extérieure : leurs bords extérieurs sont alors à 300 mm l'un de l'autre, la longueur des panneaux. Deux vis 4 × 40 mm par croisement, de haut en bas à travers la barre, et de la colle. Vérifier l'équerrage avant que la colle prenne.
-2. Vérifier que le cadre entre entre les montants avec environ 1 mm de jeu de chaque côté. Il se met en place par l'avant, en le glissant à plat entre les deux montants avant (393 mm de large pour 395 mm de passage) : le cadre du haut ne gêne pas.
+2. Vérifier que le cadre entre entre les montants avec environ 1 mm de jeu de chaque côté. Il se met en place par l'avant, en le glissant à plat entre les deux montants avant (393 mm de large pour 395 mm de passage), sous la ceinture.
 3. Dégraisser le dessous des barres et le dos des panneaux à l'alcool isopropylique. Coller un adhésif à chaque bout de panneau, puis les panneaux sous les barres, LED vers le bas, dans le sens avant-arrière, avec 8 mm d'écart entre deux panneaux. Les panneaux se logent entre les côtés, avec 4,5 mm de jeu de chaque côté.
 
 ![Dessous du cadre lumière : panneaux et adhésifs, deux panneaux retirés](CAD/images/cadre_detail_panneaux.png)
@@ -160,7 +167,7 @@ Principaux réglages, en tête de `cadre_bois.py` :
 | `CLEAR_UNDER` | 150 mm | Hauteur libre sous le porte-bac |
 | `DRAIN_GAP` | 40 mm | Fente entre les deux lattes du milieu du porte-bac |
 | `BAC_CLEAR` | 10 / 5 mm | Jeu autour du rebord du bac : contre les montants en longueur, jusqu'à la traverse arrière en largeur |
-| `LEG_H` | 600 mm | Hauteur des montants |
+| `LEG_H` | 620 mm | Hauteur des montants |
 | `FRAME_Z`, `HOLE_PITCH` | 240 à 510 mm, 30 mm | Positions du dessous des côtés du cadre lumière |
 | `PANEL_GAP` | 8 mm | Écart entre deux panneaux |
 | `PIN_D`, `PIN_L` | Ø 7,7 mm, 38 mm | Diamètre et longueur sous la poignée de la goupille, pour des trous de Ø 8 (`HOLE_D`) |
@@ -169,7 +176,7 @@ Principaux réglages, en tête de `cadre_bois.py` :
 ## Limites
 
 - Les cotes du bac sont celles mesurées. Son épaisseur de paroi et la forme de son rebord sont supposées, sans effet sur le cadre.
-- L'avant reste ouvert sous le porte-bac pour le réservoir : la structure n'a ni traverse basse avant ni écharpe. Ce sont le cadre du haut et les traverses sous le porte-bac, qui ferment chaque côté en rectangle, qui l'empêchent de se déformer en parallélogramme. Bien coller et serrer les assemblages des coins du cadre du haut.
+- L'avant reste ouvert sous le porte-bac pour le réservoir : la structure n'a ni traverse basse avant ni écharpe. Ce sont la ceinture et les traverses sous le porte-bac, qui ferment chaque côté en rectangle, qui l'empêchent de se déformer en parallélogramme. Bien coller et serrer les assemblages de la ceinture.
 - Le fond du bac repose sur les lattes, sauf au droit de la fente centrale de 40 mm. Un fond très souple peut s'y creuser légèrement sous le poids du terreau mouillé : réduire `DRAIN_GAP` si nécessaire, sans descendre sous l'encombrement du passe-cloison.
 - Les panneaux ne sont tenus qu'à leurs deux bouts, sur 236 mm de portée libre entre les adhésifs, comme dans V1.
 - Le boîtier de l'électronique n'a pas encore de place prévue. Il peut se visser contre un montant ou sous une traverse latérale, à côté du réservoir.

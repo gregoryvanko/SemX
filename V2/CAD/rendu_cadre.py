@@ -26,6 +26,7 @@ COLORS = {
     "bac": "#3b3b3b",
     "frame": "#a97c4c",
     "pin": "#d1402f",
+    "screw": "#5a5f66",
     "tape": "#f2a33a",
     "panel": "#e4e7ea",
 }
@@ -134,6 +135,38 @@ def render_panels():
     shot(p, "cadre_detail_panneaux.png")
 
 
+def render_belt():
+    """Ceinture du haut : coin assemblé, et ceinture écartée des montants avec ses vis."""
+    views = []
+    z = c.FRAME_Z[-1]
+    groups = c.assembly(z)
+
+    p = new_plotter((1300, 1100))
+    add_groups(p, groups, skip=("reservoir", "bac", "slat", "rail"))
+    focus = (c.LEG_X, -c.LEG_Y, c.LEG_H - 45)
+    p.camera_position = [(focus[0] + 520, focus[1] - 640, focus[2] + 330), focus, UP]
+    p.camera.view_angle = 24
+    caption(p, "Coin assemblé, cadre lumière au plus haut")
+    views.append(shot(p))
+
+    p = new_plotter((1300, 1100))
+    for key in ("leg",):
+        for m in groups[key]:
+            add(p, m, COLORS[key])
+    gap = 80.0
+    moves = [(0, -gap, 0), (0, gap, 0), (-gap, 0, 0), (gap, 0, 0)]
+    for rail, screws, move in zip(c.make_top_frame(), c.make_belt_screws(), moves):
+        add(p, rail.copy().apply_translation(move), COLORS["top"])
+        for sc in screws:
+            add(p, sc.copy().apply_translation(np.array(move)), COLORS["screw"])
+    focus = (20, -20, c.LEG_H - 70)
+    p.camera_position = [(focus[0] + 760, focus[1] - 940, focus[2] + 600), focus, UP]
+    p.camera.view_angle = 30
+    caption(p, "Ceinture écartée des montants, avec ses vis")
+    views.append(shot(p))
+    Image.fromarray(np.hstack(views)).save(OUT / "cadre_detail_ceinture.png", optimize=True)
+
+
 def render_pin_part():
     """Goupille seule, posée sur son méplat comme sur le plateau d'impression."""
     p = pv.Plotter(off_screen=True, window_size=(1400, 800))
@@ -149,6 +182,7 @@ def render_pin_part():
 def main():
     OUT.mkdir(exist_ok=True)
     render_pin_part()
+    render_belt()
     render_hero()
     render_exploded()
     render_heights()

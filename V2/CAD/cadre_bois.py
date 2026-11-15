@@ -49,7 +49,7 @@ TW, TL = 20.0, 40.0               # section des tasseaux rabotés : 20 × 40 mm
 CLEAR_UNDER = 150.0               # hauteur libre sous le porte-bac, pour le réservoir
 BAC_CLEAR = (10.0, 5.0)           # jeu autour du rebord du bac : contre les montants en x, jusqu'à la traverse arrière en y
 FRAME_CLEAR = 1.0                 # jeu par côté entre le cadre lumière et les montants
-LEG_H = 600.0
+LEG_H = 620.0                     # la ceinture du haut reste au-dessus du cadre lumière
 
 # En x, le bac entre entre les montants avec son rebord. En y, l'extérieur des montants
 # est aligné sur les bouts des panneaux LED : les montants sont au-delà du bac en x,
@@ -220,13 +220,46 @@ def make_pins(z, pin=None):
 
 
 def make_top_frame():
-    """Cadre du haut, posé sur les montants : traverses avant et arrière sur toute la
-    largeur, au ras de l'extérieur, et traverses latérales entre elles, toutes sur chant."""
+    """Ceinture du haut, autour des quatre montants : traverses avant et arrière contre les
+    faces extérieures, débordant pour couvrir les bouts des traverses latérales, elles-mêmes
+    contre les faces extérieures gauche et droite. Toutes sur chant, au ras du haut des montants."""
     x, y = OUT_X / 2, OUT_Y / 2
-    z0, z1 = LEG_H, LEG_H + TL
-    long_ = [box(-x, x, s * (y - TW), s * y, z0, z1) for s in (-1, 1)]
-    short = [box(s * (x - TW), s * x, -(y - TW), y - TW, z0, z1) for s in (-1, 1)]
+    z0, z1 = LEG_H - TL, LEG_H
+    long_ = [box(-(x + TW), x + TW, s * y, s * (y + TW), z0, z1) for s in (-1, 1)]
+    short = [box(s * x, s * (x + TW), -y, y, z0, z1) for s in (-1, 1)]
     return long_ + short
+
+
+BELT_SCREW = (4.0, 40.0)          # vis de la ceinture : diamètre, longueur
+
+
+def make_belt_screws():
+    """Vis de la ceinture, rangées comme les traverses de make_top_frame() :
+    deux vis par montant, et deux par bout de traverse latérale pour les traverses avant et arrière."""
+    d, l = BELT_SCREW
+    x, y = OUT_X / 2, OUT_Y / 2
+    zs = (LEG_H - TL / 2 - 10, LEG_H - TL / 2 + 10)
+
+    def screw(p_out, axis):
+        """Vis dont la tête affleure en p_out, enfoncée selon -axis."""
+        axis = np.array(axis, dtype=float)
+        rot = trimesh.geometry.align_vectors((0, 0, 1), axis)
+        shank = trimesh.creation.cylinder(radius=d / 2, height=l, sections=16)
+        shank.apply_translation((0, 0, -l / 2))
+        head = trimesh.creation.cylinder(radius=d, height=1.5, sections=24)
+        head.apply_translation((0, 0, -0.75))
+        m = trimesh.util.concatenate([shank, head])
+        m.apply_transform(rot)
+        m.apply_translation(p_out)
+        return m
+
+    groups = []
+    for s in (-1, 1):          # traverses avant et arrière
+        pts = [(sx * LEG_X, z) for sx in (-1, 1) for z in zs] + [(sx * (x + TW / 2), z) for sx in (-1, 1) for z in zs]
+        groups.append([screw((px, s * (y + TW), z), (0, s, 0)) for px, z in pts])
+    for s in (-1, 1):          # traverses latérales
+        groups.append([screw((s * (x + TW), sy * LEG_Y, z), (s, 0, 0)) for sy in (-1, 1) for z in zs])
+    return groups
 
 
 def assembly(frame_z=HERO_FRAME_Z):
@@ -258,8 +291,8 @@ CUT_LIST = [
     ("Côté du cadre lumière", "tasseau 20 × 40", FRAME_SIDE_L, 2,
      f"sur chant, 2 trous Ø 8 à {FRAME_SIDE_L / 2 - LEG_Y:.0f} mm des bouts"),
     ("Barre du cadre lumière", "tasseau 20 × 40", FRAME_BAR_L, 2, "à plat, posée sur les côtés"),
-    ("Traverse haute avant ou arrière", "tasseau 20 × 40", OUT_X, 2, "sur chant, posée sur les montants"),
-    ("Traverse haute latérale", "tasseau 20 × 40", OUT_Y - 2 * TW, 2, "sur chant, entre les traverses hautes"),
+    ("Ceinture avant ou arrière", "tasseau 20 × 40", OUT_X + 2 * TW, 2, "sur chant, contre l'extérieur des montants"),
+    ("Ceinture latérale", "tasseau 20 × 40", OUT_Y, 2, "sur chant, contre l'extérieur des montants"),
 ]
 
 
@@ -303,13 +336,15 @@ def check():
     expect(min(PIN_HEAD[1], PIN_D - PIN_FLAT) < HOLE_D < PIN_HEAD[1], "poignée plus large que le trou : butée contre le montant")
     expect(leg_hole_z(FRAME_Z[-1]) + 20 < LEG_H, "dernier trou à plus de 20 mm du haut des montants")
     light_top = FRAME_Z[-1] + TL + TW
-    expect(light_top < LEG_H, f"cadre lumière, au plus haut, {LEG_H - light_top:.0f} mm sous le cadre du haut")
+    belt_z = LEG_H - TL
+    expect(light_top <= belt_z - 10, f"cadre lumière, au plus haut, {belt_z - light_top:.0f} mm sous la ceinture du haut")
+    expect(leg_hole_z(FRAME_Z[-1]) + PIN_D / 2 + 10 < belt_z, f"goupille du trou le plus haut {belt_z - leg_hole_z(FRAME_Z[-1]) - PIN_D / 2:.0f} mm sous la ceinture")
     expect(2 * FRAME_SIDE_X[1] < IN_X, f"cadre lumière glissé par l'avant entre les montants : "
            f"{2 * FRAME_SIDE_X[1]:.0f} mm pour {IN_X:.0f} mm de passage")
     print(f"Face LED au-dessus du bord du bac : {low:.0f} à "
           f"{led_face(FRAME_Z[-1]) - BAC_TOP:.0f} mm, {len(FRAME_Z)} positions tous les {HOLE_PITCH:.0f} mm")
     print(f"Trous des montants, axe à {', '.join(f'{leg_hole_z(z):.0f}' for z in FRAME_Z)} mm de la table")
-    print(f"Encombrement : {OUT_X:.0f} × {OUT_Y:.0f} × {LEG_H + TL:.0f} mm ; dessous du bac à {BAC_Z:.0f} mm")
+    print(f"Encombrement : {OUT_X + 2 * TW:.0f} × {OUT_Y + 2 * TW:.0f} × {LEG_H:.0f} mm (ceinture comprise ; {OUT_X:.0f} × {OUT_Y:.0f} mm sous la ceinture) ; dessous du bac à {BAC_Z:.0f} mm")
     return ok
 
 
