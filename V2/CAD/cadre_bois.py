@@ -2,9 +2,10 @@
 """Cadre en bois de SemX V2 : bac à semis du commerce, réservoir dessous, panneaux LED réglables.
 
 Quatre montants en tasseau servent à la fois de pieds et de colonnes pour l'éclairage.
-Un porte-bac de quatre lattes en tasseau, posées à plat sur deux traverses latérales,
-porte le bac à semis à 150 mm au-dessus de la table : le réservoir se glisse dessous,
-par l'avant, qui reste ouvert. Au-dessus, un cadre lumière reçoit les quatre panneaux
+Deux ceintures en tasseau entourent les montants : la ceinture basse porte les quatre
+lattes du porte-bac, sur lesquelles repose le bac à semis ; le réservoir passe sous sa
+traverse avant et se glisse sous le bac par l'avant. La ceinture haute relie le haut
+des montants. Au-dessus, un cadre lumière reçoit les quatre panneaux
 LED de V1, collés dessous. Il coulisse entre les montants et repose sur quatre
 goupilles imprimées en 3D qui traversent les montants, percés tous les 30 mm.
 
@@ -45,11 +46,11 @@ TAPE_L, TAPE_W, TAPE_T = 30.0, 50.0, 1.0
 # ── Bois ───────────────────────────────────────────────────────────────────────
 TW, TL = 20.0, 40.0               # section des tasseaux rabotés : 20 × 40 mm
 # Montants : 20 mm en x (traversés par les goupilles), 40 mm en y.
-# Traverses et côtés du cadre lumière sur chant (40 mm en z), barres à plat (40 mm en y).
-CLEAR_UNDER = 150.0               # hauteur libre sous le porte-bac, pour le réservoir
-BAC_CLEAR = (10.0, 5.0)           # jeu autour du rebord du bac : contre les montants en x, jusqu'à la traverse arrière en y
+# Ceintures et côtés du cadre lumière sur chant (40 mm en z), lattes et barres à plat (40 mm en y).
+CLEAR_UNDER = 150.0               # hauteur libre sous la ceinture basse, pour faire passer le réservoir
+BAC_CLEAR = (10.0, 5.0)           # jeu autour du rebord du bac : contre les montants en x, jusqu'aux lattes en y
 FRAME_CLEAR = 1.0                 # jeu par côté entre le cadre lumière et les montants
-LEG_H = 620.0                     # la ceinture du haut reste au-dessus du cadre lumière
+LEG_H = 660.0                     # la ceinture haute reste au-dessus du cadre lumière
 
 # En x, le bac entre entre les montants avec son rebord. En y, l'extérieur des montants
 # est aligné sur les bouts des panneaux LED : les montants sont au-delà du bac en x,
@@ -57,20 +58,21 @@ LEG_H = 620.0                     # la ceinture du haut reste au-dessus du cadre
 IN_X = BAC_OUT_TOP[0] + 2 * BAC_CLEAR[0]          # 395
 OUT_Y = PANEL_L                                   # 300
 IN_Y = OUT_Y - 2 * TL                             # 220, entre les montants avant et arrière
-PLATE_Y = BAC_OUT_TOP[1] + 2 * BAC_CLEAR[1]       # 250, profondeur utile sous le bac (réservoir, traverse arrière)
+PLATE_Y = BAC_OUT_TOP[1] + 2 * BAC_CLEAR[1]       # 250, profondeur utile sous le bac, pour placer le réservoir
 LEG_X = IN_X / 2 + TW / 2                         # axe des montants
 LEG_Y = IN_Y / 2 + TL / 2
 OUT_X = IN_X + 2 * TW
 
-PLATE_Z = CLEAR_UNDER                             # dessous des lattes du porte-bac
+LOW_BELT_Z = CLEAR_UNDER                          # dessous de la ceinture basse
+PLATE_Z = LOW_BELT_Z + TL                         # dessous des lattes, posées sur la ceinture basse
 BAC_Z = PLATE_Z + TW                              # dessous du bac, posé sur les lattes
 BAC_TOP = BAC_Z + BAC_H
 
-# Réservoir : centré en x, vers l'avant, devant la traverse arrière.
+# Réservoir : centré en x, vers l'avant.
 RES_Y0 = -PLATE_Y / 2 + 5.0
-BACK_RAIL_Y = (PLATE_Y / 2 - TW, PLATE_Y / 2)
 
-# Porte-bac : lattes à plat selon x, d'un montant à l'autre, sur les traverses latérales.
+# Porte-bac : lattes à plat selon x, posées sur les ceintures basses latérales, entre les montants
+# avant et arrière.
 # Les lattes extérieures arrivent au bord du fond du bac ; entre les deux lattes du
 # milieu, une fente laisse passer le trop-plein.
 BAC_BOTTOM_OUT = (BAC_IN_BOTTOM[0] + 2 * BAC_WALL, BAC_IN_BOTTOM[1] + 2 * BAC_WALL)
@@ -95,8 +97,8 @@ PIN_TIP = 1.0                     # chanfrein de la pointe
 PIN_HEAD = (10.0, 16.0)           # poignée : longueur hors du montant, largeur (butée contre le montant)
 PETG_DENSITY = 1.27e-3            # g/mm³
 HOLE_PITCH = 30.0
-FRAME_Z = np.arange(240.0, 511.0, HOLE_PITCH)     # dessous des côtés du cadre lumière, une position par trou
-HERO_FRAME_Z = 300.0
+FRAME_Z = np.arange(280.0, 551.0, HOLE_PITCH)     # dessous des côtés du cadre lumière, une position par trou
+HERO_FRAME_Z = 340.0
 
 # Panneaux : axe selon y, répartis en x sous les barres.
 PANEL_X = (np.arange(PANEL_N) - (PANEL_N - 1) / 2) * (PANEL_W + PANEL_GAP)
@@ -156,8 +158,9 @@ def make_leg(sx, sy):
 
 
 def make_slats():
-    """Lattes du porte-bac, à plat, d'un montant à l'autre."""
-    return [box(-IN_X / 2, IN_X / 2, s * y - TL / 2, s * y + TL / 2, PLATE_Z, PLATE_Z + TW)
+    """Lattes du porte-bac, à plat, au ras de l'extérieur de la ceinture basse."""
+    x = OUT_X / 2 + TW
+    return [box(-x, x, s * y - TL / 2, s * y + TL / 2, PLATE_Z, PLATE_Z + TW)
             for y in SLAT_Y for s in (-1, 1)]
 
 
@@ -219,26 +222,39 @@ def make_pins(z, pin=None):
     return pins
 
 
-def make_top_frame():
-    """Ceinture du haut, autour des quatre montants : traverses avant et arrière contre les
+def make_belt(z0):
+    """Ceinture autour des quatre montants, dessous à z0 : traverses avant et arrière contre les
     faces extérieures, débordant pour couvrir les bouts des traverses latérales, elles-mêmes
-    contre les faces extérieures gauche et droite. Toutes sur chant, au ras du haut des montants."""
+    contre les faces extérieures gauche et droite. Toutes sur chant.
+    Ordre : avant, arrière, gauche, droite."""
     x, y = OUT_X / 2, OUT_Y / 2
-    z0, z1 = LEG_H - TL, LEG_H
+    z1 = z0 + TL
     long_ = [box(-(x + TW), x + TW, s * y, s * (y + TW), z0, z1) for s in (-1, 1)]
     short = [box(s * x, s * (x + TW), -y, y, z0, z1) for s in (-1, 1)]
     return long_ + short
 
 
+def make_top_frame():
+    """Ceinture haute, au ras du haut des montants."""
+    return make_belt(LEG_H - TL)
+
+
+def make_low_belt():
+    """Ceinture basse : porte les lattes, le réservoir passe sous sa traverse avant."""
+    return make_belt(LOW_BELT_Z)
+
+
 BELT_SCREW = (4.0, 40.0)          # vis de la ceinture : diamètre, longueur
 
 
-def make_belt_screws():
-    """Vis de la ceinture, rangées comme les traverses de make_top_frame() :
+def make_belt_screws(z0=None):
+    """Vis d'une ceinture dont le dessous est à z0 (ceinture haute par défaut), rangées
+    comme les traverses de make_belt() :
     deux vis par montant, et deux par bout de traverse latérale pour les traverses avant et arrière."""
     d, l = BELT_SCREW
     x, y = OUT_X / 2, OUT_Y / 2
-    zs = (LEG_H - TL / 2 - 10, LEG_H - TL / 2 + 10)
+    z0 = LEG_H - TL if z0 is None else z0
+    zs = (z0 + TL / 2 - 10, z0 + TL / 2 + 10)
 
     def screw(p_out, axis):
         """Vis dont la tête affleure en p_out, enfoncée selon -axis."""
@@ -266,11 +282,9 @@ def assembly(frame_z=HERO_FRAME_Z):
     """Pièces en place, regroupées par type pour les colorer."""
     sides, bars = make_light_frame(frame_z)
     tapes, panels = make_panels(frame_z)
-    x0 = IN_X / 2
     return {
         "leg": [make_leg(sx, sy) for sx in (-1, 1) for sy in (-1, 1)],
-        "rail": [box(s * (x0 - TW), s * x0, -OUT_Y / 2, OUT_Y / 2, PLATE_Z - TL, PLATE_Z) for s in (-1, 1)]
-        + [box(-(x0 - TW), x0 - TW, *BACK_RAIL_Y, PLATE_Z - TL, PLATE_Z)],
+        "rail": make_low_belt(),
         "top": make_top_frame(),
         "slat": make_slats(),
         "reservoir": [make_reservoir()],
@@ -285,14 +299,14 @@ def assembly(frame_z=HERO_FRAME_Z):
 CUT_LIST = [
     ("Montant", "tasseau 20 × 40", LEG_H, 4,
      f"{len(FRAME_Z)} trous Ø 8 traversant les 20 mm, au milieu de la face de 40"),
-    ("Traverse latérale", "tasseau 20 × 40", OUT_Y, 2, "sur chant, vissée contre l'intérieur des montants"),
-    ("Traverse arrière", "tasseau 20 × 40", IN_X - 2 * TW, 1, "sur chant, entre les traverses latérales"),
-    ("Latte du porte-bac", "tasseau 20 × 40", IN_X, 4, "à plat, posée sur les traverses latérales"),
+    ("Ceinture basse latérale", "tasseau 20 × 40", OUT_Y, 2, "sur chant, contre l'extérieur des montants"),
+    ("Ceinture basse avant ou arrière", "tasseau 20 × 40", OUT_X + 2 * TW, 2, "sur chant, contre l'extérieur des montants"),
+    ("Latte du porte-bac", "tasseau 20 × 40", OUT_X + 2 * TW, 4, "à plat, posée sur les ceintures basses latérales"),
     ("Côté du cadre lumière", "tasseau 20 × 40", FRAME_SIDE_L, 2,
      f"sur chant, 2 trous Ø 8 à {FRAME_SIDE_L / 2 - LEG_Y:.0f} mm des bouts"),
     ("Barre du cadre lumière", "tasseau 20 × 40", FRAME_BAR_L, 2, "à plat, posée sur les côtés"),
-    ("Ceinture avant ou arrière", "tasseau 20 × 40", OUT_X + 2 * TW, 2, "sur chant, contre l'extérieur des montants"),
-    ("Ceinture latérale", "tasseau 20 × 40", OUT_Y, 2, "sur chant, contre l'extérieur des montants"),
+    ("Ceinture haute avant ou arrière", "tasseau 20 × 40", OUT_X + 2 * TW, 2, "sur chant, contre l'extérieur des montants"),
+    ("Ceinture haute latérale", "tasseau 20 × 40", OUT_Y, 2, "sur chant, contre l'extérieur des montants"),
 ]
 
 
@@ -305,7 +319,6 @@ def check():
     """Contrôle les jeux de la conception et affiche les hauteurs utiles."""
     res_x = (-RES[0] / 2, RES[0] / 2)
     res_y = (RES_Y0, RES_Y0 + RES[1])
-    rail_in = IN_X / 2 - TW
     ok = True
 
     def expect(cond, msg):
@@ -320,9 +333,11 @@ def check():
     expect(max(gaps) <= DRAIN_GAP and min(gaps) >= 0, f"fond du bac porté : fentes de {gaps[1]:.1f} et {gaps[0]:.0f} mm")
     expect(OUT_Y == PANEL_L and FRAME_SIDE_L == OUT_Y and FRAME_BAR_Y + TL == PANEL_L / 2,
            "montants, côtés et barres du cadre lumière au ras des bouts des panneaux")
-    expect(RES[2] < PLATE_Z - 5, f"réservoir sous le porte-bac : {PLATE_Z - RES[2]:.0f} mm de marge en hauteur")
-    expect(res_x[1] < rail_in, f"réservoir entre les traverses latérales : {rail_in - res_x[1]:.1f} mm de chaque côté")
-    expect(res_y[1] < BACK_RAIL_Y[0], f"réservoir devant la traverse arrière : {BACK_RAIL_Y[0] - res_y[1]:.0f} mm")
+    expect(RES[2] <= LOW_BELT_Z - 10, f"réservoir sous la ceinture basse avant : {LOW_BELT_Z - RES[2]:.0f} mm de marge en hauteur")
+    expect(res_x[1] < IN_X / 2, f"réservoir entre les montants : {IN_X / 2 - res_x[1]:.1f} mm de chaque côté")
+    expect(res_y[1] < OUT_Y / 2, f"réservoir dans la profondeur des montants : {OUT_Y / 2 - res_y[1]:.0f} mm à l'arrière")
+    expect(SLAT_Y[1] + TL / 2 < LEG_Y - TL / 2, f"lattes entre les montants avant et arrière : "
+           f"{LEG_Y - TL / 2 - SLAT_Y[1] - TL / 2:.1f} mm de jeu")
     expect(abs(DRAIN_XY[0]) + DRAIN_D / 2 < RES[0] / 2 and res_y[0] < DRAIN_XY[1] - DRAIN_D / 2
            and DRAIN_XY[1] + DRAIN_D / 2 < res_y[1], "trop-plein au-dessus du réservoir")
     expect(abs(DRAIN_XY[0]) + DRAIN_D / 2 < BAC_IN_BOTTOM[0] / 2 - 10
@@ -342,8 +357,8 @@ def check():
     expect(leg_hole_z(FRAME_Z[-1]) + 20 < LEG_H, "dernier trou à plus de 20 mm du haut des montants")
     light_top = FRAME_Z[-1] + TL + TW
     belt_z = LEG_H - TL
-    expect(light_top <= belt_z - 10, f"cadre lumière, au plus haut, {belt_z - light_top:.0f} mm sous la ceinture du haut")
-    expect(leg_hole_z(FRAME_Z[-1]) + PIN_D / 2 + 10 < belt_z, f"goupille du trou le plus haut {belt_z - leg_hole_z(FRAME_Z[-1]) - PIN_D / 2:.0f} mm sous la ceinture")
+    expect(light_top <= belt_z - 10, f"cadre lumière, au plus haut, {belt_z - light_top:.0f} mm sous la ceinture haute")
+    expect(leg_hole_z(FRAME_Z[-1]) + PIN_D / 2 + 10 < belt_z, f"goupille du trou le plus haut {belt_z - leg_hole_z(FRAME_Z[-1]) - PIN_D / 2:.0f} mm sous la ceinture haute")
     expect(2 * FRAME_SIDE_X[1] < IN_X, f"cadre lumière glissé par l'avant entre les montants : "
            f"{2 * FRAME_SIDE_X[1]:.0f} mm pour {IN_X:.0f} mm de passage")
     print(f"Face LED au-dessus du bord du bac : {low:.0f} à "
@@ -361,7 +376,7 @@ def print_cut_list():
 
 
 def explode(groups):
-    shifts = {"leg": (0, 0, 0), "rail": (0, 0, 0), "top": (0, 0, 300), "slat": (0, 0, 70), "reservoir": (0, -320, 0),
+    shifts = {"leg": (0, 0, 0), "rail": (0, 0, 0), "top": (0, 0, 300), "slat": (0, 0, 90), "reservoir": (0, -320, 0),
               "bac": (0, 0, 170), "frame": (0, 0, 420), "pin": (110, 0, 420), "tape": (0, 0, 370),
               "panel": (0, 0, 320)}
     out = {}

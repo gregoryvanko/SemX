@@ -75,7 +75,7 @@ def caption(plotter, text):
 def render_hero():
     p = new_plotter((2000, 1500))
     add_groups(p, c.assembly())
-    p.camera_position = [(900, -1350, 860), (0, 0, 290), UP]
+    p.camera_position = [(980, -1480, 960), (0, 0, 330), UP]
     p.camera.view_angle = 26
     shot(p, "cadre_vue.png")
 
@@ -90,13 +90,13 @@ def piece_marks(groups):
     n = c.piece_number
     return [
         (n("Montant"), on(groups["leg"][2], 0.5, 0.0, 0.12)),
-        (n("Traverse latérale"), on(groups["rail"][0], 0.5, 0.3, 1.0)),
-        (n("Traverse arrière"), on(groups["rail"][2], 0.93, 0.5, 1.0)),
+        (n("Ceinture basse latérale"), on(groups["rail"][3], 1.0, 0.5, 0.5)),
+        (n("Ceinture basse avant ou arrière"), on(groups["rail"][0], 0.3, 0.0, 0.5)),
         (n("Latte du porte-bac"), on(groups["slat"][2], 0.72, 0.0, 1.0)),
         (n("Côté du cadre lumière"), on(groups["frame"][1], 0.5, 0.5, 1.0)),
         (n("Barre du cadre lumière"), on(groups["frame"][2], 0.3, 0.0, 1.0)),
-        (n("Ceinture avant ou arrière"), on(groups["top"][0], 0.35, 0.0, 0.5)),
-        (n("Ceinture latérale"), on(groups["top"][3], 1.0, 0.5, 0.5)),
+        (n("Ceinture haute avant ou arrière"), on(groups["top"][0], 0.35, 0.0, 0.5)),
+        (n("Ceinture haute latérale"), on(groups["top"][3], 1.0, 0.5, 0.5)),
     ]
 
 

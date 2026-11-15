@@ -111,6 +111,16 @@ def chain(ax, y, xs, length, below=8.0):
     ax.text(X0, yy - 4, "0", fontsize=FS - 1, ha="center", va="top", color=DIM)
 
 
+def belt_marks(ax, y, L, lat):
+    """Traverse avant ou arrière d'une ceinture : bouts des traverses latérales (n° lat) et montants."""
+    zone(ax, y, 0, c.TW, str(lat), ZONE_ALT)
+    zone(ax, y, L - c.TW, L, str(lat), ZONE_ALT)
+    zone(ax, y, c.TW, 2 * c.TW, "mont.")
+    zone(ax, y, L - 2 * c.TW, L - c.TW, "mont.")
+    screws(ax, y, [c.TW / 2, 1.5 * c.TW, L - 1.5 * c.TW, L - c.TW / 2])
+    chain(ax, y, [c.TW, 2 * c.TW, L - 2 * c.TW, L - c.TW], L)
+
+
 def legend(ax, y):
     """Légende graphique : un échantillon de chaque symbole du plan."""
     x = X0
@@ -144,48 +154,49 @@ def legend(ax, y):
 
 
 def main():
-    lx = c.IN_X / 2
     rows = []
 
     # ── Montant ──
     leg_holes = [c.leg_hole_z(z) for z in c.FRAME_Z]
-    rail = (c.PLATE_Z - c.TL, c.PLATE_Z)
+    low = (c.LOW_BELT_Z, c.LOW_BELT_Z + c.TL)
     belt = (c.LEG_H - c.TL, c.LEG_H)
     rows.append(("Montant", 4, c.LEG_H,
-                 "Vu sur la face de 40 mm, bas à gauche. Trous Ø 8 traversant les 20 mm, au milieu de la face.",
-                 lambda ax, y: (zone(ax, y, *rail, "traverse\nlatérale\n(face int.)"),
-                                zone(ax, y, *belt, "ceinture\n(face ext.)", ZONE_ALT),
+                 "Vu sur la face de 40 mm, bas à gauche. Trous Ø 8 traversant les 20 mm, au milieu de la face. "
+                 "Ceintures contre la face extérieure.",
+                 lambda ax, y: (zone(ax, y, *low, "ceinture\nbasse"),
+                                zone(ax, y, *belt, "ceinture\nhaute", ZONE_ALT),
                                 holes(ax, y, leg_holes),
-                                chain(ax, y, [rail[0], rail[1]] + leg_holes + [belt[0]], c.LEG_H))))
+                                chain(ax, y, list(low) + leg_holes + [belt[0]], c.LEG_H))))
 
-    # ── Traverse latérale (sous le porte-bac) ──
+    # ── Ceinture basse latérale ──
     L = c.OUT_Y
-    slats = sorted(L / 2 + s * yc + d for yc in c.SLAT_Y for s in (-1, 1) for d in (-c.TL / 2,))
-    back = (L / 2 + c.BACK_RAIL_Y[0], L / 2 + c.BACK_RAIL_Y[1])
-    rows.append(("Traverse latérale", 2, L,
-                 "Sur chant, contre l'intérieur des montants, dessus à 150 mm du sol. Avant à gauche. "
-                 "Lattes posées dessus, traverse arrière vissée contre.",
-                 lambda ax, y, L=L, slats=slats, back=back: (zone(ax, y, 0, c.TL, "montant"), zone(ax, y, L - c.TL, L, "montant"),
-                                [rest(ax, y, s0, s0 + c.TL, c.piece_number("Latte du porte-bac")) for s0 in slats],
-                                zone(ax, y, *back, "trav.\narr.", ZONE_ALT),
-                                screws(ax, y, [c.TL / 2, L - c.TL / 2]),
-                                chain(ax, y, [c.TL] + [v for s0 in slats for v in (s0, s0 + c.TL)] + list(back)
-                                      + [L - c.TL], L))))
+    slats = sorted(L / 2 + s * yc - c.TL / 2 for yc in c.SLAT_Y for s in (-1, 1))
+    latte = c.piece_number("Latte du porte-bac")
+    rows.append(("Ceinture basse latérale", 2, L,
+                 f"Sur chant, contre les faces de 40 mm des montants, dessous à {c.LOW_BELT_Z:.0f} mm du sol, "
+                 "bouts au ras des montants. Avant à gauche. Lattes posées dessus.",
+                 lambda ax, y, L=L, slats=slats: (zone(ax, y, 0, c.TL, "montant"), zone(ax, y, L - c.TL, L, "montant"),
+                                                  [rest(ax, y, s0, s0 + c.TL, latte) for s0 in slats],
+                                                  screws(ax, y, [c.TL / 2, L - c.TL / 2]),
+                                                  chain(ax, y, [c.TL] + [v for s0 in slats for v in (s0, s0 + c.TL)]
+                                                        + [L - c.TL], L))))
 
-    # ── Traverse arrière ──
-    L = c.IN_X - 2 * c.TW
-    rows.append(("Traverse arrière", 1, L,
-                 "Sur chant, entre les traverses latérales, au ras de leur dessus, vissée à travers elles.",
-                 lambda ax, y: None))
+    # ── Ceinture basse avant ou arrière ──
+    L = c.OUT_X + 2 * c.TW
+    lat = c.piece_number("Ceinture basse latérale")
+    rows.append(("Ceinture basse avant ou arrière", 2, L,
+                 f"Sur chant, contre les faces de 20 mm des montants, dessous à {c.LOW_BELT_Z:.0f} mm du sol : "
+                 "le réservoir passe sous celle de l'avant. Couvre les bouts des ceintures basses latérales.",
+                 lambda ax, y, L=L: belt_marks(ax, y, L, lat)))
 
     # ── Latte du porte-bac ──
-    L = c.IN_X
+    L = c.OUT_X + 2 * c.TW
     rows.append(("Latte du porte-bac", 4, L,
-                 "Posée à plat (face de 40 dessus) sur les traverses latérales. Axes à ±40 et ±84,5 mm du milieu "
-                 "du bac : fente de 40 mm au centre pour le trop-plein.",
-                 lambda ax, y, L=L: (zone(ax, y, 0, c.TW, "trav."), zone(ax, y, L - c.TW, L, "trav."),
-                                screws(ax, y, [c.TW / 2, L - c.TW / 2], zs=(H / 2,)),
-                                chain(ax, y, [c.TW, L - c.TW], L))))
+                 f"Posée à plat (face de 40 dessus) sur les ceintures basses latérales ({lat}), au ras de leur face "
+                 "extérieure. Axes à ±40 et ±84,5 mm du milieu : fente de 40 mm au centre pour le trop-plein.",
+                 lambda ax, y, L=L: (zone(ax, y, 0, c.TW, str(lat)), zone(ax, y, L - c.TW, L, str(lat)),
+                                     screws(ax, y, [c.TW / 2, L - c.TW / 2], zs=(H / 2,)),
+                                     chain(ax, y, [c.TW, L - c.TW], L))))
 
     # ── Côté du cadre lumière ──
     L = c.FRAME_SIDE_L
@@ -206,23 +217,21 @@ def main():
                                 screws(ax, y, [c.TW / 2, L - c.TW / 2]),
                                 chain(ax, y, [c.TW, L - c.TW], L))))
 
-    # ── Ceinture avant ou arrière ──
+    # ── Ceinture haute avant ou arrière ──
     L = c.OUT_X + 2 * c.TW
-    rows.append(("Ceinture avant ou arrière", 2, L,
+    lat_h = c.piece_number("Ceinture haute latérale")
+    rows.append(("Ceinture haute avant ou arrière", 2, L,
                  "Sur chant, contre les faces de 20 mm des montants, dessus au ras du haut. "
-                 "Couvre les bouts des ceintures latérales.",
-                 lambda ax, y, L=L: (zone(ax, y, 0, c.TW, "ceint.\nlat.", ZONE_ALT), zone(ax, y, L - c.TW, L, "ceint.\nlat.", ZONE_ALT),
-                                zone(ax, y, c.TW, 2 * c.TW, "mont."), zone(ax, y, L - 2 * c.TW, L - c.TW, "mont."),
-                                screws(ax, y, [c.TW / 2, 1.5 * c.TW, L - 1.5 * c.TW, L - c.TW / 2]),
-                                chain(ax, y, [c.TW, 2 * c.TW, L - 2 * c.TW, L - c.TW], L))))
+                 "Couvre les bouts des ceintures hautes latérales.",
+                 lambda ax, y, L=L: belt_marks(ax, y, L, lat_h)))
 
-    # ── Ceinture latérale ──
+    # ── Ceinture haute latérale ──
     L = c.OUT_Y
-    rows.append(("Ceinture latérale", 2, L,
+    rows.append(("Ceinture haute latérale", 2, L,
                  "Sur chant, contre les faces de 40 mm des montants, dessus au ras du haut, bouts au ras des montants.",
                  lambda ax, y, L=L: (zone(ax, y, 0, c.TL, "montant"), zone(ax, y, L - c.TL, L, "montant"),
-                                screws(ax, y, [c.TL / 2, L - c.TL / 2]),
-                                chain(ax, y, [c.TL, L - c.TL], L))))
+                                     screws(ax, y, [c.TL / 2, L - c.TL / 2]),
+                                     chain(ax, y, [c.TL, L - c.TL], L))))
 
     n = len(rows)
     width = c.LEG_H + 110
