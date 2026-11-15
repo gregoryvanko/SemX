@@ -14,6 +14,7 @@ SemX est une chambre de culture automatisée pour la germination et les premièr
 | Dossier | Contenu | Documentation |
 |---|---|---|
 | [`V1/`](V1/) | Première version de la partie mécanique : fichiers STL à imprimer (réservoir, bac, godets, grille, support LED, boîtier) et scripts Python qui les génèrent (`CAD/`) | [V1/README.md](V1/README.md) |
+| [`V2/`](V2/) | Deuxième version de la partie mécanique : bac à semis du commerce sur un cadre en bois, réservoir dessous, panneaux LED réglables en hauteur ; script de conception et vues d'assemblage | [V2/README.md](V2/README.md) |
 | [`PlatformIO/`](PlatformIO/) | Firmware de l'ESP32 : mesures, pompe, éclairage, page web, MQTT, OTA | [PlatformIO/README.md](PlatformIO/README.md) |
 | [`PCB/`](PCB/) | Circuit imprimé simple face à graver à la CNC : script de génération, Gerber et G-code | [PCB/README.md](PCB/README.md) |
 
@@ -26,6 +27,15 @@ Ce document décrit la version 1 du matériel :
 - le [réservoir, le bac et les godets](V1/README.md#réservoir-bac-et-godets), dont le godet de mesure et la grille sur pieds ;
 - le [support des panneaux LED](V1/README.md#support-des-panneaux-led), réglable en hauteur ;
 - le [boîtier de l'électronique](V1/README.md#boîtier-de-lélectronique).
+
+## Cadre en bois — [V2/README.md](V2/README.md)
+
+La version 2 remplace le réservoir, le bac et les godets imprimés par un bac à semis du commerce, posé sur un cadre en bois :
+
+- le [principe](V2/README.md#principe) et les [éléments du commerce](V2/README.md#éléments-du-commerce) (bac, réservoir, panneaux LED de V1) ;
+- la [liste de débit](V2/README.md#liste-de-débit) du bois et de la quincaillerie, et les [goupilles imprimées](V2/README.md#goupilles-imprimées) qui tiennent le cadre lumière ;
+- le [montage](V2/README.md#montage) de la base et du cadre lumière, et le [réglage de la hauteur](V2/README.md#réglage-de-la-hauteur) des LED ;
+- l'[arrosage](V2/README.md#arrosage) par la pompe et le trop-plein.
 
 ## Circuit imprimé — [PCB/README.md](PCB/README.md)
 
@@ -47,7 +57,7 @@ Ce document décrit le logiciel de l'ESP32 :
 
 ## Pour démarrer
 
-1. Imprimer les pièces de [`V1/STL/`](V1/STL/) et assembler le bac, le réservoir et le support LED (voir [V1/README.md](V1/README.md)).
+1. Construire la partie mécanique : imprimer les pièces de [`V1/STL/`](V1/STL/) (voir [V1/README.md](V1/README.md)), ou fabriquer le cadre en bois de la version 2 (voir [V2/README.md](V2/README.md)).
 2. Graver et monter le [circuit imprimé](PCB/README.md), ou câbler l'ESP32 suivant le [brochage](V1/README.md#brochage).
 3. Téléverser le firmware avec PlatformIO, puis configurer le WiFi par le point d'accès **SemX-Setup** (voir [PlatformIO/README.md](PlatformIO/README.md)).
 4. Régler la pompe, l'éclairage et la calibration de l'humidité sur la page web SemX.

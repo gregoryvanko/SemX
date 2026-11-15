@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Rendus 3D du cadre en bois de SemX V2 pour le README.
+
+Génère les images dans CAD/images/.
+Dépendances : celles de cadre_bois.py, plus pip install pyvista pillow
+Usage : python CAD/rendu_cadre.py
+"""
+from pathlib import Path
+
+import numpy as np
+import pyvista as pv
+from PIL import Image
+
+import cadre_bois as c
+
+OUT = Path(__file__).resolve().parent / "images"
+UP = (0, 0, 1)
+BACKGROUND = "#f4f2ee"
+
+COLORS = {
+    "leg": "#c8a272",
+    "rail": "#b88f5c",
+    "top": "#b88f5c",
+    "slat": "#c99e68",
+    "reservoir": "#9fc3d6",
+    "bac": "#3b3b3b",
+    "frame": "#a97c4c",
+    "pin": "#d1402f",
+    "tape": "#f2a33a",
+    "panel": "#e4e7ea",
+}
+
+
+def add(plotter, mesh, color, opacity=1.0):
+    poly = pv.wrap(mesh)
+    plotter.add_mesh(poly, color=color, smooth_shading=True, split_sharp_edges=True, feature_angle=35,
+                     ambient=0.28, diffuse=0.72, specular=0.12, specular_power=20, opacity=opacity)
+    lines = poly.extract_feature_edges(feature_angle=35, boundary_edges=False,
+                                       non_manifold_edges=False, manifold_edges=False)
+    if lines.n_cells:
+        plotter.add_mesh(lines, color="#2b2b2b", line_width=1, opacity=0.45)
+
+
+def add_groups(plotter, groups, skip=()):
+    for key, meshes in groups.items():
+        if key in skip:
+            continue
+        for m in meshes:
+            add(plotter, m, COLORS[key], opacity=0.55 if key == "reservoir" else 1.0)
+
+
+def new_plotter(size):
+    p = pv.Plotter(off_screen=True, window_size=size)
+    p.set_background(BACKGROUND)
+    p.add_mesh(pv.Plane(center=(0, 0, -0.6), i_size=4000, j_size=4000), color=BACKGROUND,
+               ambient=0.9, diffuse=0.1, specular=0)
+    return p
+
+
+def shot(plotter, name=None):
+    plotter.enable_ssao(radius=20, bias=0.5, kernel_size=64)
+    plotter.enable_anti_aliasing("ssaa")
+    img = plotter.screenshot(return_img=True)
+    plotter.close()
+    if name:
+        Image.fromarray(img).save(OUT / name, optimize=True)
+    return img
+
+
+def caption(plotter, text):
+    plotter.add_text(text, position=(0.05, 0.03), viewport=True, font_size=16, color="#333333")
+
+
+def render_hero():
+    p = new_plotter((2000, 1500))
+    add_groups(p, c.assembly())
+    p.camera_position = [(900, -1350, 860), (0, 0, 290), UP]
+    p.camera.view_angle = 26
+    shot(p, "cadre_vue.png")
+
+
+def render_exploded():
+    p = new_plotter((2000, 1700))
+    add_groups(p, c.explode(c.assembly(c.FRAME_Z[0])))
+    p.camera_position = [(1650, -2050, 1300), (40, -110, 430), UP]
+    p.camera.view_angle = 27
+    shot(p, "cadre_eclate.png")
+
+
+def render_heights():
+    views = []
+    for z in (c.FRAME_Z[0], c.FRAME_Z[-1]):
+        p = new_plotter((1200, 1300))
+        add_groups(p, c.assembly(z))
+        p.camera_position = [(1080, -1380, 760), (0, 0, 320), UP]
+        p.camera.view_angle = 27
+        caption(p, f"Face LED à {c.led_face(z) - c.BAC_TOP:.0f} mm du bord du bac")
+        views.append(shot(p))
+    Image.fromarray(np.hstack(views)).save(OUT / "cadre_hauteurs.png", optimize=True)
+
+
+def render_pin():
+    """Gros plan sur un coin du cadre lumière et sa goupille."""
+    p = new_plotter((1800, 1300))
+    z = 390.0
+    add_groups(p, c.assembly(z))
+    focus = (c.LEG_X - 10, -c.LEG_Y, z + 10)
+    p.camera_position = [(focus[0] + 330, focus[1] - 380, focus[2] + 220), focus, UP]
+    p.camera.view_angle = 22
+    shot(p, "cadre_detail_goupille.png")
+
+
+def render_under():
+    """Porte-bac et réservoir, vus de l'avant, bac et cadre lumière retirés."""
+    p = new_plotter((1800, 1200))
+    add_groups(p, c.assembly(), skip=("frame", "pin", "tape", "panel", "bac"))
+    p.camera_position = [(380, -1100, 420), (0, 0, 110), UP]
+    p.camera.view_angle = 26
+    shot(p, "cadre_reservoir.png")
+
+
+def render_panels():
+    """Vue de dessous du cadre lumière : panneaux et adhésifs."""
+    p = new_plotter((1800, 1200))
+    groups = c.assembly(c.HERO_FRAME_Z)
+    for key in ("frame", "tape"):
+        for m in groups[key]:
+            add(p, m, COLORS[key])
+    for m in groups["panel"][:2]:
+        add(p, m, COLORS["panel"])
+    p.remove_actor(p.renderer.actors[next(iter(p.renderer.actors))])  # sans le sol
+    p.camera_position = [(450, -650, c.HERO_FRAME_Z - 480), (0, 0, c.HERO_FRAME_Z + c.TL), UP]
+    p.camera.view_angle = 30
+    shot(p, "cadre_detail_panneaux.png")
+
+
+def render_pin_part():
+    """Goupille seule, posée sur son méplat comme sur le plateau d'impression."""
+    p = pv.Plotter(off_screen=True, window_size=(1400, 800))
+    p.set_background(BACKGROUND)
+    m = c.make_pin()
+    m.apply_translation(-m.bounds.mean(axis=0))
+    add(p, m, COLORS["pin"])
+    p.camera_position = [(-38, -60, 48), (0, 0, 0), UP]
+    p.camera.view_angle = 30
+    shot(p, "cadre_goupille.png")
+
+
+def main():
+    OUT.mkdir(exist_ok=True)
+    render_pin_part()
+    render_hero()
+    render_exploded()
+    render_heights()
+    render_pin()
+    render_under()
+    render_panels()
+
+
+if __name__ == "__main__":
+    main()
