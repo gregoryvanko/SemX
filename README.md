@@ -39,7 +39,7 @@ Ce document décrit la version 1 du matériel :
 
 ## Cadre en bois — [V2/README.md](V2/README.md)
 
-La version 2 remplace le réservoir, le bac et les godets imprimés par un bac à semis du commerce, posé sur un cadre en bois de 475 × 340 × 660 mm. Quatre montants sont reliés par deux ceintures, en bas et en haut. La ceinture basse porte les lattes du porte-bac, et le réservoir passe dessous. Entre les deux ceintures, un cadre lumière porte les quatre panneaux LED de V1 et se règle en hauteur avec des goupilles imprimées. Le boîtier de l'électronique de V1 est debout au coin arrière droit, glissé dans un support imprimé.
+La version 2 remplace le réservoir, le bac et les godets imprimés par un bac à semis du commerce, posé sur un cadre en bois de 475 × 340 × 660 mm. Quatre montants sont reliés par deux ceintures, en bas et en haut. La ceinture basse porte les lattes du porte-bac, et le réservoir passe dessous. Entre les deux ceintures, un cadre lumière porte les quatre panneaux LED de V1 et se règle en hauteur avec des goupilles imprimées. Le boîtier de l'électronique de V1 est debout au coin arrière droit, glissé dans un support imprimé posé sur la ceinture basse et vissé dans le montant.
 
 Ce document décrit :
 

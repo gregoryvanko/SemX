@@ -11,9 +11,9 @@ Deuxième version de la partie mécanique de SemX. Le réservoir, le bac et les 
 - **Un porte-bac** de quatre lattes en tasseau, posées à plat sur la ceinture basse, porte le bac, dont le fond est à 210 mm de la table.
 - **Le réservoir** passe sous la ceinture basse avant et se glisse sous le bac par l'avant.
 - **Le cadre lumière** est fait de deux côtés, dans la largeur, et de deux barres posées dessus, dans la longueur. Les quatre panneaux LED sont collés sous les barres, entre les côtés. Le cadre coulisse entre les montants et repose sur quatre goupilles imprimées en 3D, qui traversent les montants percés tous les 30 mm.
-- **Le boîtier de l'électronique** de V1 est debout au coin arrière droit, son dessus au niveau du haut du bac, glissé dans un support imprimé en 3D.
+- **Le boîtier de l'électronique** de V1 est debout au coin arrière droit, glissé dans un support imprimé en 3D, posé sur la ceinture basse et vissé dans le montant.
 
-Encombrement : 475 × 340 × 660 mm, ceintures comprises, et 435 × 300 mm entre les ceintures. Avec le boîtier de l'électronique et son support, au coin arrière droit, l'emprise au sol est de 478 × 410 mm. Dans la largeur, l'extérieur des montants est aligné sur la longueur des panneaux LED (300 mm) : les bouts des panneaux, des barres et des côtés du cadre lumière arrivent au ras des montants. Toutes les pièces de bois sont taillées dans du tasseau raboté de 20 × 40 mm.
+Encombrement : 475 × 340 × 660 mm, ceintures comprises, et 435 × 300 mm entre les ceintures. Avec le boîtier de l'électronique et son support, au coin arrière droit, l'emprise au sol est de 478 × 390 mm. Dans la largeur, l'extérieur des montants est aligné sur la longueur des panneaux LED (300 mm) : les bouts des panneaux, des barres et des côtés du cadre lumière arrivent au ras des montants. Toutes les pièces de bois sont taillées dans du tasseau raboté de 20 × 40 mm.
 
 ## Éléments du commerce
 
@@ -43,7 +43,7 @@ Soit 9,03 m de tasseau, qui se débitent dans cinq longueurs de 2 m (660 + 660 +
 
 Les goupilles sont imprimées : voir [Goupilles imprimées](#goupilles-imprimées).
 
-Quincaillerie : 64 vis à bois 4 × 40 mm (24 par ceinture, 8 pour les lattes du porte-bac, 8 pour le cadre lumière), et de la colle à bois. Pour le support du boîtier de l'électronique : 2 vis à bois à tête fraisée 4 × 25 mm.
+Quincaillerie : 64 vis à bois 4 × 40 mm (24 par ceinture, 8 pour les lattes du porte-bac, 8 pour le cadre lumière), et de la colle à bois. Pour le support du boîtier de l'électronique : 2 à 4 vis à bois à tête fraisée 4 × 25 mm.
 
 Orientation des tasseaux :
 
@@ -142,38 +142,38 @@ Essayer une goupille dans un trou avant d'imprimer les autres. Le diamètre rée
 
 ## Boîtier de l'électronique
 
-Le boîtier de V1 est debout au coin arrière droit de la structure, son dessus au niveau du haut du bac. Il se glisse par le haut dans un support imprimé, sans vis. Cet emplacement :
+Le boîtier de V1 est debout au coin arrière droit de la structure, derrière le montant, posé sur la ceinture basse. Il se glisse par le haut dans un support imprimé, sans vis. Cet emplacement :
 
-- est hors de l'emprise du bac (50 mm derrière son rebord) : l'eau qui coulerait du bac ne tombe pas dessus ;
-- laisse libre l'avant, par où passe le réservoir, et reste 26 mm sous les goupilles les plus basses du cadre lumière ;
+- est hors de l'emprise du bac (30 mm derrière son rebord) : l'eau qui coulerait du bac ne tombe pas dessus ;
+- laisse libre l'avant, par où passe le réservoir, et les goupilles du montant arrière droit, dont les poignées passent 12 mm devant le support ;
 - est proche du réservoir et de la pompe, et à mi-chemin des capteurs du bac et des panneaux LED.
 
 ![Boîtier de l'électronique : glissé dans son support au coin arrière droit, puis soulevé](CAD/images/cadre_detail_boitier.png)
 
-Le boîtier est debout, sa longueur de 125 mm à la verticale, de 145 à 270 mm du sol : son dessus est au niveau du haut du bac. Son côté droit arrive au ras du côté droit de la structure, son fond est contre le support et son couvercle vers l'arrière. L'encoche des câbles se trouve dans la paroi du bas, près du couvercle : les câbles entrent par-dessous, et l'eau qui coulerait le long d'un câble ne peut pas entrer dans le boîtier.
+Le boîtier est debout, sa longueur de 125 mm à la verticale, de 194 à 319 mm du sol : son dessus est 49 mm au-dessus du haut du bac. Son côté droit arrive au ras du côté droit de la structure, son fond est contre le support et son couvercle vers l'arrière. L'encoche des câbles se trouve dans la paroi du bas, près du couvercle : les câbles entrent par-dessous, et l'eau qui coulerait le long d'un câble ne peut pas entrer dans le boîtier.
 
 ### Support à glissière
 
 ![Support du boîtier, debout comme sur le plateau d'impression](CAD/images/cadre_support_boitier.png)
 
-Le support, [`STL/support_boitier.stl`](STL/support_boitier.stl), est un U en PETG de 3 mm d'épaisseur, de 107 × 70 × 129 mm, qui enveloppe le boîtier sur trois côtés :
+Le support, [`STL/support_boitier.stl`](STL/support_boitier.stl), est un U en PETG de 3 mm d'épaisseur, de 107 × 70 × 129 mm, qui enveloppe le boîtier sur trois côtés. Il est posé sur le dessus de la ceinture basse arrière (3) et vissé dans le dos du montant arrière droit :
 
-- **une plaque** contre la ceinture basse arrière (3), vissée par deux vis à bois 4 × 25 mm, à 35 mm l'une de l'autre, à mi-hauteur de la ceinture ;
+- **une plaque** contre le dos du montant arrière droit, vissée dedans par deux vis à bois 4 × 25 mm, à 220 et 270 mm du sol, sous le trou de goupille le plus bas ;
 - **deux joues** le long des côtés du boîtier, terminées par **des lèvres** de 5 mm qui passent devant les bords du couvercle et retiennent le boîtier vers l'arrière ;
-- **une butée** en bas, sur laquelle le boîtier repose. Elle ne fait que 33 mm de profondeur et laisse l'encoche des câbles libre ;
-- au dos de la plaque, **des creux** pour les têtes des vis de la ceinture, qui se trouvent derrière ;
-- **des fenêtres en losange** qui allègent la plaque et les joues.
+- **un fond** posé sur le dessus de la ceinture basse arrière, sur lequel le boîtier repose. Il porte le poids du boîtier sur la ceinture, et peut y être vissé par deux vis à bois 4 × 25 mm, verticales, au milieu de l'épaisseur de la ceinture. Il ne fait que 33 mm de profondeur et laisse l'encoche des câbles libre ;
+- **des fenêtres en losange** qui allègent la plaque, à gauche des vis du montant, et les joues.
 
 Le boîtier a 0,5 mm de jeu de chaque côté dans la glissière. Il se glisse par le haut, et il en sort de la même façon pour ouvrir le couvercle : les lèvres empêchent de retirer le couvercle tant que le boîtier est en place.
 
-Impression (Bambu Studio, buse de 0,4 mm) : importer le STL tel quel, il est déjà debout, posé sur le bas de ses parois et de sa butée. Toutes les parois sont verticales et les fenêtres en losange se ferment en pointe : aucun support n'est nécessaire. PETG, couches de 0,20 mm, 3 parois, remplissage de 25 %. Au plus 107 g de filament.
+Impression (Bambu Studio, buse de 0,4 mm) : importer le STL tel quel, il est déjà debout, posé sur son fond et le bas de ses parois. Toutes les parois sont verticales et les fenêtres en losange se ferment en pointe : aucun support n'est nécessaire. PETG, couches de 0,20 mm, 3 parois, remplissage de 25 %. Au plus 108 g de filament.
 
 ### Montage
 
-1. Présenter le support au coin arrière droit, la plaque contre la ceinture basse arrière (3), la joue droite au ras du côté droit de la structure, et le bas de la butée à 141 mm du sol, soit 9 mm sous la ceinture.
-2. Le visser avec deux vis à bois 4 × 25 mm, après des avant-trous, à travers la plaque, dans la ceinture. Ces vis sont à au moins 30 mm des vis de la ceinture. La vis de droite se trouve derrière le boîtier : on y accède en sortant le boîtier par le haut.
-3. Installer l'électronique dans le boîtier, faire passer les câbles par l'encoche du bas, puis emboîter le couvercle.
-4. Glisser le boîtier par le haut dans le support, couvercle vers l'arrière, jusqu'à la butée.
+1. Poser le support sur la ceinture basse arrière (3), au coin arrière droit, la plaque contre le dos du montant et la joue droite au ras du côté droit de la structure.
+2. Le visser dans le montant avec deux vis à bois 4 × 25 mm, après des avant-trous, par les trous fraisés de la plaque.
+3. Si on le souhaite, le visser aussi dans le dessus de la ceinture avec deux vis à bois 4 × 25 mm, par les trous fraisés du fond. Ces vis sont à au moins 28 mm des vis de la ceinture. Toutes les vis du support sont derrière le boîtier : on y accède en sortant le boîtier par le haut.
+4. Installer l'électronique dans le boîtier, faire passer les câbles par l'encoche du bas, puis emboîter le couvercle.
+5. Glisser le boîtier par le haut dans le support, couvercle vers l'arrière, jusqu'au fond.
 
 ## Arrosage
 
@@ -223,4 +223,5 @@ Principaux réglages, en tête de `cadre_bois.py` :
 - Le réservoir ne passe sous la ceinture basse avant qu'avec 10 mm de marge : un réservoir plus haut, ou posé sur un support, demande d'augmenter `CLEAR_UNDER`, ce qui rehausse toute la structure.
 - Le fond du bac repose sur les lattes, sauf au droit de la fente centrale de 40 mm. Un fond très souple peut s'y creuser légèrement sous le poids du terreau mouillé : réduire `DRAIN_GAP` si nécessaire, sans descendre sous l'encombrement du passe-cloison.
 - Les panneaux ne sont tenus qu'à leurs deux bouts, sur 236 mm de portée libre entre les adhésifs, comme dans V1.
+- Au plus bas (trou à 300 mm), l'arrière du cadre lumière arrive au ras de la plaque du support du boîtier, sans jeu : le cadre se glisse par l'avant et vient en butée contre elle.
 - Le support du boîtier n'a pas été imprimé ni essayé : le jeu de 0,5 mm par côté dans la glissière dépend de la précision de l'impression, du boîtier comme du support. Si le boîtier force, augmenter `BRK_CLEAR` dans le script ; s'il bouge trop, le diminuer.

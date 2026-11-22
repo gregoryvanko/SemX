@@ -204,7 +204,7 @@ def render_box():
     views = []
     groups = c.assembly()
     keep = ("leg", "rail", "slat", "reservoir", "bac", "bracket", "top")
-    focus = (c.BOX_XC, c.BRK_Y0 + 20, 205)
+    focus = (c.BOX_XC, c.BRK_Y0 + 20, 240)
 
     for lift, title in ((0.0, "Boîtier glissé dans son support, au coin arrière droit"),
                         (150.0, "Boîtier soulevé : il se glisse par le haut, sans vis")):
@@ -224,15 +224,19 @@ def render_box():
 
 def render_bracket_part():
     """Support du boîtier seul, dans son sens d'impression (debout)."""
-    p = pv.Plotter(off_screen=True, window_size=(1400, 1000))
-    p.set_background(BACKGROUND)
     m = c.bracket_print(c.make_bracket())
     m.apply_translation(-m.bounds.mean(axis=0))
-    add(p, m, COLORS["bracket"])
-    p.camera_position = [(260, 330, 200), (0, 0, 0), UP]
-    p.camera.view_angle = 30
-    caption(p, "Support du boîtier, debout comme sur le plateau")
-    shot(p, "cadre_support_boitier.png")
+    views = []
+    for cam, title in (((260, 330, 200), "Support du boîtier, debout comme sur le plateau"),
+                       ((330, -300, 160), "Dos : plaque contre le montant, fond posé sur la ceinture")):
+        p = pv.Plotter(off_screen=True, window_size=(1100, 1000))
+        p.set_background(BACKGROUND)
+        add(p, m, COLORS["bracket"])
+        p.camera_position = [cam, (0, 0, 0), UP]
+        p.camera.view_angle = 30
+        caption(p, title)
+        views.append(shot(p))
+    Image.fromarray(np.hstack(views)).save(OUT / "cadre_support_boitier.png", optimize=True)
 
 
 def render_pin_part():
