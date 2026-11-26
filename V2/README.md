@@ -184,6 +184,20 @@ Le principe de V1 reste valable : la pompe du réservoir envoie l'eau dans le ba
 
 Le passe-cloison et le tube ne sont pas dessinés. La position du trop-plein se règle avec `DRAIN_XY` dans le script : il doit rester dans la fente, au-dessus du réservoir et sous le fond du bac, ce que le script contrôle.
 
+### Attache de tuyaux imprimée
+
+Pour tenir côte à côte deux tuyaux souples de Ø 8 mm extérieur, imprimer [`STL/attache_tuyaux_8mm.stl`](STL/attache_tuyaux_8mm.stl), généré par [`CAD/attache_tuyaux.py`](CAD/attache_tuyaux.py). Ce sont deux pinces en C accolées, ouvertes du même côté, de 21 × 10 × 12 mm, environ 1,3 g de PETG :
+
+- **pinces** alésées à Ø 7,8 mm : elles serrent un peu le tuyau pour que l'attache ne glisse pas le long ;
+- **ouverture** de 6 mm : on y enfonce le tuyau, qui s'écrase pour passer puis reste tenu ;
+- **entraxe** des tuyaux de 9,6 mm, avec une cloison de 1,8 mm entre eux.
+
+En poser une tous les 15 à 20 cm le long des tuyaux.
+
+Impression (Bambu Studio, Bambu Lab X1C, buse de 0,4 mm) : importer le STL tel quel, il est déjà à plat, profil en C sur le plateau. Les pinces fléchissent ainsi dans le plan des couches et ne cassent pas en clipsant. Faire autant de copies que nécessaire (clic droit, « Cloner »). PETG, couches de 0,20 mm, 4 parois, remplissage de 100 %. Aucun support ni bordure.
+
+Si le tuyau entre trop difficilement, augmenter `OPENING` de 0,5 mm ; si l'attache glisse le long des tuyaux, réduire `GRIP_D` de 0,2 mm, puis relancer le script.
+
 ## Fichiers
 
 | Fichier | Rôle |
@@ -193,6 +207,7 @@ Le passe-cloison et le tube ne sont pas dessinés. La position du trop-plein se 
 | [`CAD/plan_pieces.py`](CAD/plan_pieces.py) | Régénère le plan coté des pièces : `CAD/images/cadre_pieces_cotes.png` et `plan_pieces_bois.pdf` |
 | `STL/goupille_cadre_lumiere.stl` | Goupille à imprimer, déjà posée sur son méplat |
 | `STL/support_boitier.stl` | Support à glissière du boîtier de l'électronique à imprimer, déjà debout |
+| [`CAD/attache_tuyaux.py`](CAD/attache_tuyaux.py), `STL/attache_tuyaux_8mm.stl` | Attache qui tient côte à côte deux tuyaux souples de Ø 8 mm, à imprimer à plat |
 | `STL/assemblage_v2_vue.stl`, `STL/assemblage_v2_eclate_vue.stl` | Vues d'assemblage, montée et éclatée, non destinées à l'impression |
 
 ```bash
