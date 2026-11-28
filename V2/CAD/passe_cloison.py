@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
-"""Passe-cloison imprimé : arrivée de l'eau de la pompe par le fond du bac à semis.
+"""Passe-cloisons imprimés du bac à semis : arrivée de l'eau de la pompe et trop-plein.
 
-Trois pièces :
-- le corps : une collerette posée au fond du bac, côté eau, avec une gorge pour un joint
-  torique ; dessous, un tube fileté qui traverse le fond, puis un embout cannelé qui
-  reçoit le tuyau de la pompe ;
+Les deux passe-cloisons ont le même filet, le même écrou et le même joint :
+- le corps de l'arrivée : une collerette posée au fond du bac, côté eau, avec une gorge
+  pour un joint torique ; dessous, un tube fileté qui traverse le fond, puis un embout
+  cannelé qui reçoit le tuyau de la pompe ;
+- le corps du trop-plein : la même collerette et le même filet, percés d'un passage de
+  Ø 8 par où l'eau retombe dans le réservoir, et d'un emboîtement conique ;
+- le tube du trop-plein : il s'emboîte dans ce cône, qui le tient et le rend étanche sans
+  joint. Le bas des créneaux de son sommet fixe le niveau de l'eau ; un tube par niveau,
+  interchangeable sans démonter le corps ;
 - l'écrou : six pans, vissé sous le bac, il serre le fond entre la collerette et lui ;
 - un joint plat, à imprimer en TPU, si l'on n'a pas de joint torique sous la main.
 
 Le filet a des flancs à 45° au lieu des 60° d'un filet métrique : imprimé debout, il ne
 présente aucun surplomb de plus de 45° et ne demande pas de support. Le corps s'imprime
-la collerette sur le plateau, l'embout vers le haut ; l'écrou et le joint, à plat.
+la collerette sur le plateau, l'embout vers le haut ; le tube du trop-plein debout, le
+cône en bas ; l'écrou et le joint, à plat.
 
 Dépendances : pip install numpy trimesh manifold3d
 Usage : python CAD/passe_cloison.py
-Écrit dans STL/ les trois pièces, déjà posées dans leur sens d'impression.
+Écrit dans STL/ les pièces, déjà posées dans leur sens d'impression.
 
 Repère de montage : z vers le haut, z = 0 sous la collerette, c'est-à-dire sur le fond
 intérieur du bac. Unités : mm.
@@ -60,6 +66,16 @@ BARB_STEP = 0.7               # saillie d'une cannelure sur le diamètre du tuya
 BARB_L = 4.0                  # longueur d'une cannelure
 NECK_L = 3.0                  # entre le filet et la première cannelure
 BORE_D = TUBE_ID - 2.4        # passage de l'eau : parois de 1,2 mm sous les cannelures
+
+# ── Trop-plein ─────────────────────────────────────────────────────────────────
+DRAIN_BORE = 8.0              # passage de l'eau dans le corps, vers le réservoir
+CONE_D = 11.0                 # cône d'emboîtement du tube : diamètre au ras de la collerette
+CONE_TAPER = 1 / 8            # conicité, sur le diamètre : 1 mm tous les 8 mm
+SOCKET_L = 10.0               # profondeur du cône femelle dans le corps
+SPIGOT_L = 8.0                # longueur du cône mâle du tube : 2 mm de réserve au fond
+PIPE_ID = 7.0                 # intérieur du tube
+CRENEL_N, CRENEL_W, CRENEL_D = 4, 3.0, 3.0   # créneaux au sommet : l'eau passe même si un godet le coiffe
+DRAIN_LEVELS = (15.0, 25.0, 35.0)             # hauteurs d'eau au-dessus du fond intérieur, un tube par hauteur
 
 SEGMENTS = 128
 THREAD_SEGMENTS = 72          # points de la section du filet, et tranches par tour : un sommet suit le flanc
@@ -119,14 +135,21 @@ def threaded(cs, z0, z1):
     return Manifold.extrude(cs, z1 - z0, n_divisions=round(turns * THREAD_SEGMENTS), twist_degrees=360 * turns).translate((0, 0, z0))
 
 
-def make_body():
-    """Corps du passe-cloison, en position de montage."""
+def flange_and_thread():
+    """Collerette percée de sa gorge, et filet : commun aux deux passe-cloisons."""
     flange = revolve([(0, 0), (FLANGE_D / 2, 0), (FLANGE_D / 2, FLANGE_T - FLANGE_CHAMFER),
                       (FLANGE_D / 2 - FLANGE_CHAMFER, FLANGE_T), (0, FLANGE_T)])
     # Filet, entamé au bas par un chanfrein à 45° pour engager l'écrou.
     lead = R_MAJ - R_MIN + 0.3
     thread = threaded(thread_section(), -THREAD_L, 0.5) ^ revolve(
         [(0, -THREAD_L), (R_MIN - 0.3, -THREAD_L), (R_MAJ, -THREAD_L + lead), (R_MAJ, 0.5), (0, 0.5)])
+    groove = revolve([(ORING[0] / 2, -1), (ORING[0] / 2 + GROOVE_W, -1),
+                      (ORING[0] / 2 + GROOVE_W, GROOVE_DEPTH), (ORING[0] / 2, GROOVE_DEPTH)])
+    return flange + thread - groove
+
+
+def make_body():
+    """Corps de l'arrivée d'eau, en position de montage."""
     # Embout : chaque cannelure s'élargit vers le haut, puis revient au diamètre du tuyau par
     # un épaulement à 45°, qui retient le tuyau et s'imprime sans support, l'embout en haut.
     prof = [(0, -THREAD_L + 0.1), (R_SHAFT, -THREAD_L + 0.1), (R_SHAFT, -THREAD_L - NECK_L)]
@@ -136,12 +159,43 @@ def make_body():
         z -= BARB_L
     prof += [(R_SHAFT, Z_BOTTOM + 0.5), (R_SHAFT - 0.5, Z_BOTTOM), (0, Z_BOTTOM)]
     barb = revolve(prof)
-    body = flange + thread + barb
-    groove = revolve([(ORING[0] / 2, -1), (ORING[0] / 2 + GROOVE_W, -1),
-                      (ORING[0] / 2 + GROOVE_W, GROOVE_DEPTH), (ORING[0] / 2, GROOVE_DEPTH)])
+    body = flange_and_thread() + barb
     bore = cylinder(BORE_D / 2, Z_BOTTOM - 1, FLANGE_T + 1) + revolve(
         [(0, FLANGE_T - 1.0), (BORE_D / 2, FLANGE_T - 1.0), (BORE_D / 2 + 1.2, FLANGE_T + 0.2), (0, FLANGE_T + 0.2)])
-    return body - groove - bore
+    return body - bore
+
+
+def cone_r(z):
+    """Rayon du cône d'emboîtement à la hauteur z (CONE_D au ras du dessus de la collerette)."""
+    return CONE_D / 2 - (FLANGE_T - z) * CONE_TAPER / 2
+
+
+def make_drain_body():
+    """Corps du trop-plein, en position de montage : cône femelle, puis passage vers le réservoir.
+
+    Imprimé la collerette sur le plateau, le cône se rétrécit en montant de 3,6° seulement, et
+    son fond rejoint le passage par un chanfrein à 45° : ni l'un ni l'autre ne demande de support.
+    """
+    z_floor = FLANGE_T - SOCKET_L
+    r_floor = cone_r(z_floor)
+    hole = revolve([(0, -THREAD_L - 1), (DRAIN_BORE / 2, -THREAD_L - 1), (DRAIN_BORE / 2, z_floor - (r_floor - DRAIN_BORE / 2)),
+                    (r_floor, z_floor), (CONE_D / 2, FLANGE_T), (CONE_D / 2 + 0.5, FLANGE_T + 0.01),
+                    (CONE_D / 2 + 0.5, FLANGE_T + 1), (0, FLANGE_T + 1)])
+    mouth = revolve([(0, FLANGE_T - 0.5), (CONE_D / 2, FLANGE_T - 0.5), (CONE_D / 2 + 0.6, FLANGE_T + 0.1), (0, FLANGE_T + 0.1)])
+    return flange_and_thread() - hole - mouth
+
+
+def make_standpipe(level, sink=0.0):
+    """Tube du trop-plein, emboîté dans le corps ; level : bas des créneaux au-dessus du fond intérieur.
+
+    sink enfonce le tube plus bas que sa position nominale (pour les contrôles).
+    """
+    z0, top = FLANGE_T - SPIGOT_L, level + CRENEL_D
+    outer = revolve([(PIPE_ID / 2, z0), (cone_r(z0), z0), (CONE_D / 2, FLANGE_T), (CONE_D / 2, top), (PIPE_ID / 2, top)])
+    for i in range(CRENEL_N):
+        notch = Manifold.cube((CONE_D, CRENEL_W, CRENEL_D + 1)).translate((0, -CRENEL_W / 2, level))
+        outer -= notch.rotate((0, 0, i * 360 / CRENEL_N))
+    return outer.translate((0, 0, -sink))
 
 
 def hexagon(af):
@@ -176,7 +230,7 @@ def nut_at(nut, z):
     return nut.rotate((0, 0, turn)).translate((0, 0, z))
 
 
-def check(body, nut, gasket):
+def check(body, nut, gasket, drain, pipes):
     ok = True
 
     def expect(cond, msg):
@@ -185,7 +239,8 @@ def check(body, nut, gasket):
         ok &= bool(cond)
 
     print("Contrôles :")
-    for name, m in (("corps", body), ("écrou", nut), ("joint", gasket)):
+    for name, m in (("corps de l'arrivée", body), ("corps du trop-plein", drain), ("écrou", nut), ("joint", gasket),
+                    *((f"tube du trop-plein de {lv:.0f} mm", p) for lv, p in pipes)):
         t = to_trimesh(m)
         expect(t.is_watertight and t.is_volume and m.genus() == 1, f"{name} : maillage fermé, une seule pièce percée")
     # L'écrou se visse : sur toute la course utile, il ne touche pas le corps.
@@ -214,6 +269,22 @@ def check(body, nut, gasket):
     expect(BARB_STEP >= 0.5 and (TUBE_ID - BORE_D) / 2 >= 1.2,
            f"embout : cannelures de Ø {TUBE_ID + 2 * BARB_STEP:.1f} dans le tuyau de Ø {TUBE_ID:.0f} intérieur, "
            f"parois de {(TUBE_ID - BORE_D) / 2:.1f} mm, passage de Ø {BORE_D:.1f}")
+    # Trop-plein : le tube s'emboîte sans toucher le fond du cône, et le cône serre avant la butée.
+    lv, pipe = pipes[0]
+    fit = (pipe ^ drain).volume()
+    wedge = (make_standpipe(lv, sink=0.3) ^ drain).volume()
+    expect(fit < 0.5 and wedge > 1, f"tube du trop-plein emboîté sur {SPIGOT_L:.0f} mm de cône au {1 / CONE_TAPER:.0f}e, "
+           f"{SOCKET_L - SPIGOT_L:.0f} mm de réserve au fond : il serre avant de buter")
+    root = R_MIN - cone_r(-0.0)
+    expect(root >= 1.3 and (cone_r(FLANGE_T - SPIGOT_L) - PIPE_ID / 2) >= 1.2 and (CONE_D - PIPE_ID) / 2 >= 1.6,
+           f"parois : {root:.2f} mm au fond du filet autour du cône, "
+           f"{cone_r(FLANGE_T - SPIGOT_L) - PIPE_ID / 2:.2f} mm au bout du cône mâle, {(CONE_D - PIPE_ID) / 2:.1f} mm au tube")
+    expect(all(FLANGE_T + 5 <= lv <= c.BAC_H - 15 for lv in DRAIN_LEVELS),
+           f"niveaux d'eau de {', '.join(f'{lv:.0f}' for lv in DRAIN_LEVELS)} mm : au-dessus de la collerette, "
+           f"au moins 15 mm sous le haut du bac ({c.BAC_H:.0f} mm)")
+    drain_end = c.BAC_Z + c.BAC_WALL - THREAD_L
+    expect(drain_end - c.RES[2] >= 30, f"bas du trop-plein {THREAD_L - c.BAC_WALL:.0f} mm sous le bac, l'eau tombe de "
+           f"{drain_end - c.RES[2]:.0f} mm dans le réservoir")
     below = c.BAC_Z + c.BAC_WALL + Z_BOTTOM - c.RES[2]
     expect(below >= 30, f"bout de l'embout {-Z_BOTTOM - c.BAC_WALL:.0f} mm sous le bac, {below:.0f} mm "
            "au-dessus du réservoir pour courber le tuyau")
@@ -228,12 +299,15 @@ def print_pose(m, flip=False):
 
 
 def main():
-    body, nut, gasket = make_body(), make_nut(), make_gasket()
-    ok = check(body, nut, gasket)
+    body, nut, gasket, drain = make_body(), make_nut(), make_gasket(), make_drain_body()
+    pipes = [(lv, make_standpipe(lv)) for lv in DRAIN_LEVELS]
+    ok = check(body, nut, gasket, drain, pipes)
     STL_DIR.mkdir(exist_ok=True)
-    parts = (("passe_cloison_corps.stl", print_pose(body, flip=True), PETG_DENSITY, "PETG"),
+    parts = [("passe_cloison_corps.stl", print_pose(body, flip=True), PETG_DENSITY, "PETG"),
+             ("passe_cloison_trop_plein_corps.stl", print_pose(drain, flip=True), PETG_DENSITY, "PETG"),
+             *((f"passe_cloison_trop_plein_tube_{lv:.0f}mm.stl", print_pose(p), PETG_DENSITY, "PETG") for lv, p in pipes),
              ("passe_cloison_ecrou.stl", print_pose(nut), PETG_DENSITY, "PETG"),
-             ("passe_cloison_joint_tpu.stl", print_pose(gasket), TPU_DENSITY, "TPU"))
+             ("passe_cloison_joint_tpu.stl", print_pose(gasket), TPU_DENSITY, "TPU")]
     for name, m, rho, mat in parts:
         t = to_trimesh(m)
         out = STL_DIR / name

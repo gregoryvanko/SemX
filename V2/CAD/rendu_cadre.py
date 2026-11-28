@@ -297,9 +297,52 @@ def render_bulkhead():
     Image.fromarray(np.hstack(views)).save(OUT / "passe_cloison.png", optimize=True)
 
 
+def render_drain():
+    """Passe-cloison du trop-plein : pièces éclatées avec les trois tubes, et coupe une fois monté."""
+    from manifold3d import Manifold
+    drain, nut = pc.make_drain_body(), pc.make_nut()
+    r_o = pc.ORING[0] / 2 + pc.ORING[1] / 2
+    oring = Manifold.revolve(pc.CrossSection.circle(pc.ORING[1] / 2, 32).translate((r_o, pc.ORING[1] / 2 - 0.5)), 96)
+    wall = c.BAC_WALL
+    tray = (Manifold.cube((60, 60, wall)).translate((-30, -30, -wall))
+            - Manifold.cylinder(wall + 2, pc.HOLE_D / 2, pc.HOLE_D / 2, 96).translate((0, 0, -wall - 1)))
+    level = pc.DRAIN_LEVELS[1]
+    pipe = pc.make_standpipe(level)
+    water = (Manifold.cube((60, 60, level)).translate((-30, -30, 0))
+             - Manifold.cylinder(level + 2, pc.FLANGE_D / 2 + 0.5, pc.FLANGE_D / 2 + 0.5, 96).translate((0, 0, -1)))
+    nut_m = pc.nut_at(nut, -wall - pc.NUT_H)
+
+    def tm(m):
+        return pc.to_trimesh(m)
+
+    views = []
+    p = pv.Plotter(off_screen=True, window_size=(1000, 1200))
+    p.set_background(BACKGROUND)
+    for m, key, dz in ((pipe, "pin", 34), (drain, "bracket", 18), (oring, "oring", 6), (tray, "bac", 0), (nut_m, "pin", -16)):
+        add(p, tm(m.translate((0, 0, dz))), COLORS[key])
+    for i, lv in enumerate((pc.DRAIN_LEVELS[0], pc.DRAIN_LEVELS[2])):
+        add(p, tm(pc.make_standpipe(lv).translate((44 + 16 * i, 26, 0))), COLORS["pin"])
+    p.camera_position = [(180, -230, 110), (10, 4, 12), UP]
+    p.camera.view_angle = 30
+    caption(p, f"Tube, corps, joint, fond, écrou ; tubes de {pc.DRAIN_LEVELS[0]:.0f} et {pc.DRAIN_LEVELS[2]:.0f} mm")
+    views.append(shot(p))
+    p = pv.Plotter(off_screen=True, window_size=(1000, 1200))
+    p.set_background(BACKGROUND)
+    half = Manifold.cube((200, 100, 200)).translate((-100, -100, -100))   # retire la moitié avant
+    for m, key in ((drain, "bracket"), (oring, "oring"), (nut_m, "pin"), (pipe, "pin"), (tray, "bac")):
+        add(p, tm(m - half), COLORS[key])
+    add(p, tm(water - half), COLORS["reservoir"], opacity=0.45)
+    p.camera_position = [(45, -175, 30), (0, 0, 8), UP]
+    p.camera.view_angle = 30
+    caption(p, f"En coupe : l'eau déborde dans le tube à {level:.0f} mm")
+    views.append(shot(p))
+    Image.fromarray(np.hstack(views)).save(OUT / "passe_cloison_trop_plein.png", optimize=True)
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     render_bulkhead()
+    render_drain()
     render_pin_part()
     render_bracket_part()
     render_box()
