@@ -180,9 +180,47 @@ Impression (Bambu Studio, buse de 0,4 mm) : importer le STL tel quel, il est dé
 Le principe de V1 reste valable : la pompe du réservoir envoie l'eau dans le bac, et un trop-plein en renvoie l'excédent dans le réservoir.
 
 - **Trop-plein** : percer le fond du bac au-dessus de la fente centrale du porte-bac, à 110 mm à gauche du milieu, et y monter un passe-cloison avec un tube vertical, dont la hauteur fixe le niveau d'eau. L'écrou du passe-cloison (30 mm au plus) loge dans la fente de 40 mm, et l'eau retombe directement dans le réservoir.
-- **Pompe** : le tuyau monte par l'avant, ouvert, et entre dans le bac par-dessus le rebord.
+- **Arrivée d'eau** : le tuyau de la pompe monte par l'avant, passe sous le bac dans la fente centrale et se branche sur un [passe-cloison imprimé](#passe-cloison-imprimé-de-larrivée-deau), monté dans le fond du bac à 110 mm à droite du milieu, à l'autre bout de la fente.
 
-Le passe-cloison et le tube ne sont pas dessinés. La position du trop-plein se règle avec `DRAIN_XY` dans le script : il doit rester dans la fente, au-dessus du réservoir et sous le fond du bac, ce que le script contrôle.
+Le passe-cloison et le tube du trop-plein ne sont pas dessinés. Les positions du trop-plein et de l'arrivée d'eau se règlent avec `DRAIN_XY` et `INLET_XY` dans le script : ils doivent rester dans la fente et sous le fond du bac, et le trop-plein au-dessus du réservoir, ce que le script contrôle.
+
+Comme dans V1, quand la pompe s'arrête, l'eau du bac redescend dans le réservoir par le tuyau et la pompe, qui ne font pas clapet : le bac se vide. Pour garder l'eau dans le bac entre deux arrosages, ajouter un clapet anti-retour pour tuyau de 6 mm sur le tuyau, sous le bac.
+
+### Passe-cloison imprimé de l'arrivée d'eau
+
+![Passe-cloison : pièces éclatées, et coupe une fois monté](CAD/images/passe_cloison.png)
+
+Il amène l'eau de la pompe par le fond du bac et le rend étanche. Il est généré par [`CAD/passe_cloison.py`](CAD/passe_cloison.py), en trois pièces :
+
+| Pièce | Fichier | Dimensions | Matière |
+|---|---|---|---|
+| Corps : collerette de Ø 30 côté eau, filet de Ø 15,5 au pas de 3, embout cannelé pour tuyau de 6 mm intérieur | [`STL/passe_cloison_corps.stl`](STL/passe_cloison_corps.stl) | Ø 30 × 34 mm, 6 g | PETG |
+| Écrou six pans de 24 mm sur plats | [`STL/passe_cloison_ecrou.stl`](STL/passe_cloison_ecrou.stl) | 24 × 27,7 × 8 mm, 3 g | PETG |
+| Joint plat, seulement sans joint torique | [`STL/passe_cloison_joint_tpu.stl`](STL/passe_cloison_joint_tpu.stl) | Ø 27 × 1,5 mm | TPU |
+
+À acheter : un **joint torique de 18 × 3 mm** (diamètre intérieur × section), en NBR ou EPDM. Il se loge dans une gorge de 4,2 × 2,25 mm sous la collerette et s'y écrase de 25 % au serrage. Pour un autre diamètre intérieur, changer `ORING` dans le script : il doit rester entre le trou de Ø 16 et le bord de la collerette, ce que le script contrôle. À défaut, imprimer le joint plat en TPU et le poser sous la collerette.
+
+L'étanchéité se fait côté eau, entre la collerette et le fond du bac : l'écrou, dessous, ne fait que serrer. Le filet a des flancs à 45° au lieu des 60° d'un filet métrique, pour s'imprimer sans support ; corps et écrou ne vont donc qu'ensemble. Le script vérifie que l'écrou se visse sans toucher le corps, avec 0,3 mm de jeu, et que le filet accepte un fond de bac jusqu'à 4,8 mm d'épaisseur avec le joint torique, 3,3 mm avec le joint plat. Sous le bac, l'embout descend à 28 mm sous le fond : il reste 42 mm au-dessus du réservoir pour courber le tuyau.
+
+Impression (Bambu Studio, Bambu Lab X1C, buse de 0,4 mm), sans support ni bordure :
+
+1. Importer les STL tels quels : le corps est déjà retourné, collerette sur le plateau et embout vers le haut ; l'écrou et le joint sont à plat.
+2. Corps et écrou en PETG, couches de 0,16 mm pour un filet plus net, 5 parois et remplissage de 100 % : une pièce pleine ne laisse pas l'eau passer entre les couches.
+3. Joint plat, si besoin, en TPU 95A, remplissage de 100 %.
+4. Visser l'écrou à la main sur le corps avant de monter : il doit tourner sans forcer jusqu'à la collerette. S'il force, augmenter `CLEAR` de 0,1 mm ; s'il a trop de jeu, le diminuer, puis relancer le script.
+5. Boucher le bout de l'embout du doigt et souffler par la collerette, ou remplir le corps d'eau : aucune fuite ne doit apparaître à travers les parois.
+
+Montage :
+
+1. Repérer, sur le fond du bac, l'axe de la fente centrale du porte-bac, à 110 mm à droite du milieu (côté opposé au trop-plein). Le fond doit y être plat sur un Ø de 30 mm au moins : décaler le trou le long de la fente s'il tombe sur une nervure.
+2. Percer à Ø 16 mm au foret étagé, lentement et sans pression, le bac posé sur une cale en bois : un foret hélicoïdal fend le plastique. Ébavurer les deux faces au cutter.
+3. Poser le joint torique dans la gorge de la collerette (une trace de vaseline le tient en place), ou le joint plat sous la collerette.
+4. Passer le corps par le trou depuis l'intérieur du bac, puis visser l'écrou par-dessous. Serrer à la main, puis d'un quart de tour : trop serré, le fond du bac se déforme.
+5. Remettre le bac sur le porte-bac : l'écrou et l'embout descendent dans la fente de 40 mm.
+6. Enfoncer le tuyau sur l'embout jusqu'à la collerette ; le tremper quelques secondes dans l'eau chaude s'il force. Un collier de serrage par-dessus n'est pas nécessaire à la pression d'une petite pompe.
+7. Remplir le bac d'eau, sans terreau, et vérifier qu'aucune goutte ne tombe sous le passe-cloison pendant une heure.
+
+Si le tuyau n'a pas 6 mm de diamètre intérieur, le mesurer et changer `TUBE_ID` dans le script : l'embout et son passage d'eau s'y adaptent.
 
 ### Attache de tuyaux imprimée
 
@@ -202,11 +240,12 @@ Si le tuyau entre trop difficilement, augmenter `OPENING` de 0,5 mm ; si l'attac
 
 | Fichier | Rôle |
 |---|---|
-| [`CAD/cadre_bois.py`](CAD/cadre_bois.py) | Script paramétrique : affiche la liste de débit, contrôle les jeux (réservoir, trop-plein, panneaux, cadre lumière, goupilles) et écrit dans `STL/` la goupille et les vues d'assemblage |
+| [`CAD/cadre_bois.py`](CAD/cadre_bois.py) | Script paramétrique : affiche la liste de débit, contrôle les jeux (réservoir, trop-plein, arrivée d'eau, panneaux, cadre lumière, goupilles) et écrit dans `STL/` la goupille et les vues d'assemblage |
 | [`CAD/rendu_cadre.py`](CAD/rendu_cadre.py) | Régénère les images de ce document dans `CAD/images/` |
 | [`CAD/plan_pieces.py`](CAD/plan_pieces.py) | Régénère le plan coté des pièces : `CAD/images/cadre_pieces_cotes.png` et `plan_pieces_bois.pdf` |
 | `STL/goupille_cadre_lumiere.stl` | Goupille à imprimer, déjà posée sur son méplat |
 | `STL/support_boitier.stl` | Support à glissière du boîtier de l'électronique à imprimer, déjà debout |
+| [`CAD/passe_cloison.py`](CAD/passe_cloison.py), `STL/passe_cloison_*.stl` | Passe-cloison de l'arrivée d'eau : corps, écrou et joint plat, déjà posés dans leur sens d'impression |
 | [`CAD/attache_tuyaux.py`](CAD/attache_tuyaux.py), `STL/attache_tuyaux_8mm.stl` | Attache qui tient côte à côte deux tuyaux souples de Ø 8 mm, à imprimer à plat |
 | `STL/assemblage_v2_vue.stl`, `STL/assemblage_v2_eclate_vue.stl` | Vues d'assemblage, montée et éclatée, non destinées à l'impression |
 
@@ -215,7 +254,7 @@ pip install numpy trimesh manifold3d pyvista pillow matplotlib
 ```
 
 ```bash
-python V2/CAD/cadre_bois.py && python V2/CAD/rendu_cadre.py && python V2/CAD/plan_pieces.py
+python V2/CAD/cadre_bois.py && python V2/CAD/passe_cloison.py && python V2/CAD/rendu_cadre.py && python V2/CAD/plan_pieces.py
 ```
 
 Principaux réglages, en tête de `cadre_bois.py` :
@@ -231,6 +270,7 @@ Principaux réglages, en tête de `cadre_bois.py` :
 | `PANEL_GAP` | 8 mm | Écart entre deux panneaux |
 | `PIN_D`, `PIN_L` | Ø 7,7 mm, 38 mm | Diamètre et longueur sous la poignée de la goupille, pour des trous de Ø 8 (`HOLE_D`) |
 | `DRAIN_XY`, `DRAIN_D` | (−110 ; 0), Ø 30 mm | Position et encombrement du passe-cloison du trop-plein |
+| `INLET_XY` | (110 ; 0) | Position du passe-cloison de l'arrivée d'eau |
 
 ## Limites
 
@@ -239,4 +279,5 @@ Principaux réglages, en tête de `cadre_bois.py` :
 - Le fond du bac repose sur les lattes, sauf au droit de la fente centrale de 40 mm. Un fond très souple peut s'y creuser légèrement sous le poids du terreau mouillé : réduire `DRAIN_GAP` si nécessaire, sans descendre sous l'encombrement du passe-cloison.
 - Les panneaux ne sont tenus qu'à leurs deux bouts, sur 236 mm de portée libre entre les adhésifs, comme dans V1.
 - Au plus bas (trou à 300 mm), l'arrière du cadre lumière arrive au ras de la plaque du support du boîtier, sans jeu : le cadre se glisse par l'avant et vient en butée contre elle.
+- Le passe-cloison de l'arrivée d'eau n'a pas été imprimé ni essayé : le jeu du filet (`CLEAR`) et le serrage de l'embout dans le tuyau (`TUBE_ID`) sont à vérifier sur une première impression, avant de percer le bac.
 - Le support du boîtier n'a pas été imprimé ni essayé : le jeu de 0,5 mm par côté dans la glissière dépend de la précision de l'impression, du boîtier comme du support. Si le boîtier force, augmenter `BRK_CLEAR` dans le script ; s'il bouge trop, le diminuer.

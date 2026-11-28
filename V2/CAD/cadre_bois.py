@@ -82,6 +82,8 @@ SLAT_Y = (DRAIN_GAP / 2 + TL / 2, BAC_BOTTOM_OUT[1] / 2 - TL / 2)   # axes des l
 # Trop-plein : passe-cloison dans le fond du bac, dans la fente centrale, au-dessus du réservoir.
 DRAIN_D = 30.0                    # encombrement de l'écrou du passe-cloison
 DRAIN_XY = (-110.0, 0.0)
+# Arrivée d'eau de la pompe : passe-cloison imprimé (CAD/passe_cloison.py), dans la même fente, à l'autre bout.
+INLET_XY = (110.0, 0.0)
 
 # ── Cadre lumière et goupilles ─────────────────────────────────────────────────
 FRAME_SIDE_X = (IN_X / 2 - FRAME_CLEAR - TW, IN_X / 2 - FRAME_CLEAR)   # côtés, contre les montants
@@ -483,6 +485,10 @@ def check():
     expect(abs(DRAIN_XY[0]) + DRAIN_D / 2 < BAC_IN_BOTTOM[0] / 2 - 10
            and abs(DRAIN_XY[1]) + DRAIN_D / 2 < BAC_IN_BOTTOM[1] / 2 - 10, "trop-plein sous le fond du bac")
     expect(abs(DRAIN_XY[1]) + DRAIN_D / 2 <= DRAIN_GAP / 2, "trop-plein dans la fente entre les lattes du milieu")
+    expect(abs(INLET_XY[0]) + DRAIN_D / 2 < BAC_IN_BOTTOM[0] / 2 - 10 and abs(INLET_XY[1]) + DRAIN_D / 2 <= DRAIN_GAP / 2
+           and np.hypot(INLET_XY[0] - DRAIN_XY[0], INLET_XY[1] - DRAIN_XY[1]) >= 100,
+           f"arrivée d'eau dans la fente, sous le fond du bac, à "
+           f"{np.hypot(INLET_XY[0] - DRAIN_XY[0], INLET_XY[1] - DRAIN_XY[1]):.0f} mm du trop-plein")
     outer_panel = abs(PANEL_X[-1]) + PANEL_W / 2
     expect(outer_panel < IN_X / 2 - 5, f"panneaux entre les montants : {IN_X / 2 - outer_panel:.1f} mm de jeu")
     expect(outer_panel <= BAC_IN_TOP[0] / 2, f"panneaux au-dessus du bac : {2 * outer_panel:.0f} mm "

@@ -12,6 +12,7 @@ import pyvista as pv
 from PIL import Image
 
 import cadre_bois as c
+import passe_cloison as pc
 
 OUT = Path(__file__).resolve().parent / "images"
 UP = (0, 0, 1)
@@ -31,6 +32,8 @@ COLORS = {
     "ebox": "#b9bec4",
     "tape": "#f2a33a",
     "panel": "#e4e7ea",
+    "oring": "#1f1f1f",
+    "tube": "#d9e6ee",
 }
 
 
@@ -251,8 +254,52 @@ def render_pin_part():
     shot(p, "cadre_goupille.png")
 
 
+def render_bulkhead():
+    """Passe-cloison de l'arrivée d'eau : pièces éclatées, et coupe une fois monté dans le fond du bac."""
+    from manifold3d import Manifold
+    body, nut, gasket = pc.make_body(), pc.make_nut(), pc.make_gasket()
+    r_o = pc.ORING[0] / 2 + pc.ORING[1] / 2
+    oring = Manifold.revolve(pc.CrossSection.circle(pc.ORING[1] / 2, 32).translate((r_o, pc.ORING[1] / 2 - 0.5)), 96)
+    wall = c.BAC_WALL
+    tray = (Manifold.cube((60, 60, wall)).translate((-30, -30, -wall))
+            - Manifold.cylinder(wall + 2, pc.HOLE_D / 2, pc.HOLE_D / 2, 96).translate((0, 0, -wall - 1)))
+    z_nut = -wall - pc.NUT_H
+    tube_top = -pc.THREAD_L - pc.NECK_L + 1
+    tube = (Manifold.cylinder(18, 4, 4, 96) - Manifold.cylinder(20, pc.TUBE_ID / 2, pc.TUBE_ID / 2, 96).translate((0, 0, -1))
+            ).translate((0, 0, tube_top - 18))
+    parts = [(body, "bracket"), (oring, "oring"), (pc.nut_at(nut, z_nut), "pin"), (tube, "tube"), (tray, "bac")]
+
+    def tm(m):
+        return pc.to_trimesh(m)
+
+    views = []
+    # Éclaté : de haut en bas, corps, joint torique (ou joint plat), fond du bac, écrou, tuyau.
+    p = pv.Plotter(off_screen=True, window_size=(1000, 1200))
+    p.set_background(BACKGROUND)
+    lift = {"bracket": 40, "oring": 6, "bac": 0, "pin": -16, "tube": -32}
+    for m, key in parts:
+        add(p, tm(m.translate((0, 0, lift[key]))), COLORS[key], opacity=0.85 if key == "tube" else 1.0)
+    add(p, tm(gasket.translate((42, 10, 6))), COLORS["tape"])
+    p.camera_position = [(170, -230, 90), (8, 0, -2), UP]
+    p.camera.view_angle = 30
+    caption(p, "Corps, joint torique ou joint plat (orange), fond, écrou, tuyau")
+    views.append(shot(p))
+    # Coupe : le fond du bac serré entre la collerette et l'écrou.
+    p = pv.Plotter(off_screen=True, window_size=(1000, 1200))
+    p.set_background(BACKGROUND)
+    half = Manifold.cube((200, 100, 200)).translate((-100, -100, -100))   # retire la moitié avant
+    for m, key in parts:
+        add(p, tm(m - half), COLORS[key])
+    p.camera_position = [(40, -150, 25), (0, 0, -12), UP]
+    p.camera.view_angle = 30
+    caption(p, "En coupe : le fond serré entre collerette et écrou")
+    views.append(shot(p))
+    Image.fromarray(np.hstack(views)).save(OUT / "passe_cloison.png", optimize=True)
+
+
 def main():
     OUT.mkdir(exist_ok=True)
+    render_bulkhead()
     render_pin_part()
     render_bracket_part()
     render_box()
